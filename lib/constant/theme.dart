@@ -15,7 +15,7 @@ ThemeData lightTheme(BuildContext context) {
     cardTheme: CardTheme(
       margin: EdgeInsets.all(10) ,
       shape: BeveledRectangleBorder(
-          borderRadius: BorderRadius.circular(20)
+          borderRadius: BorderRadius.circular(10)
       ),
     )
   );

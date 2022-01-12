@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sophia_hub/model/daily_data.dart';
-import 'package:sophia_hub/model/task.dart';
 import 'package:sophia_hub/provider/data_provider.dart';
-import 'package:sophia_hub/view/page/diary/create_diary_note_page.dart';
 import 'package:sophia_hub/view/page/task/create_task_page.dart';
-import 'package:sophia_hub/view/page/task/list_task_page.dart';
 
 class HomeView extends StatefulWidget {
   @override
@@ -23,7 +20,7 @@ class _HomeViewState extends State<HomeView> {
         children: [
           Container(
             height: size.width / 2,
-            color: Colors.primaries[9][100],
+            color: Colors.blue[100],
           ),
           Positioned.fill(
             top: 100,
@@ -43,7 +40,6 @@ class _HomeViewState extends State<HomeView> {
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
                         children: [
                           Text("Nhật ký"),
-
                         ],
                       ),
                     ),
@@ -93,8 +89,6 @@ class ListTask extends StatefulWidget {
 class _ListTaskState extends State<ListTask> {
   @override
   Widget build(BuildContext context) {
-    //thay 0 thanh
-    DailyData todayData = context.watch<Data>().listData[0];
     return Card(
       child: Padding(
         padding: EdgeInsets.symmetric(horizontal: 30, vertical: 10),
@@ -109,11 +103,19 @@ class _ListTaskState extends State<ListTask> {
             SizedBox(
               height: 10,
             ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: todayData.tasks.map<Widget>((e) {
-                return Text(e.title);
-              }).toList(),
+            Consumer<AppData>(
+              builder: (ctx, data, child) {
+                final l = data.listData.length;
+                if(l == 0){
+                  return Container();
+                }
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: data.listData[l-1].tasks.map<Widget>((e) {
+                    return Text(e.title);
+                  }).toList(),
+                );
+              },
             ),
             Padding(
               padding: EdgeInsets.only(top: 20),

@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:sophia_hub/view/page/diary/create_diary_note_page.dart';
+import 'package:provider/provider.dart';
+import 'package:sophia_hub/view/page/note/create_diary_note_page.dart';
 import 'package:sophia_hub/view/page/home/home.dart';
 import 'package:sophia_hub/view/page/home/notes.dart';
 import 'package:sophia_hub/view/page/home/quote.dart';
@@ -16,11 +17,11 @@ class Destination {
 }
 
 const List<Destination> allDestinations = <Destination>[
-  Destination('/', 'Trang chủ', Icons.home_filled, Colors.teal),
+  Destination('/', 'Trang chủ', Icons.home_filled, Colors.blue),
   Destination('/quotes', 'Quote', Icons.format_quote_outlined, Colors.cyan),
   Destination("/holder", "", null, null),
   Destination('/tasks', 'Nhiệm vụ', Icons.task_alt_outlined, Colors.orange),
-  Destination('/notes', 'Nhật ký', Icons.event_note_sharp, Colors.blue),
+  Destination('/notes', 'Nhật ký', Icons.event_note_sharp, Colors.deepPurple),
 ];
 
 class HomeContainer extends StatefulWidget {
@@ -44,31 +45,34 @@ class _HomeContainerState extends State<HomeContainer> {
       extendBodyBehindAppBar: true,
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       floatingActionButton: FloatingActionButton(
+        backgroundColor: allDestinations[_currentIndex].color,
         child: Icon(Icons.add),
         onPressed: () {
+
           Navigator.of(context, rootNavigator: true)
-              .pushNamed(CreateDiaryNotePage.nameRoute);
+              .pushNamed(CreateDiaryNotePage.nameRoute,
+//            arguments:
+          );
         },
       ),
       bottomNavigationBar: BottomAppBar(
-//          clipBehavior: Clip.hardEdge,
-//        shape: AutomaticNotchedShape(
-//          BeveledRectangleBorder(borderRadius: BorderRadius.circular(10)),
-//          BeveledRectangleBorder(borderRadius: BorderRadius.circular(10)),
-//        ),
+        clipBehavior: Clip.hardEdge,
+        shape: AutomaticNotchedShape(
+          BeveledRectangleBorder(
+              borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(10),
+                  topRight: Radius.circular(10))),
+          BeveledRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        ),
         child: BottomNavigationBar(
-
             currentIndex: _currentIndex,
             onTap: (i) {
               if (i == _currentIndex || i == 2) return;
               setState(() {
                 _currentIndex = i;
               });
-
             },
-
             items: allDestinations.map((destination) {
-
               return BottomNavigationBarItem(
                   icon: Icon(destination.icon),
                   backgroundColor: destination.color,

@@ -5,21 +5,22 @@ import 'dart:math' as math;
 import 'widget/drawer_menu.dart';
 
 class BaseContainer extends StatefulWidget {
-  static String nameRoute = "/Home";
+  static const String nameRoute = "/";
 
   static Route<dynamic> route() {
     return MaterialPageRoute(builder: (BuildContext context) {
       return BaseContainer();
     });
   }
+
+  const
+  BaseContainer();
   @override
   _BaseContainerState createState() => _BaseContainerState();
 }
 
 class _BaseContainerState extends State<BaseContainer> with SingleTickerProviderStateMixin{
 
-  LabeledGlobalKey<ScaffoldState> scaffoldKey =
-  LabeledGlobalKey("landingScaffoldStateKey");
 
 
   AnimationController animController;

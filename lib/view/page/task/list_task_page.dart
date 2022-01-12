@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class ListTaskPage extends StatefulWidget{
-    static String nameRoute = "/ListTaskPage";
+    static const String nameRoute = "/ListTaskPage";
 
     static Route<dynamic> route(){
 
@@ -11,6 +11,8 @@ class ListTaskPage extends StatefulWidget{
             }
         );
     }
+
+    const ListTaskPage();
 
 
     @override

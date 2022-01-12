@@ -1,4 +1,4 @@
-package com.amelia.sophia_hub
+package com.small_habits.sophia_hub
 
 import io.flutter.embedding.android.FlutterActivity
 
