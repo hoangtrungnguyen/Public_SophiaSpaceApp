@@ -31,13 +31,15 @@ dependencies:
   provider: ^6.0.2
   firebase_core: 1.10.5
   firebase_auth: 3.0.0
-
-
+  cloud_firestore: 2.4.0
   package_info: 2.0.2
 
 
 
+
 dev_dependencies:
+  integration_test:
+    sdk: flutter
   flutter_test:
     sdk: flutter
 

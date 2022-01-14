@@ -10,17 +10,19 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:sophia_hub/main.dart';
 
+Widget loginEmailField = TextFormField(
+      decoration: InputDecoration(label: Text("Email")),
+ );
+
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
+  testWidgets('AuthScreen', (WidgetTester tester) async {
     // Build our app and trigger a frame.
     await tester.pumpWidget(MyApp());
-
+    await tester.enterText(find.byWidget(loginEmailField), "nguyencua1810@gmail.com");
     // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
     await tester.pump();
 
     // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    expect(find.text('nguyencua1810@gmail.com'), findsWidgets);
   });
 }

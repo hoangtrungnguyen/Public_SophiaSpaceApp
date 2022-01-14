@@ -100,9 +100,9 @@ class Detail extends StatelessWidget {
             Spacer(),
             ElevatedButton(
                 onPressed: () {
-                  note.timeCreated = DateTime.now();
-                  Provider.of<AppData>(context, listen: false).addNote(note);
-                  Navigator.maybePop(context);
+//                  note.timeCreated = DateTime.now();
+//                  Provider.of<AppData>(context, listen: false).addNote(note);
+//                  Navigator.maybePop(context);
                 },
                 child: Text("Thêm note"))
           ],

@@ -17,6 +17,16 @@ ThemeData lightTheme(BuildContext context) {
       shape: BeveledRectangleBorder(
           borderRadius: BorderRadius.circular(10)
       ),
+    ),
+
+    buttonTheme: ButtonThemeData(
+      shape: BeveledRectangleBorder(
+          borderRadius: BorderRadius.circular(10)
+      ),
     )
   );
+}
+
+ThemeData darkTheme(BuildContext context){
+
 }
