@@ -10,6 +10,29 @@ class NotesView extends StatefulWidget {
 }
 
 class _NotesViewState extends State<NotesView> {
+  ScrollController _listController;
+
+
+  @override
+  void initState() {
+    super.initState();
+    _listController = ScrollController()..addListener(_scrollListener);
+  }
+
+  @override
+  void dispose() {
+    _listController.removeListener(_scrollListener);
+    super.dispose();
+  }
+
+
+  void _scrollListener() {
+    if (_listController.position.extentAfter == 0) {
+        print("loadmore");
+        Provider.of<AppData>(context,listen: false).loadMoreNotes();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -17,28 +40,37 @@ class _NotesViewState extends State<NotesView> {
       alignment: Alignment.center,
       child: Consumer<AppData>(builder: (ctx, data, child) {
 
-        return Column(
-          children: data.notes.map((e) => Text("${e.title}")).toList(),
+        return ListView.builder(
+          controller:_listController ,
+          itemCount: data.notes.length,
+          itemBuilder: (BuildContext context, int index) {
+            return DailyNotes(note: data.notes[index],);
+          },
         );
       }),
     );
   }
 }
 
-class ListNotes extends StatefulWidget {
+class DailyNotes extends StatefulWidget {
+  final Note note;
+  DailyNotes({this.note});
+
   @override
-  _ListNotesState createState() => _ListNotesState();
+  _DailyNotesState createState() => _DailyNotesState();
 }
 
-class _ListNotesState extends State<ListNotes> {
+class _DailyNotesState extends State<DailyNotes> {
 
 
   @override
   Widget build(BuildContext context) {
 
-
-    return ListView(
-      children: [],
+    return Card(
+      child: ListTile(
+        title: Text("${widget.note.title}"),
+        subtitle: Text("${widget.note.description}"),
+      ),
     );
 
   }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sophia_hub/helper/helper.dart';
 import 'package:sophia_hub/model/note.dart';
+import 'package:sophia_hub/model/result_container.dart';
 import 'package:sophia_hub/provider/app_data.dart';
 
 class CreateDiaryNotePage extends StatefulWidget {
@@ -104,10 +105,12 @@ class Detail extends StatelessWidget {
             ),
             Spacer(),
             ElevatedButton(
-                onPressed: () {
-                  Provider.of<AppData>(context, listen: false)
+                onPressed: () async {
+                  Result res = await Provider.of<AppData>(context, listen: false)
                       .addNote(todayId: generateTodayDailyDataId(), note: note);
-                  Navigator.maybePop(context);
+                  if(res.data != null)
+                    Provider.of<AppData>(context, listen: false).loadMoreNotes();
+                  Navigator.maybePop(context,res) ;
                 },
                 child: Text("Thêm note"))
           ],

@@ -19,6 +19,10 @@ class AppData extends ChangeNotifier {
   CollectionReference notesRef;
   CollectionReference tasksRef;
 
+  Query notesQuery;
+  //Save the last doc for pagination purpose
+  DocumentSnapshot lastNoteDoc;
+
   AppData() {
     this.uid = FirebaseAuth.instance.currentUser.uid;
 
@@ -31,7 +35,8 @@ class AppData extends ChangeNotifier {
         .doc(this.uid)
         .collection(FirebaseKeyword.tasks);
 
-    getNotes();
+    this.notesQuery = getNotesQuery();
+    loadMoreNotes();
   }
 
   /// [addNote] adding a note
@@ -54,28 +59,22 @@ class AppData extends ChangeNotifier {
   }
 
   ///
-  Query getNotesQuery() {
-    String uid = FirebaseAuth.instance.currentUser.uid;
+  Query getNotesQuery() => notesRef.limit(10);
 
-    Query getNotesQuery =
-        notesRef.limit(10);
+  loadMoreNotes() async {
+    if (notes.isNotEmpty && lastNoteDoc != null)
+      notesQuery =
+          notesQuery.startAfterDocument(lastNoteDoc);
 
-    return getNotesQuery;
-  }
-
-  getNotes() async {
-    QuerySnapshot querySnapshot = await getNotesQuery().get() ;
-    this.notes.addAll(querySnapshot.docs.map((e) {
+    QuerySnapshot querySnapshot = await notesQuery.get();
+    List<QueryDocumentSnapshot> docs = querySnapshot.docs;
+    if(docs.isNotEmpty) this.lastNoteDoc = docs.last;
+    this.notes.addAll(docs.map((e) {
           return Note(
             title: e.get("title"),
             description: e.get("description"),
           );
         }).toList());
-
     notifyListeners();
-  }
-
-  loadMore(){
-
   }
 }
