@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sophia_hub/model/task.dart';
-import 'package:sophia_hub/provider/data_provider.dart';
+import 'package:sophia_hub/provider/app_data.dart';
 
 class CreateTaskPage extends StatefulWidget{
     static const String nameRoute = "/CreateTaskPage";
@@ -29,7 +29,6 @@ class  _CreateTaskPageState extends State<CreateTaskPage>{
         floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
         floatingActionButton: FloatingActionButton.extended(onPressed: () async {
           //Chọn ngày hiện tại và thêm vào danh sách
-          await Provider.of<AppData>(context,listen: false).listData[0].tasks.add(task);
           Navigator.pop(context,"ok");
         },
             label:  Text("Thêm")),

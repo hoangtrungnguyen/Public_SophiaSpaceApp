@@ -51,7 +51,7 @@ class _HomeContainerState extends State<HomeContainer> {
 
           Navigator.of(context, rootNavigator: true)
               .pushNamed(CreateDiaryNotePage.nameRoute,
-//            arguments:
+            // Id ngày hiện tại
           );
         },
       ),

@@ -1,6 +1,8 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:sophia_hub/provider/data_provider.dart';
+import 'package:sophia_hub/model/note.dart';
+import 'package:sophia_hub/provider/app_data.dart';
 
 class NotesView extends StatefulWidget {
   @override
@@ -14,44 +16,32 @@ class _NotesViewState extends State<NotesView> {
       padding: EdgeInsets.only(top: 100),
       alignment: Alignment.center,
       child: Consumer<AppData>(builder: (ctx, data, child) {
-        return ListView(
-          children: data.listData.map((e) {
-            List<Widget> notes = [
-              Text(
-                "Thời gian: ${e.time.day}-${e.time.month}-${e.time.year}",
-                style: Theme.of(context).textTheme.headline5,
-              ),
-              SizedBox(height: 20,)
-            ];
-            notes.addAll(e.diaryNotes
-                .map((e) => Column(
-                      mainAxisSize: MainAxisSize.max,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Divider(
-                          height: 2,
-                          color: Colors.black,
-                        ),
-                        Text(e.title ?? "null",
-                            style: Theme.of(context).textTheme.headline6),
-                        Text(e.description ?? "null")
-                      ],
-                    ))
-                .toList());
-            return Card(
-              margin: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-              color: Colors.blue[100],
-              child: Container(
-                padding: EdgeInsets.symmetric(vertical: 10,horizontal: 10),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: notes,
-                ),
-              ),
-            );
-          }).toList(),
+
+        return Column(
+          children: data.notes.map((e) => Text("${e.title}")).toList(),
         );
       }),
     );
   }
+}
+
+class ListNotes extends StatefulWidget {
+  @override
+  _ListNotesState createState() => _ListNotesState();
+}
+
+class _ListNotesState extends State<ListNotes> {
+
+
+  @override
+  Widget build(BuildContext context) {
+
+
+    return ListView(
+      children: [],
+    );
+
+  }
+
+
 }

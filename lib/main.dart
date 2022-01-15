@@ -1,11 +1,10 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:sophia_hub/configure/firebase_options.dart';
 import 'package:sophia_hub/constant/theme.dart';
 import 'package:sophia_hub/firebase_options.dart';
 import 'package:sophia_hub/model/note.dart';
-import 'package:sophia_hub/provider/data_provider.dart';
+import 'package:sophia_hub/provider/app_data.dart';
 import 'package:sophia_hub/provider/user_provider.dart';
 import 'package:sophia_hub/view/base_container.dart';
 import 'package:sophia_hub/view/page/auth/auth_page.dart';

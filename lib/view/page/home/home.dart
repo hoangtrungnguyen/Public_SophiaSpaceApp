@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:sophia_hub/model/daily_data.dart';
-import 'package:sophia_hub/provider/data_provider.dart';
+import 'package:sophia_hub/provider/app_data.dart';
 import 'package:sophia_hub/view/page/task/create_task_page.dart';
 
 class HomeView extends StatefulWidget {
@@ -105,16 +104,7 @@ class _ListTaskState extends State<ListTask> {
             ),
             Consumer<AppData>(
               builder: (ctx, data, child) {
-                final l = data.listData.length;
-                if(l == 0){
-                  return Container();
-                }
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: data.listData[l-1].tasks.map<Widget>((e) {
-                    return Text(e.title);
-                  }).toList(),
-                );
+                return Container();
               },
             ),
             Padding(

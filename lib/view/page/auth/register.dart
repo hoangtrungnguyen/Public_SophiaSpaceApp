@@ -7,9 +7,9 @@ import 'package:sophia_hub/provider/user_provider.dart';
 import 'package:sophia_hub/view/base_container.dart';
 
 class RegisterView extends StatefulWidget {
-  final Function moveToLoginView;
+  static const String routeName = "/register";
 
-  const RegisterView({Key key, this.moveToLoginView}) : super(key: key);
+  const RegisterView({Key key}) : super(key: key);
 
   @override
   _RegisterViewState createState() => _RegisterViewState();
@@ -109,7 +109,7 @@ class _RegisterViewState extends State<RegisterView> {
               alignment: Alignment.bottomLeft,
               child: TextButton.icon(
                   onPressed: () {
-                    widget.moveToLoginView.call();
+                    Navigator.maybePop(context);
                   },
                   icon: Icon(Icons.arrow_back),
                   label: Text('')),

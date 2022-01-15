@@ -1,25 +1,6 @@
 {
   "uid1": {
-    "daily_id_1": {
-      "time": "time",
-      "tasks": {
-        "title": {},
-        "title2": {},
-        "title3": {}
-      },
-      "notes": {
-        "title": {},
-        "title2": {},
-        "title3": {}
-      }
-    },
-    "daily_id_2": {
-    },
-    "daily_id_3": {
-    }
   },
-
-
   "uid2": {
   }
 }

@@ -5,19 +5,26 @@ import 'package:sophia_hub/helper/auth_validator.dart';
 import 'package:sophia_hub/model/result_container.dart';
 import 'package:sophia_hub/provider/user_provider.dart';
 import 'package:sophia_hub/view/base_container.dart';
+import 'package:sophia_hub/view/page/auth/register.dart';
+
 
 class LoginView extends StatefulWidget {
-  final Function moveToRegisterView;
+  static const String routeName = "/";
 
-  const LoginView({Key key, this.moveToRegisterView}) : super(key: key);
+  const LoginView({Key key}) : super(key: key);
 
   @override
   _LoginViewState createState() => _LoginViewState();
 }
 
 class _LoginViewState extends State<LoginView> {
-  String email;
-  String pwd;
+//  String email;
+//  String pwd;
+
+  // Testing purpose only
+  String email = "c@gmail.com";
+  String pwd = "12345678";
+
   final _formKey = GlobalKey<FormState>();
   bool _isObscure = true;
   @override
@@ -34,11 +41,13 @@ class _LoginViewState extends State<LoginView> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             TextFormField(
+              initialValue: email,
               decoration: InputDecoration(label: Text("Email")),
               validator: checkFormatEmail,
               onChanged: (e) => this.email = e,
             ),
             TextFormField(
+              initialValue: pwd,
               obscureText: _isObscure,
               decoration: InputDecoration(label: Text("Mật khẩu"),
                 suffixIcon: IconButton(
@@ -61,13 +70,13 @@ class _LoginViewState extends State<LoginView> {
                   if (!_formKey.currentState.validate()) return;
 
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Processing Data')),
+                    const SnackBar(content: Text('Processing Data'),),
                   );
                   Result<UserCredential> result =
                       await userProvider.login(email, pwd);
                   print(result);
                   if (result.data != null) {
-                    Navigator.of(context)
+                    Navigator.of(context,rootNavigator: true)
                         .pushReplacementNamed(BaseContainer.nameRoute);
                   } else {
                     showDialog(
@@ -82,7 +91,7 @@ class _LoginViewState extends State<LoginView> {
                 child: Text("Đăng nhập")),
             TextButton(
                 onPressed: () {
-                  widget.moveToRegisterView.call();
+                  Navigator.pushNamed(context, RegisterView.routeName);
                 },
                 child: Text("Đăng ký"))
           ],

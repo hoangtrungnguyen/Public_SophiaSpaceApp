@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:sophia_hub/helper/helper.dart';
 import 'package:sophia_hub/model/note.dart';
-import 'package:sophia_hub/provider/data_provider.dart';
+import 'package:sophia_hub/provider/app_data.dart';
 
 class CreateDiaryNotePage extends StatefulWidget {
   static const String nameRoute = "/CreateDiaryNotePage";
@@ -30,7 +31,11 @@ class _CreateDiaryNotePageState extends State<CreateDiaryNotePage>
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (BuildContext context) => Note(),
+      create: (BuildContext context) => Note(
+        title: "",
+        description: "",
+        day: Helper.generateTodayDailyDataId(),
+      ),
       child: Scaffold(
         appBar: AppBar(title: Text("Một ngày của bạn")),
         floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
@@ -100,9 +105,9 @@ class Detail extends StatelessWidget {
             Spacer(),
             ElevatedButton(
                 onPressed: () {
-//                  note.timeCreated = DateTime.now();
-//                  Provider.of<AppData>(context, listen: false).addNote(note);
-//                  Navigator.maybePop(context);
+                  Provider.of<AppData>(context, listen: false)
+                      .addNote(todayId: generateTodayDailyDataId(), note: note);
+                  Navigator.maybePop(context);
                 },
                 child: Text("Thêm note"))
           ],
