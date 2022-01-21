@@ -19,14 +19,9 @@ ThemeData lightTheme(BuildContext context) {
       ),
     ),
 
-    buttonTheme: ButtonThemeData(
-      shape: BeveledRectangleBorder(
-          borderRadius: BorderRadius.circular(10)
-      ),
-    )
-  );
+    buttonTheme: ButtonTheme.of(context).copyWith(
+        shape: BeveledRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      ));
 }
 
-ThemeData darkTheme(BuildContext context){
-
-}
+ThemeData? darkTheme(BuildContext context) {}

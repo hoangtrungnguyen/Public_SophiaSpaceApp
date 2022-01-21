@@ -1,23 +1,35 @@
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart' show FirebaseAuth;
+import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sophia_hub/constant/theme.dart';
 import 'package:sophia_hub/firebase_options.dart';
 import 'package:sophia_hub/model/note.dart';
-import 'package:sophia_hub/provider/app_data.dart';
+import 'package:sophia_hub/provider/notes_provider.dart';
+import 'package:sophia_hub/provider/task_provider.dart';
 import 'package:sophia_hub/provider/user_provider.dart';
 import 'package:sophia_hub/view/base_container.dart';
 import 'package:sophia_hub/view/page/auth/auth_page.dart';
 import 'package:sophia_hub/view/page/note/create_diary_note_page.dart';
 import 'package:sophia_hub/view/page/task/create_task_page.dart';
 import 'package:sophia_hub/view/page/task/list_task_page.dart';
-import 'package:firebase_core/firebase_core.dart';
+
+/// Requires that a Firestore emulator is running locally.
+/// See https://firebase.flutter.dev/docs/firestore/usage#emulator-usage
+bool USE_FIRESTORE_EMULATOR = false;
 
 Future<void> main() async {
   // needed if you intend to initialize in the `main` function
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform)
       .then((value) => print(value));
+
+  if (USE_FIRESTORE_EMULATOR) {
+    FirebaseFirestore.instance.settings = const Settings(
+        host: 'localhost:8080', sslEnabled: false, persistenceEnabled: false);
+  }
 
   runApp(MyApp());
 }
@@ -28,8 +40,6 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  GlobalKey _baseNavigatorKey =
-      LabeledGlobalKey<NavigatorState>("_baseNavigatorKey");
 
   @override
   void initState() {
@@ -40,23 +50,26 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     //Configure App Small Habits
     MaterialApp app = MaterialApp(
-        title: 'Small Habits',
-        navigatorKey: _baseNavigatorKey,
-        onGenerateRoute: (settings) {
-          //Read more in the link below
-          // https://docs.flutter.dev/cookbook/navigation/navigate-with-arguments
-          WidgetBuilder builder;
-          switch (settings.name) {
-            case AuthPage.nameRoute:
-              builder = (_) => AuthPage();
-              break;
-            case BaseContainer.nameRoute:
-              builder = (_) => BaseContainer();
-              break;
-            case CreateDiaryNotePage.nameRoute:
-              // Cast the arguments to the correct
-              // type: Note.
-              final note = settings.arguments as Note;
+      title: 'Small Habits',
+      initialRoute: FirebaseAuth.instance.currentUser == null
+          ? AuthPage.nameRoute
+          : BaseContainer.nameRoute,
+      onGenerateRoute: (settings) {
+        //Read more in the link below
+        // https://docs.flutter.dev/cookbook/navigation/navigate-with-arguments
+        WidgetBuilder builder =
+            (_) => Center(child: Text("Can't find route name"));
+        switch (settings.name) {
+          case AuthPage.nameRoute:
+            builder = (_) => AuthPage();
+            break;
+          case BaseContainer.nameRoute:
+            builder = (_) => BaseContainer();
+            break;
+          case CreateDiaryNotePage.nameRoute:
+            // Cast the arguments to the correct
+            // type: Note.
+            final note = settings.arguments as Note;
               builder = (_) => ChangeNotifierProvider.value(
                   value: note, child: CreateDiaryNotePage());
               break;
@@ -70,42 +83,63 @@ class _MyAppState extends State<MyApp> {
               // The assertion here will help remind
               // us of that higher up in the call stack, since
               // this assertion would otherwise fire somewhere
-              // in the framework.
-              assert(false, 'Need to implement ${settings.name}');
-          }
+            // in the framework.
+            assert(false, 'Need to implement ${settings.name}');
+        }
 
-          MaterialPageRoute route = MaterialPageRoute(
-            builder: builder,
-          );
-          return route;
-        },
-        theme: lightTheme(context),
-        home: FirebaseAuth.instance.currentUser == null
-            ? AuthPage()
-            : BaseContainer());
-
-    // Providers cần thiết.
-    MultiProvider multiProvider = MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (_) => UserProvider()),
-        //ProxyProvider, App Data được làm mới mỗi lần UserData thay đổi.
-        ChangeNotifierProxyProvider<UserProvider, AppData>(
-          create: (_) => AppData(),
-          update: (_, value, pre) {
-            //TODO logic thay doi du lieu moi khi thay doi tai khoan nguoi dung
-            return AppData();
-          },
-        ),
-      ],
-      child: Consumer<UserProvider>(
-          builder: (_, value, child) {
-            return child;
-          },
-          child: app),
+        MaterialPageRoute route = MaterialPageRoute(
+          builder: builder,
+        );
+        return route;
+      },
+      theme: lightTheme(context),
     );
 
+    // Providers cần thiết.
+    MultiProvider multiProvider = MultiProvider(providers: [
+      StreamProvider<firebase_auth.User?>(
+        create: (_) => FirebaseAuth.instance.authStateChanges(),
+        initialData: FirebaseAuth.instance.currentUser,
+      ),
+
+      //UserProvider quan hệ phụ thuộc với firebase_auth.User
+      // ProxyPrivider sẽ được thay đổi lại mỗi khi firbase_auth.User thay đổi.
+      ChangeNotifierProxyProvider<firebase_auth.User, Auth>(
+        create: (_) => Auth(
+            firebaseAuth: FirebaseAuth.instance,
+            fireStore: FirebaseFirestore.instance),
+        update: (BuildContext context, firebaseUse, Auth? previous) {
+          return previous!;
+        },
+      ),
+
+      ChangeNotifierProxyProvider<Auth, NotesProvider>(
+        create: (_) => NotesProvider(
+            uid: FirebaseAuth.instance.currentUser?.uid ?? 'NaN',
+            fireStore: FirebaseFirestore.instance),
+        lazy: true,
+        update: (_, userProvider, preNotesProvider) {
+          //TODO logic thay doi du lieu moi khi thay doi tai khoan nguoi dung
+          print("updating notes Data");
+          return preNotesProvider!
+            ..clear()
+            ..loadMoreNotes();
+        },
+      ),
+      ChangeNotifierProxyProvider<Auth, TaskProvider>(
+        create: (_) => TaskProvider(),
+        lazy: true,
+        update: (_, userProvider, preTaskProvider) {
+          print("updating notes task provider");
+          return preTaskProvider!;
+        },
+      ),
+    ], child: app);
+
     Future.microtask(() {
-      FirebaseAuth.instance.authStateChanges().listen((User user) {
+      FirebaseAuth.instance
+          .authStateChanges()
+          .listen((firebase_auth.User? user) {
         if (user == null) {
           print('User is currently signed out!');
         } else {

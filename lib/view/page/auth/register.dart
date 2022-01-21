@@ -9,24 +9,23 @@ import 'package:sophia_hub/view/base_container.dart';
 class RegisterView extends StatefulWidget {
   static const String routeName = "/register";
 
-  const RegisterView({Key key}) : super(key: key);
+  const RegisterView({Key? key}) : super(key: key);
 
   @override
   _RegisterViewState createState() => _RegisterViewState();
 }
 
 class _RegisterViewState extends State<RegisterView> {
-  String email;
-  String displayName;
-  String pwd1;
-  String pwd2;
+  String email = '';
+  String displayName = '';
+  String pwd1 = '';
+  String pwd2 = '';
   bool _isObscure = true;
   final _formKey = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
-    UserProvider userProvider =
-        Provider.of<UserProvider>(context, listen: false);
+    Auth userProvider = Provider.of<Auth>(context, listen: false);
     return Container(
       alignment: Alignment.center,
       padding: EdgeInsets.symmetric(horizontal: 20),
@@ -38,8 +37,15 @@ class _RegisterViewState extends State<RegisterView> {
           children: [
             Spacer(),
             TextFormField(
+              initialValue: '',
               decoration: InputDecoration(label: Text("Tên của bạn")),
-              validator: (name) => name.isEmpty ? "Tên không được để trống" :  null,
+              validator: (name) {
+                String? message;
+                if (name == null) {
+                  message = "Tên không được để trống";
+                }
+                return message;
+              },
               onChanged: (e) => this.displayName = e,
             ),
             TextFormField(
@@ -62,7 +68,15 @@ class _RegisterViewState extends State<RegisterView> {
                   ),
                   label: Text("Mật khẩu")),
               onChanged: (pwd1) => this.pwd1 = pwd1,
-              validator: (pwd) => pwd.isEmpty ? "Không được để trống" : this.pwd1 == this.pwd2 ? null : "Hai mật khẩu không khớp",
+              validator: (pwd) {
+                String? message;
+
+                if (pwd == null || pwd.isEmpty) {
+                  message = "Mật khẩu không được để trống";
+                }
+
+                return message;
+              },
             ),
             TextFormField(
               obscureText: _isObscure,
@@ -79,11 +93,21 @@ class _RegisterViewState extends State<RegisterView> {
                   ),
                   label: Text("Xác nhận mật khẩu")),
               onChanged: (pwd2) => this.pwd2 = pwd2,
-              validator: (pwd) => pwd.isEmpty ? "Không được để trống" : this.pwd1 == this.pwd2 ? null : "Hai mật khẩu không khớp",
+              validator: (pwd) {
+                String? message;
+                if (pwd == null || pwd.isEmpty) {
+                  message = "Mật khẩu không được để trống";
+                } else if (pwd != this.pwd1) {
+                  message = "Hai mật khẩu không trùng nhau";
+                }
+
+                return message;
+              },
             ),
             ElevatedButton(
                 onPressed: () async {
-                  if (!_formKey.currentState.validate()) return;
+                  if (!(_formKey.currentState?.validate() ?? false)) return;
+
                   print("Loading");
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text('Đang xử lý ...')),
@@ -92,7 +116,8 @@ class _RegisterViewState extends State<RegisterView> {
                       .register(email, pwd1, displayName: displayName);
                   print(result);
                   if (result.data != null) {
-                    Navigator.of(context).pushReplacementNamed(BaseContainer.nameRoute);
+                    Navigator.of(context, rootNavigator: true)
+                        .pushReplacementNamed(BaseContainer.nameRoute);
                   } else {
                     showDialog(
                         context: context,

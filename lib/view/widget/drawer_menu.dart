@@ -1,6 +1,4 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:package_info/package_info.dart';
 import 'package:provider/provider.dart';
 import 'package:sophia_hub/model/result_container.dart';
 import 'package:sophia_hub/provider/user_provider.dart';
@@ -15,8 +13,8 @@ class _DrawerMenuState extends State<DrawerMenu>
     with SingleTickerProviderStateMixin {
   Color endValue = Colors.black.withOpacity(0.8);
   Color beginColor = Colors.white;
-  AnimationController controller;
-  Animation<Color> animation;
+  late AnimationController controller;
+  late Animation<Color?> animation;
 
   @override
   void initState() {
@@ -32,7 +30,7 @@ class _DrawerMenuState extends State<DrawerMenu>
     return Material(
       child: SafeArea(
         child: AnimatedBuilder(
-          builder: (BuildContext context, Widget child) {
+          builder: (BuildContext context, Widget? child) {
             return Container(
               color: animation.value,
               child: child,
@@ -51,8 +49,8 @@ class _DrawerMenuState extends State<DrawerMenu>
                   ListTile(leading: Icon(Icons.logout),
                     title: Text("Đăng xuất"),
                     onTap: () async {
-                      Result result = await Provider.of<UserProvider>(
-                          context, listen: false).logOut();
+                      Result result =
+                      await Provider.of<Auth>(context, listen: false).logOut();
                       print(result.error);
                       print(result.data);
                       if (result.isHasData) {
@@ -61,23 +59,6 @@ class _DrawerMenuState extends State<DrawerMenu>
                       }
                     },),
                   Spacer(flex: 1,),
-                  FutureBuilder<String>(
-                    future:
-                    PackageInfo.fromPlatform().then((value) => value.version),
-                    builder: (BuildContext context, snapshot) {
-                      if (snapshot.hasData)
-                        return Text(
-                          "Phiên bản",
-                          style: TextStyle(
-                              color: Theme
-                                  .of(context)
-                                  .brightness == Brightness.dark
-                                  ? Colors.white.withOpacity(0.8)
-                                  : Colors.black.withOpacity(0.4)),
-                        );
-                      return Text("0.0.1");
-                    },
-                  ),
                 ],
               )),
         ),

@@ -1,33 +1,33 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:sophia_hub/model/result_container.dart';
 import 'package:sophia_hub/model/user.dart';
+import 'package:sophia_hub/provider/app_data.dart';
 
-class UserProvider extends ChangeNotifier {
+class Auth extends App {
   UserData user = UserData();
+  FirebaseFirestore fireStore;
+  FirebaseAuth firebaseAuth;
 
-  UserProvider() {
+  Auth({required this.fireStore, required this.firebaseAuth}) {
     Future.microtask(() async {
 //    FirebaseAuth auth = await FirebaseAuth.instance.currentUser;
     });
   }
 
   Future<Result<UserCredential>> register(String email, String pwd,
-      {String displayName}) async {
+      {String? displayName}) async {
     try {
-      UserCredential userCredential = await FirebaseAuth.instance
+      UserCredential userCredential = await firebaseAuth
           .createUserWithEmailAndPassword(email: email, password: pwd);
 
       // Create a CollectionReference called users that references the firestore collection
-      CollectionReference users =
-          FirebaseFirestore.instance.collection('users');
+      CollectionReference users = fireStore.collection('users');
       // Call the user's CollectionReference to add a new user
-      users
-          .doc(userCredential.user.uid)
-          .set({"display_name" : displayName})
-          .then((value) => print("User Added"))
-          .catchError((error) => print("Failed to add user: $error"));
+      await users
+          .doc(userCredential.user!.uid)
+          .set({"display_name": displayName});
+      print("User Added");
 
       return Result<UserCredential>(data: userCredential, err: null);
     } on FirebaseAuthException catch (e) {
@@ -37,9 +37,11 @@ class UserProvider extends ChangeNotifier {
         print('The account already exists for that email.');
       }
       return Result(err: e, data: null);
-    } catch (e) {
+    } on Exception catch (e) {
       return Result(err: e, data: null);
-      ;
+    } catch (e) {
+      print("unkown");
+      return Result(err: Exception("Unknown Exception"), data: null);
     }
   }
 
@@ -55,16 +57,20 @@ class UserProvider extends ChangeNotifier {
         print('The account already exists for that email.');
       }
       return Result(err: e, data: null);
-    } catch (e) {
+    } on Exception catch (e) {
       return Result(err: e, data: null);
+    } catch (e) {
+      print("unkown");
+      return Result(err: Exception("Unknown Exception"), data: null);
     }
   }
 
   Future<Result<bool>> logOut() async {
     try {
-      await FirebaseAuth.instance.signOut();
+      await firebaseAuth.signOut();
+      notifyListeners();
       return Result(data: true, err: null);
-    } catch (e) {
+    } on Exception catch (e) {
       return Result(data: null, err: e);
     }
   }

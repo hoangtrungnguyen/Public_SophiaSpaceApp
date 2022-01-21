@@ -1,19 +1,18 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:sophia_hub/view/page/note/create_diary_note_page.dart';
 import 'package:sophia_hub/view/page/home/home.dart';
 import 'package:sophia_hub/view/page/home/notes.dart';
 import 'package:sophia_hub/view/page/home/quote.dart';
 import 'package:sophia_hub/view/page/home/tasks.dart';
+import 'package:sophia_hub/view/page/note/create_diary_note_page.dart';
 
 class Destination {
   const Destination(this.namedRoute, this.title, this.icon, this.color);
 
   final String namedRoute;
-  final String title;
-  final IconData icon;
-  final MaterialColor color;
+  final String? title;
+  final IconData? icon;
+  final MaterialColor? color;
 }
 
 const List<Destination> allDestinations = <Destination>[
@@ -25,15 +24,13 @@ const List<Destination> allDestinations = <Destination>[
 ];
 
 class HomeContainer extends StatefulWidget {
-  HomeContainer({Key key}) : super(key: key);
+  HomeContainer({Key? key}) : super(key: key);
 
   @override
   _HomeContainerState createState() => _HomeContainerState();
 }
 
 class _HomeContainerState extends State<HomeContainer> {
-  final _navigatorKey = GlobalKey<NavigatorState>();
-
   //Navigator with named route
   //https://stackoverflow.com/questions/49681415/flutter-persistent-navigation-bar-with-named-routes
 

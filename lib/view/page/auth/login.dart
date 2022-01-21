@@ -11,7 +11,7 @@ import 'package:sophia_hub/view/page/auth/register.dart';
 class LoginView extends StatefulWidget {
   static const String routeName = "/";
 
-  const LoginView({Key key}) : super(key: key);
+  const LoginView({Key? key}) : super(key: key);
 
   @override
   _LoginViewState createState() => _LoginViewState();
@@ -29,8 +29,7 @@ class _LoginViewState extends State<LoginView> {
   bool _isObscure = true;
   @override
   Widget build(BuildContext context) {
-    UserProvider userProvider =
-        Provider.of<UserProvider>(context, listen: false);
+    Auth userProvider = Provider.of<Auth>(context, listen: false);
     return Container(
       alignment: Alignment.center,
       padding: EdgeInsets.symmetric(horizontal: 20),
@@ -40,43 +39,52 @@ class _LoginViewState extends State<LoginView> {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            TextFormField(
-              initialValue: email,
-              decoration: InputDecoration(label: Text("Email")),
-              validator: checkFormatEmail,
-              onChanged: (e) => this.email = e,
-            ),
-            TextFormField(
-              initialValue: pwd,
-              obscureText: _isObscure,
-              decoration: InputDecoration(label: Text("Mật khẩu"),
-                suffixIcon: IconButton(
-                  icon: Icon(
-                    _isObscure ? Icons.visibility : Icons.visibility_off,
-                  ),
-                  onPressed: () {
-                    setState(() {
-                      _isObscure = !_isObscure;
-                    });
-                  },
-                ),
+            Tooltip(
+              message: "Login email form field",
+              child: TextFormField(
+                initialValue: email,
+                decoration: InputDecoration(label: Text("Email")),
+                validator: checkFormatEmail,
+                onChanged: (e) => this.email = e,
               ),
-              onChanged: (pwd) => this.pwd = pwd,
+            ),
+            Tooltip(
+              message: "Login password form field",
+              child: TextFormField(
+                initialValue: pwd,
+                obscureText: _isObscure,
+                decoration: InputDecoration(
+                  label: Text("Mật khẩu"),
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      _isObscure ? Icons.visibility : Icons.visibility_off,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        _isObscure = !_isObscure;
+                      });
+                    },
+                  ),
+                ),
+                onChanged: (pwd) => this.pwd = pwd,
+              ),
             ),
             ElevatedButton(
                 onPressed: () async {
                   print("Loading");
-
-                  if (!_formKey.currentState.validate()) return;
+                  bool isValidForm = _formKey.currentState?.validate() ?? false;
+                  if (!isValidForm) return;
 
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Processing Data'),),
+                    const SnackBar(
+                      content: Text('Processing Data'),
+                    ),
                   );
                   Result<UserCredential> result =
                       await userProvider.login(email, pwd);
                   print(result);
                   if (result.data != null) {
-                    Navigator.of(context,rootNavigator: true)
+                    Navigator.of(context, rootNavigator: true)
                         .pushReplacementNamed(BaseContainer.nameRoute);
                   } else {
                     showDialog(

@@ -34,8 +34,6 @@ class _AuthPageState extends State<AuthPage> {
 
   @override
   Widget build(BuildContext context) {
-    UserProvider userProvider = Provider.of<UserProvider>(
-        context, listen: false);
     return Scaffold(
       body: Navigator(
 
@@ -43,19 +41,21 @@ class _AuthPageState extends State<AuthPage> {
         onGenerateRoute: (settings){
           //Read more in the link below
           // https://docs.flutter.dev/cookbook/navigation/navigate-with-arguments
-          WidgetBuilder builder;
-          switch (settings.name) {
-            case LoginView.routeName:
-              builder = (_) => const LoginView();break;
-            case RegisterView.routeName:
-              builder = (_) => const RegisterView();break;
-            default:
-              assert(false, 'Need to implement ${settings.name}');
-          }
+          WidgetBuilder? builder;
+        switch (settings.name) {
+          case LoginView.routeName:
+            builder = (_) => const LoginView();
+            break;
+          case RegisterView.routeName:
+            builder = (_) => const RegisterView();
+            break;
+          default:
+            assert(false, 'Need to implement ${settings.name}');
+        }
 
-          MaterialPageRoute route = MaterialPageRoute(
-            builder: builder,
-          );
+        MaterialPageRoute route = MaterialPageRoute(
+          builder: builder!,
+        );
           return route;
         },
       )

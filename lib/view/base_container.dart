@@ -1,6 +1,7 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:sophia_hub/view/page/home_container.dart';
-import 'dart:math' as math;
 
 import 'widget/drawer_menu.dart';
 
@@ -15,23 +16,19 @@ class BaseContainer extends StatefulWidget {
 
   const
   BaseContainer();
+
   @override
   _BaseContainerState createState() => _BaseContainerState();
 }
 
 class _BaseContainerState extends State<BaseContainer> with SingleTickerProviderStateMixin{
-
-
-
-  AnimationController animController;
-  double maxSlide;
+  late AnimationController animController;
 
   @override
   void initState() {
     super.initState();
     animController =
-        AnimationController( duration: Duration(milliseconds: 300),vsync: this);
-
+        AnimationController(duration: Duration(milliseconds: 300), vsync: this);
   }
 
   @override
@@ -63,7 +60,7 @@ class _BaseContainerState extends State<BaseContainer> with SingleTickerProvider
       },
       onHorizontalDragUpdate: (details) {
         if (canBeDragged) {
-          double delta = details.primaryDelta /
+          double delta = details.primaryDelta! /
               (/*size.width - size.width * 0.89442*/ maxSlide);
           if (animController.value <= 1) animController.value += delta;
         }
@@ -86,7 +83,7 @@ class _BaseContainerState extends State<BaseContainer> with SingleTickerProvider
 
           //Drawer Menu
           AnimatedBuilder(
-              builder: (BuildContext context, Widget child) {
+              builder: (BuildContext context, Widget? child) {
                 return Transform.translate(
                   offset: Offset(maxSlide * (animController.value - 1), 0),
                   child: Transform(
@@ -108,7 +105,7 @@ class _BaseContainerState extends State<BaseContainer> with SingleTickerProvider
           // Home
           AnimatedBuilder(
             animation: animController,
-            builder: (BuildContext context, Widget child) {
+            builder: (BuildContext context, Widget? child) {
 //              double scale = 1 - (animController.value * 0.2);
 //              double slide = maxSlide * animController.value;
               return Transform.translate(
@@ -132,7 +129,7 @@ class _BaseContainerState extends State<BaseContainer> with SingleTickerProvider
           //animated AppBar
           AnimatedBuilder(
             animation: animController,
-            builder: (BuildContext context, Widget child) {
+            builder: (BuildContext context, Widget? child) {
               return Transform.translate(
                   offset: Offset(maxSlide * animController.value, 0),
                   child: child);
@@ -143,7 +140,7 @@ class _BaseContainerState extends State<BaseContainer> with SingleTickerProvider
                 elevation: 0,
                 backgroundColor: Colors.transparent,
                 leading: IconButton(
-                  color: Colors.black,
+                    color: Colors.black,
                     icon: Icon(Icons.menu
                     ),
                     onPressed: () {

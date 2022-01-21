@@ -2,16 +2,16 @@
  * Class chứa dữ liệu
  ***/
 class Result<T> {
-  T _data;
-  Exception _error;
+  T? _data;
+  Exception? _error;
 
-  Result({T data, Exception err}){
+  Result({T? data, Exception? err}) {
     _data = data;
     _error = err;
   }
 
   bool get isHasData {
-    if(_error != null){
+    if (_error != null) {
       throw Exception();
     }
     return data != null;

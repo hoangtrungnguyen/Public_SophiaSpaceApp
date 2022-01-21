@@ -18,7 +18,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 version: 1.0.0+1
 
 environment:
-  sdk: ">=2.7.0 <3.0.0"
+  sdk: ">=2.12.0 <3.0.0"
 
 dependencies:
   flutter:
@@ -29,12 +29,18 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.4
   provider: ^6.0.2
-  firebase_core: 1.10.5
-  firebase_auth: 3.0.0
-  cloud_firestore: 2.4.0
-  package_info: 2.0.2
+  firebase_core: ^1.11.0
+  firebase_auth: ^3.3.5
+  cloud_firestore: ^3.1.6
 
+  fake_cloud_firestore: ^1.2.0
+  firebase_storage_mocks: ^0.5.0
+  firebase_auth_mocks: ^0.8.2
+  google_sign_in_mocks: ^0.2.1
+  intl: ^0.17.0
 
+  built_value: ^8.1.4
+  json_annotation:
 
 
 dev_dependencies:
@@ -42,6 +48,9 @@ dev_dependencies:
     sdk: flutter
   flutter_test:
     sdk: flutter
+
+  build_runner:
+  json_serializable: ^6.0.0
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

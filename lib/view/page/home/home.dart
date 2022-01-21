@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:sophia_hub/provider/app_data.dart';
+import 'package:sophia_hub/provider/task_provider.dart';
 import 'package:sophia_hub/view/page/task/create_task_page.dart';
 
 class HomeView extends StatefulWidget {
@@ -76,10 +76,8 @@ class _HomeViewState extends State<HomeView> {
 }
 
 class ListTask extends StatefulWidget {
-  //Ngày hiện tại
-  final int day;
 
-  const ListTask({Key key, this.day}) : super(key: key);
+  const ListTask({Key? key}) : super(key: key);
 
   @override
   _ListTaskState createState() => _ListTaskState();
@@ -102,7 +100,7 @@ class _ListTaskState extends State<ListTask> {
             SizedBox(
               height: 10,
             ),
-            Consumer<AppData>(
+            Consumer<TaskProvider>(
               builder: (ctx, data, child) {
                 return Container();
               },
