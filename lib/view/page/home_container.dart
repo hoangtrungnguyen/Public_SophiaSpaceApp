@@ -1,10 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:sophia_hub/constant/theme.dart';
 import 'package:sophia_hub/view/page/home/home.dart';
 import 'package:sophia_hub/view/page/home/notes.dart';
 import 'package:sophia_hub/view/page/home/quote.dart';
 import 'package:sophia_hub/view/page/home/tasks.dart';
-import 'package:sophia_hub/view/page/note/create_diary_note_page.dart';
+import 'package:sophia_hub/view/page/note/create_note_page.dart';
 
 class Destination {
   const Destination(this.namedRoute, this.title, this.icon, this.color);
@@ -16,11 +17,11 @@ class Destination {
 }
 
 const List<Destination> allDestinations = <Destination>[
-  Destination('/', 'Trang chủ', Icons.home_filled, Colors.blue),
-  Destination('/quotes', 'Quote', Icons.format_quote_outlined, Colors.cyan),
-  Destination("/holder", "", null, null),
-  Destination('/tasks', 'Nhiệm vụ', Icons.task_alt_outlined, Colors.orange),
-  Destination('/notes', 'Nhật ký', Icons.event_note_sharp, Colors.deepPurple),
+  // Destination('/', 'Trang chủ', Icons.home_filled, Colors.blue),
+  Destination('/quotes', 'Quote', Icons.format_quote_rounded, null),
+  // Destination("/holder", "", null, null),
+  // Destination('/tasks', 'Nhiệm vụ', Icons.task_alt_outlined, Colors.orange),
+  Destination('/notes', 'Nhật ký', Icons.event_note_rounded, null),
 ];
 
 class HomeContainer extends StatefulWidget {
@@ -45,26 +46,27 @@ class _HomeContainerState extends State<HomeContainer> {
         backgroundColor: allDestinations[_currentIndex].color,
         child: Icon(Icons.add),
         onPressed: () {
-
-          Navigator.of(context, rootNavigator: true)
-              .pushNamed(CreateDiaryNotePage.nameRoute,
+          Navigator.of(context, rootNavigator: true).pushNamed(
+            CreateNotePage.nameRoute,
             // Id ngày hiện tại
           );
         },
       ),
       bottomNavigationBar: BottomAppBar(
+        elevation: 16,
         clipBehavior: Clip.hardEdge,
         shape: AutomaticNotchedShape(
-          BeveledRectangleBorder(
+          RoundedRectangleBorder(
               borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(10),
-                  topRight: Radius.circular(10))),
-          BeveledRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  topLeft: Radius.circular(10), topRight: Radius.circular(10))),
+          roundedRectangleBorder,
         ),
         child: BottomNavigationBar(
+            // backgroundColor: allDestinations[_currentIndex].color,
             currentIndex: _currentIndex,
             onTap: (i) {
-              if (i == _currentIndex || i == 2) return;
+              // Thay đổi logic i == ở đây để phù hợp với số lượng màn hình
+              // if (i == _currentIndex || i == 1) return;
               setState(() {
                 _currentIndex = i;
               });
@@ -77,14 +79,18 @@ class _HomeContainerState extends State<HomeContainer> {
             }).toList()),
       ),
       body: Container(
-          child: IndexedStack(
-        index: _currentIndex,
+          child: Stack(
         children: [
-          HomeView(),
-          QuoteView(),
-          SizedBox(),
-          TasksView(),
-          NotesView()
+          IndexedStack(
+            index: _currentIndex,
+            children: [
+              // HomeView(),
+              QuoteView(),
+              // SizedBox(),
+              // TasksView(),
+              NotesView()
+            ],
+          ),
         ],
       )),
     );

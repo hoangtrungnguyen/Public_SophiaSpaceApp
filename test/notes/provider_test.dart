@@ -1,4 +1,5 @@
 import 'dart:collection';
+import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
@@ -91,23 +92,140 @@ main() async {
       });
     });
 
-    test("1/ Đọc dữ liệu thành công và parse Json", () async {
-      Note note = Note(
-          title: 'test1',
-          description: "Nội dung test 1",
-          emotionPoint: 8,
-          emotions: LinkedHashSet.from([
-            emotions[0],
-            emotions[1],
-            emotions[2],
-          ]));
+    test("Kiểm tra hàm quickSort", () {
+      List<int>.generate(10, (i) => i).forEach((int e) async {
+        Note note = Note(
+            title: 'title$e',
+            description: "Nội dung test $e",
+            emotionPoint: Random().nextInt(10),
+            emotions: LinkedHashSet.from([
+              emotions[0],
+              emotions[1],
+              emotions[2],
+            ]));
+        note
+          ..timeCreated =
+              DateTime.now().subtract(Duration(days: Random().nextInt(15)));
+        provider.notes.add(note);
+      });
+      provider.quickSort(provider.notes, 0, provider.notes.length - 1);
 
-      Result result = await provider.addNote(note: note);
-      result = await provider.addNote(note: note..title = 'title2');
-      result = await provider.addNote(note: note..title = 'title3');
-      expect(result.data != null, true);
+      //Kiểm tra độ dài
+      expect(provider.notes.length, 10);
+      // kiểm tra ngẫu nghiên
+      for (int _ in [1, 2]) {
+        int length = provider.notes.length;
+        int randomIndex = Random().nextInt(length - 1);
+        if (randomIndex == 0) randomIndex += 1;
+        // print(
+        //     "Data from index ${randomIndex - 1}: ${provider.notes[randomIndex - 1]}"
+        //     "\nData from index ${randomIndex}: ${provider.notes[randomIndex]}");
+        expect(
+            provider.notes[randomIndex - 1].timeCreated
+                .isAfter(provider.notes[randomIndex].timeCreated),
+            true);
+        print("-----------------------------");
+      }
+    });
+
+    test("1/ Đọc dữ liệu và parse Json thành công", () async {
+      await Future.forEach(List<int>.generate(10, (i) => i + 1), (int e) async {
+        Note note = Note(
+            title: 'test1',
+            description: "Nội dung test 1",
+            emotionPoint: 8,
+            emotions: LinkedHashSet.from([
+              emotions[0],
+              emotions[1],
+              emotions[2],
+            ]));
+        Result result = await provider.addNote(note: note..title = 'title$e');
+        expect(result.data != null, true);
+      });
       await provider.loadMoreNotes();
-      expect(provider.notes.length, 3);
+      expect(provider.notes.length, 10);
+    });
+
+    test("2/ Dữ liệu có sắp xếp theo ngày tạo sớm nhất", () async {
+      await Future.forEach(List<int>.generate(10, (i) => i), (int i) async {
+        Note note = Note(
+            title: 'title$i',
+            description: "Nội dung test $i",
+            emotionPoint: Random().nextInt(10),
+            emotions: LinkedHashSet.from([
+              emotions[0],
+              emotions[1],
+              emotions[2],
+            ]));
+        note
+          ..timeCreated =
+              DateTime.now().subtract(Duration(days: Random().nextInt(15)));
+        await provider.addNote(note: note);
+      });
+
+      //kiểm tra số lượng
+      expect(provider.notes.length, 10);
+
+      // kiểm tra ngẫu nghiên
+      for (int _ in [1, 2]) {
+        int length = provider.notes.length;
+        int randomIndex = Random().nextInt(length - 1);
+        if (randomIndex == 0) randomIndex += 1;
+        // print(
+        //     "Data from index ${randomIndex - 1}: ${provider.notes[randomIndex - 1]}"
+        //     "\nData from index ${randomIndex}: ${provider.notes[randomIndex]}");
+        expect(
+            provider.notes[randomIndex - 1].timeCreated
+                .isAfter(provider.notes[randomIndex].timeCreated),
+            true);
+        // print("-----------------------------");
+      }
+    });
+
+    test("3/ Dữ liệu có sắp xếp từ sớm nhất sau khi cập nhật note", () async {
+      late Note testNote;
+      await Future.forEach(List<int>.generate(10, (i) => i), (int i) async {
+        Note note = Note(
+            title: 'Tiêu đề - $i',
+            description: "Nội dung test $i",
+            emotionPoint: Random().nextInt(10),
+            emotions: LinkedHashSet.from([
+              emotions[0],
+              emotions[1],
+              emotions[2],
+            ]));
+        note
+          ..timeCreated =
+          //Random thời gina trong 15 ngày
+              DateTime.now().subtract(Duration(days: Random().nextInt(15)));
+        //Chọn note để cập nhật
+        if(i == 2)
+          testNote = note;
+        await provider.addNote(note: note);
+      });
+
+      //kiểm tra số lượng
+      expect(provider.notes.length, 10);
+
+      testNote.title = "Updated title";
+      //Để thời gian xa hơn 15 ngày
+      testNote.timeCreated = DateTime.now().subtract(Duration(days: 50));
+
+      provider.updateNote(testNote);
+
+      // kiểm tra ngẫu nghiên
+      for (int _ in [1, 2]) {
+        int length = provider.notes.length;
+        int randomIndex = Random().nextInt(length - 1);
+        if (randomIndex == 0) randomIndex += 1;
+        expect(
+            provider.notes[randomIndex - 1].timeCreated
+                .isAfter(provider.notes[randomIndex].timeCreated),
+            true);
+      }
+
+      //Kiểm tra phần từ cuối cùng
+      expect(provider.notes[provider.notes.length-1] == testNote, true);
     });
   });
 }

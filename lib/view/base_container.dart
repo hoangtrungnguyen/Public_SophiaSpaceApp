@@ -14,8 +14,7 @@ class BaseContainer extends StatefulWidget {
     });
   }
 
-  const
-  BaseContainer();
+  const BaseContainer();
 
   @override
   _BaseContainerState createState() => _BaseContainerState();
@@ -77,8 +76,14 @@ class _BaseContainerState extends State<BaseContainer> with SingleTickerProvider
           Positioned.fill(
               child: Container(
                 color: Theme.of(context).brightness == Brightness.light
-                    ? Colors.white.withOpacity(0.8)
+                    ? Colors.white.withOpacity(0.9)
                     : Colors.white.withOpacity(0.25),
+                child:/* Image(
+                  image: AssetImage('media/images/random_round_square.png'),
+
+                  fit: BoxFit.fill,
+                ),*/
+                Image.network("https://firebasestorage.googleapis.com/v0/b/small-habits-0812.appspot.com/o/astronaut%20(1).jpg?alt=media&token=92ff8444-d939-48f8-975c-cc2a67b25a9a")
               )),
 
           //Drawer Menu

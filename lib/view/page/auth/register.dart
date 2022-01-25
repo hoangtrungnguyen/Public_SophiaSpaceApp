@@ -38,6 +38,9 @@ class _RegisterViewState extends State<RegisterView> {
             Spacer(),
             TextFormField(
               initialValue: '',
+              style: TextStyle(
+                  color: Colors.white
+              ),
               decoration: InputDecoration(label: Text("Tên của bạn")),
               validator: (name) {
                 String? message;
@@ -48,12 +51,20 @@ class _RegisterViewState extends State<RegisterView> {
               },
               onChanged: (e) => this.displayName = e,
             ),
+            SizedBox(height: 20,),
             TextFormField(
+              style: TextStyle(
+                  color: Colors.white
+              ),
               decoration: InputDecoration(label: Text("Email")),
               validator: checkFormatEmail,
               onChanged: (e) => this.email = e,
             ),
+            SizedBox(height: 20,),
             TextFormField(
+              style: TextStyle(
+                  color: Colors.white
+              ),
               obscureText: _isObscure,
               decoration: InputDecoration(
                   suffixIcon: IconButton(
@@ -78,7 +89,11 @@ class _RegisterViewState extends State<RegisterView> {
                 return message;
               },
             ),
+            SizedBox(height: 20,),
             TextFormField(
+              style: TextStyle(
+                  color: Colors.white
+              ),
               obscureText: _isObscure,
               decoration: InputDecoration(
                   suffixIcon: IconButton(
@@ -104,6 +119,7 @@ class _RegisterViewState extends State<RegisterView> {
                 return message;
               },
             ),
+            SizedBox(height: 20,),
             ElevatedButton(
                 onPressed: () async {
                   if (!(_formKey.currentState?.validate() ?? false)) return;
@@ -136,7 +152,7 @@ class _RegisterViewState extends State<RegisterView> {
                   onPressed: () {
                     Navigator.maybePop(context);
                   },
-                  icon: Icon(Icons.arrow_back),
+                  icon: Icon(Icons.arrow_back,color: Colors.white,),
                   label: Text('')),
             )
           ],

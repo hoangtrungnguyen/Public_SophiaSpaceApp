@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sophia_hub/model/emotion.dart';
 import 'package:sophia_hub/model/note.dart';
-import 'package:sophia_hub/view/page/note/set_note_details_view.dart';
+import 'package:sophia_hub/view/page/note/create_note_step_3.dart';
 
 class EmotionObjectsView extends StatefulWidget {
   static const String nameRoute = "/EmotionObjectsView";
@@ -18,19 +18,43 @@ class EmotionObjectsView extends StatefulWidget {
 }
 
 class _EmotionObjectsViewState extends State<EmotionObjectsView> {
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButton: FloatingActionButton.extended(
-          onPressed: () {
-            Navigator.pushNamed(context, NoteDetailsView.nameRoute);
-          },
-          label: Text("Tiếp tục")),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      floatingActionButton: Consumer<Note>(
+        builder: (BuildContext context, value, Widget? child) {
+          Widget button;
+          button = FloatingActionButton.extended(
+             elevation: value.emotions.length <= 0 ? 0 : 6,
+              backgroundColor: value.emotions.length <= 0
+                  ? Colors.grey.withOpacity(0.3)
+                  : Colors.white,
+              onPressed: value.emotions.length <= 0
+                  ? null
+                  : () {
+                    Provider.of<TabController>(context,listen: false).animateTo(2,
+                    duration: Duration(milliseconds: 1000));
+                  },
+              label:  Padding(
+                padding: EdgeInsets.symmetric(horizontal: 32),
+                child: Text(
+                  "Tiếp tục",
+                  style: Theme.of(context).textTheme.headline6?.apply(
+                    color: value.emotions.length <= 0
+                        ? Colors.grey.withOpacity(0.5)
+                        : Theme.of(context).colorScheme.primary,
+                  ),
+                ),
+              ),);
+          return button;
+        },
+      ),
       body: Column(
         children: [
-          Spacer(
-            flex: 1,
-          ),
+          SizedBox(height: 50),
           Text(
             "Điều gì khiến bạn cảm thấy như vậy?",
             textAlign: TextAlign.center,
@@ -50,6 +74,12 @@ class _EmotionObjectsViewState extends State<EmotionObjectsView> {
       ),
     );
   }
+
+  @override
+  void deactivate() {
+    print("deactivate emotion view");
+    super.deactivate();
+  }
 }
 
 class EmotionGrid extends StatefulWidget {
@@ -65,7 +95,6 @@ class _EmotionGridState extends State<EmotionGrid> {
   @override
   Widget build(BuildContext context) {
     Note note = Provider.of<Note>(context);
-    print(note);
     return GridView.builder(
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 3,
@@ -74,14 +103,19 @@ class _EmotionGridState extends State<EmotionGrid> {
         scrollDirection: Axis.horizontal,
         itemBuilder: (BuildContext context, int index) {
           Emotion emotion = _emotions[index];
+          bool isChosen = note.emotions.contains(emotion);
           return Padding(
             padding: EdgeInsets.all(10),
             child: ElevatedButton(
+              style: Theme.of(context).elevatedButtonTheme.style?.copyWith(
+                backgroundColor:
+                MaterialStateProperty.all<Color?>(isChosen ? Theme.of(context).colorScheme.primary : Colors.grey)
+              ),
               onPressed: () {
-                if (note.emotions.contains(emotion)) {
-                  note.emotions.remove(emotion);
+                if (isChosen) {
+                  note.removeEmotion(emotion);
                 } else {
-                  note.emotions.add(emotion);
+                  note.addEmotion(emotion);
                 }
               },
               child: Column(
@@ -91,6 +125,7 @@ class _EmotionGridState extends State<EmotionGrid> {
                     Icon(emotion.icon),
                     Text(
                       '${emotion.name}',
+                      textAlign: TextAlign.center,
                     )
                   ]),
             ),

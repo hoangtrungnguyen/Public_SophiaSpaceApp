@@ -4,16 +4,16 @@ import 'package:json_annotation/json_annotation.dart';
 part 'emotion.g.dart';
 
 List<Emotion> emotions = [
-  Emotion(id: "1", name: "Công việc", icon: Icons.work_outline_sharp),
-  Emotion(id: "2", name: "Bạn bè", icon: Icons.people_outline_sharp),
+  Emotion(id: "1", name: "Công việc", icon: Icons.work_outline),
+  Emotion(id: "2", name: "Bạn bè", icon: Icons.people_outline),
   Emotion(id: "3", name: "Gia đình", icon: Icons.home_filled),
-  Emotion(id: "4", name: "Giấc ngủ", icon: Icons.bed_sharp),
-  Emotion(id: "5", name: "Mối quan hệ", icon: Icons.supervisor_account_sharp),
-  Emotion(id: "6", name: "Trường học", icon: Icons.school_sharp),
-  Emotion(id: "7", name: "Đồ ăn", icon: Icons.emoji_food_beverage_sharp),
-  Emotion(id: "8", name: "Sức khỏe", icon: Icons.volunteer_activism_sharp),
-  Emotion(id: "9", name: "Sở thích", icon: Icons.piano_sharp),
-  Emotion(id: "10", name: "Thời tiết", icon: Icons.wb_sunny_sharp),
+  Emotion(id: "4", name: "Giấc ngủ", icon: Icons.bed),
+  Emotion(id: "5", name: "Mối quan hệ", icon: Icons.supervisor_account),
+  Emotion(id: "6", name: "Trường học", icon: Icons.school),
+  Emotion(id: "7", name: "Đồ ăn", icon: Icons.emoji_food_beverage),
+  Emotion(id: "8", name: "Sức khỏe", icon: Icons.volunteer_activism),
+  Emotion(id: "9", name: "Sở thích", icon: Icons.piano),
+  Emotion(id: "10", name: "Thời tiết", icon: Icons.wb_sunny),
 ];
 
 @JsonSerializable()

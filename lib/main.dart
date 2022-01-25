@@ -10,9 +10,11 @@ import 'package:sophia_hub/model/note.dart';
 import 'package:sophia_hub/provider/notes_provider.dart';
 import 'package:sophia_hub/provider/task_provider.dart';
 import 'package:sophia_hub/provider/user_provider.dart';
+import 'package:sophia_hub/view/animation/route_change_anim.dart';
 import 'package:sophia_hub/view/base_container.dart';
 import 'package:sophia_hub/view/page/auth/auth_page.dart';
-import 'package:sophia_hub/view/page/note/create_diary_note_page.dart';
+import 'package:sophia_hub/view/page/note/create_note_page.dart';
+import 'package:sophia_hub/view/page/note/note_detail.dart';
 import 'package:sophia_hub/view/page/task/create_task_page.dart';
 import 'package:sophia_hub/view/page/task/list_task_page.dart';
 
@@ -40,7 +42,6 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-
   @override
   void initState() {
     super.initState();
@@ -54,45 +55,56 @@ class _MyAppState extends State<MyApp> {
       initialRoute: FirebaseAuth.instance.currentUser == null
           ? AuthPage.nameRoute
           : BaseContainer.nameRoute,
+      onUnknownRoute: (setting) => MaterialPageRoute(
+          builder: (_) => Center(child: Text("Không thể tìm thấy trang này"))),
       onGenerateRoute: (settings) {
         //Read more in the link below
         // https://docs.flutter.dev/cookbook/navigation/navigate-with-arguments
-        WidgetBuilder builder =
-            (_) => Center(child: Text("Can't find route name"));
+        Widget widget = Container();
         switch (settings.name) {
           case AuthPage.nameRoute:
-            builder = (_) => AuthPage();
+            widget = AuthPage();
             break;
           case BaseContainer.nameRoute:
-            builder = (_) => BaseContainer();
+            widget = BaseContainer();
             break;
-          case CreateDiaryNotePage.nameRoute:
+          case CreateNotePage.nameRoute:
             // Cast the arguments to the correct
             // type: Note.
-            final note = settings.arguments as Note;
-              builder = (_) => ChangeNotifierProvider.value(
-                  value: note, child: CreateDiaryNotePage());
-              break;
-            case CreateTaskPage.nameRoute:
-              builder = (_) => CreateTaskPage();
-              break;
-            case ListTaskPage.nameRoute:
-              builder = (_) => ListTaskPage();
-              break;
-            default:
-              // The assertion here will help remind
-              // us of that higher up in the call stack, since
-              // this assertion would otherwise fire somewhere
+            widget = CreateNotePage();
+            break;
+          case NoteDetails.nameRoute:
+            // Cast the arguments to the correct
+            // type: Note.
+            try {
+              Note note = settings.arguments as Note;
+              widget = NoteDetails.view(note);
+            } catch (e) {
+              print("Phải có object Note");
+            }
+            break;
+          case CreateTaskPage.nameRoute:
+            widget = CreateTaskPage();
+            break;
+          case ListTaskPage.nameRoute:
+            widget = ListTaskPage();
+            break;
+          default:
+            // The assertion here will help remind
+            // us of that higher up in the call stack, since
+            // this assertion would otherwise fire somewhere
             // in the framework.
             assert(false, 'Need to implement ${settings.name}');
         }
 
-        MaterialPageRoute route = MaterialPageRoute(
-          builder: builder,
-        );
-        return route;
+        // MaterialPageRoute route = MaterialPageRoute(
+        //
+        //   builder: builder,
+        // );
+        return RouteAnimation.buildDefaultRouteTransition(widget, settings);
       },
       theme: lightTheme(context),
+      darkTheme: lightTheme(context),
     );
 
     // Providers cần thiết.
@@ -100,15 +112,18 @@ class _MyAppState extends State<MyApp> {
       StreamProvider<firebase_auth.User?>(
         create: (_) => FirebaseAuth.instance.authStateChanges(),
         initialData: FirebaseAuth.instance.currentUser,
+        updateShouldNotify: (pre, cur) => true,
       ),
 
       //UserProvider quan hệ phụ thuộc với firebase_auth.User
       // ProxyPrivider sẽ được thay đổi lại mỗi khi firbase_auth.User thay đổi.
-      ChangeNotifierProxyProvider<firebase_auth.User, Auth>(
+      ChangeNotifierProxyProvider<firebase_auth.User?, Auth>(
         create: (_) => Auth(
             firebaseAuth: FirebaseAuth.instance,
             fireStore: FirebaseFirestore.instance),
-        update: (BuildContext context, firebaseUse, Auth? previous) {
+        update: (BuildContext context, firebaseUser, Auth? previous) {
+          // print("updating Auth ${firebaseUser?.uid}");
+          previous?.refresh();
           return previous!;
         },
       ),
@@ -118,19 +133,19 @@ class _MyAppState extends State<MyApp> {
             uid: FirebaseAuth.instance.currentUser?.uid ?? 'NaN',
             fireStore: FirebaseFirestore.instance),
         lazy: true,
-        update: (_, userProvider, preNotesProvider) {
+        update: (_, auth, preNotesProvider) {
           //TODO logic thay doi du lieu moi khi thay doi tai khoan nguoi dung
-          print("updating notes Data");
-          return preNotesProvider!
-            ..clear()
-            ..loadMoreNotes();
+          if (auth.firebaseAuth.currentUser == null) preNotesProvider?.clear();
+          print("updating notes Data ${auth.firebaseAuth.currentUser?.uid}");
+
+          return preNotesProvider!;
         },
       ),
       ChangeNotifierProxyProvider<Auth, TaskProvider>(
         create: (_) => TaskProvider(),
         lazy: true,
         update: (_, userProvider, preTaskProvider) {
-          print("updating notes task provider");
+          // print("updating notes task provider");
           return preTaskProvider!;
         },
       ),

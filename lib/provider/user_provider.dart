@@ -26,7 +26,7 @@ class Auth extends App {
       // Call the user's CollectionReference to add a new user
       await users
           .doc(userCredential.user!.uid)
-          .set({"display_name": displayName});
+          .set({"display_name": displayName, 'email': email});
       print("User Added");
 
       return Result<UserCredential>(data: userCredential, err: null);
@@ -68,10 +68,14 @@ class Auth extends App {
   Future<Result<bool>> logOut() async {
     try {
       await firebaseAuth.signOut();
-      notifyListeners();
       return Result(data: true, err: null);
     } on Exception catch (e) {
       return Result(data: null, err: e);
     }
+  }
+
+  void refresh() {
+    //TODO refresh on device user data
+    notifyListeners();
   }
 }

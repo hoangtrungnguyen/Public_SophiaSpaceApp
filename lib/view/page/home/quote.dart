@@ -10,6 +10,8 @@ class _QuoteViewState extends State<QuoteView> {
   Widget build(BuildContext context) {
     return Container(
       alignment: Alignment.center,
-      child: Text("Tôi sẽ không bao giờ bỏ cuộc"),);
+      child: Text("Tôi sẽ không bao giờ bỏ cuộc",
+      textAlign: TextAlign.center,
+      style: Theme.of(context).textTheme.headline6,),);
   }
 }
