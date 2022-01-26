@@ -1,0 +1,1 @@
+String smallHabitsWebUrl = 'https://small-habits.com';

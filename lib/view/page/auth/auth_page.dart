@@ -36,59 +36,49 @@ class _AuthPageState extends State<AuthPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              stops: [
-                0.1,
-                1.0,
-              ],
-              colors: [
-                Theme.of(context).colorScheme.secondary,
-                Theme.of(context).colorScheme.primary,
+    return WillPopScope(
+      onWillPop: () async { return false; },
+      child: Scaffold(
+        extendBodyBehindAppBar: true,
+        body: Container(
+          child: Theme(
+            data: Theme.of(context).copyWith(
+              inputDecorationTheme: Theme.of(context).inputDecorationTheme.copyWith(
+                hintStyle: TextStyle(
+                  color: Colors.grey.shade500,
+                ),
+                labelStyle: TextStyle(
+                  color: Colors.white
+                ),
+              )
+            ),
+            child: Navigator(
 
-              ],
-            )),
-        child: Theme(
-          data: Theme.of(context).copyWith(
-            inputDecorationTheme: Theme.of(context).inputDecorationTheme.copyWith(
-              hintStyle: TextStyle(
-                color: Colors.grey.shade500,
-              ),
-              labelStyle: TextStyle(
-                color: Colors.white
-              ),
-            )
+              initialRoute: Welcome.nameRoute,
+              onGenerateRoute: (settings){
+                //Read more in the link below
+                // https://docs.flutter.dev/cookbook/navigation/navigate-with-arguments
+                Widget wiget = Container();
+              switch (settings.name) {
+                case Welcome.nameRoute:
+                  wiget =  const Welcome();
+                  break;
+                case LoginView.routeName:
+                  wiget =  const LoginView();
+                  break;
+                case RegisterView.routeName:
+                  wiget =  const RegisterView();
+                  break;
+                default:
+                  assert(false, 'Need to implement ${settings.name}');
+              }
+
+                return RouteAnimation.buildDefaultRouteTransition(wiget, settings);
+              },
+            ),
           ),
-          child: Navigator(
-
-            initialRoute: Welcome.nameRoute,
-            onGenerateRoute: (settings){
-              //Read more in the link below
-              // https://docs.flutter.dev/cookbook/navigation/navigate-with-arguments
-              Widget wiget = Container();
-            switch (settings.name) {
-              case Welcome.nameRoute:
-                wiget =  const Welcome();
-                break;
-              case LoginView.routeName:
-                wiget =  const LoginView();
-                break;
-              case RegisterView.routeName:
-                wiget =  const RegisterView();
-                break;
-              default:
-                assert(false, 'Need to implement ${settings.name}');
-            }
-
-              return RouteAnimation.buildDefaultRouteTransition(wiget, settings);
-            },
-          ),
-        ),
-      )
+        )
+      ),
     );
   }
 

@@ -8,18 +8,24 @@ import 'package:sophia_hub/view/page/note/note_detail_is_editing.dart';
 class NoteDetails extends StatefulWidget {
   static const String nameRoute = "/NoteDetails";
 
+
   static Route<dynamic> route() {
     return MaterialPageRoute(builder: (BuildContext context) {
       return NoteDetails();
     });
   }
 
-  static Widget view(Note note) {
-    return ChangeNotifierProvider<Note>.value(
-      value: note,
-      child: NoteDetails(),
+  static Widget view(Note note,{Key? key}) {
+    Note copied = note.copy();
+    return ChangeNotifierProvider<Note>(
+      create: (_) {
+        return copied;
+      },
+      child:NoteDetails(),
     );
   }
+
+  NoteDetails({Key? key}):super(key: key);
 
   @override
   _NoteDetailsState createState() => _NoteDetailsState();
@@ -79,36 +85,43 @@ class _NoteDetailsState extends State<NoteDetails> {
         body: Container(
             child: Column(
           children: [
-            Wrap(
-              children: note.emotions.length > 0
-                  ? note.emotions.map((e) {
-                      return Hero(
-                        tag: "emotions ${e.id}",
-                        child: Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 2),
-                          child: Material(
-                            child: Chip(
-                                elevation: 6,
-                                backgroundColor: Colors.white,
-                                avatar: Icon(
-                                  e.icon,
-                                  color: Theme.of(context).colorScheme.primary,
-                                ),
-                                label: Text(
-                                  e.name ?? "NaN",
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .caption
-                                      ?.copyWith(
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .primary),
-                                )),
-                          ),
-                        ),
-                      );
-                    }).toList()
-                  : [],
+            SizedBox(
+              height: 20,
+            ),
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: [
+                  SizedBox(width: 32,),
+                  ...note.activities.map((e) {
+                  return Hero(
+                    tag: "emotions ${e.id}",
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 2),
+                      child: Material(
+                        child: Chip(
+                            elevation: 6,
+                            backgroundColor: Colors.white,
+                            avatar: Icon(
+                              e.icon,
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
+                            label: Text(
+                              e.name ?? "NaN",
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .caption
+                                  ?.copyWith(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .primary),
+                            )),
+                      ),
+                    ),
+                  );
+                }).toList(),
+          ]
+              ),
             ),
             SizedBox(
               height: 20,
@@ -142,7 +155,6 @@ class _NoteDetailsState extends State<NoteDetails> {
                                 tag: "content",
                                 child: Material(
                                   child: TextFormField(
-
                                       decoration: InputDecoration(
                                           // label: Text("Nội dung",style: TextStyle(color: textColor),),
                                           hintText: "Suy nghĩ của bạn..."),

@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:sophia_hub/helper/note_helper_func.dart';
 import 'package:sophia_hub/model/note.dart';
@@ -27,12 +28,12 @@ class _EmotionPointViewState extends State<EmotionPointView> {
 
   @override
   Widget build(BuildContext context) {
+    Note note = Provider.of<Note>(context);
     return Scaffold(
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      floatingActionButton: Consumer2<Note, TabController>(
-        builder: (BuildContext context, Note note, tabControl, Widget? child) {
+      floatingActionButton: Consumer<TabController>(
+        builder: (BuildContext context, tabControl, Widget? child) {
           return FloatingActionButton.extended(
-
               elevation: !widget.initial ? 6 : 0,
               backgroundColor:
                   !widget.initial ? Colors.white : Colors.grey.withOpacity(0.3),
@@ -50,7 +51,7 @@ class _EmotionPointViewState extends State<EmotionPointView> {
                         color: widget.initial
                             ? Colors.grey.withOpacity(0.5)
                             : Theme.of(context).colorScheme.primary,
-                  ),
+                      ),
                 ),
               ));
         },
@@ -65,11 +66,18 @@ class _EmotionPointViewState extends State<EmotionPointView> {
               style: Theme.of(context).textTheme.headline6,
             ),
             Spacer(
-              flex: 4,
+              flex: 3,
             ),
+            Icon(widget.initial
+                ? FontAwesomeIcons.grin
+                : generateMoodIcon(note.emotionPoint),
+            color: Colors.white,
+            size: 80,),
             Padding(
-              padding: EdgeInsets.symmetric(vertical: 50),
-              child: Consumer<Note>(builder: (_, note, child) {
+              padding: EdgeInsets.only(bottom: 50,top: 15),
+              child: Builder(builder: (
+                _,
+              ) {
                 String status = '';
 
                 if (widget.initial) return Text("");
@@ -83,8 +91,8 @@ class _EmotionPointViewState extends State<EmotionPointView> {
                 );
               }),
             ),
-            Consumer(
-              builder: (BuildContext context, Note note, Widget? child) {
+            Builder(
+              builder: (BuildContext context) {
                 return Slider(
                   inactiveColor: Colors.grey.withOpacity(0.5),
                   activeColor: Colors.white,

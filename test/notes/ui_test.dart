@@ -7,10 +7,9 @@ import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
-import 'package:sophia_hub/model/emotion.dart';
+import 'package:sophia_hub/model/activity.dart';
 import 'package:sophia_hub/model/note.dart';
 import 'package:sophia_hub/provider/notes_provider.dart';
-import 'package:sophia_hub/view/base_container.dart';
 import 'package:sophia_hub/view/page/home/notes.dart';
 import 'package:sophia_hub/view/page/home_container.dart';
 import 'package:sophia_hub/view/page/note/create_note_page.dart';
@@ -25,14 +24,11 @@ main() {
   setUpAll(() async {
     mockFirebaseAuth = MockFirebaseAuth(signedIn: true);
     fireStore = FakeFirebaseFirestore();
-
-
   });
 
   setUp(() async {
-
     provider = NotesProvider(
-        uid: mockFirebaseAuth.currentUser!.uid,
+        auth: mockFirebaseAuth,
         fireStore: fireStore,
         isTesting: true);
 
@@ -41,14 +37,14 @@ main() {
           title: 'Tiêu đề $e',
           description: "Nội dung  $e",
           emotionPoint: Random().nextInt(10),
-          emotions: LinkedHashSet.from([
-            emotions[0],
-            emotions[1],
-            emotions[2],
+          activities: LinkedHashSet.from([
+            activities[0],
+            activities[1],
+            activities[2],
           ]));
       note
         ..timeCreated =
-        DateTime.now().subtract(Duration(days: Random().nextInt(15)));
+            DateTime.now().subtract(Duration(days: Random().nextInt(15)));
       await provider.addNote(note: note);
     });
 
@@ -57,30 +53,27 @@ main() {
         title: 'Tiêu đề mới nhất',
         description: "Nội dung  $e",
         emotionPoint: Random().nextInt(10),
-        emotions: LinkedHashSet.from([
-          emotions[0],
-          emotions[1],
-          emotions[2],
+        activities: LinkedHashSet.from([
+          activities[0],
+          activities[1],
+          activities[2],
         ]));
     await provider.addNote(note: note);
   });
 
   tearDown(() async {
-
     QuerySnapshot snapshots = await provider.notesRef.get();
     await Future.forEach<QueryDocumentSnapshot>(snapshots.docs, (doc) async {
       await doc.reference.delete();
     });
 
     provider = NotesProvider(
-        uid: mockFirebaseAuth.currentUser!.uid,
+        auth: mockFirebaseAuth,
         fireStore: fireStore,
         isTesting: true);
   });
 
   group("Hiển thị", () {
-
-
     testWidgets("Hiển thị dữ liệu", (WidgetTester tester) async {
       await tester.pumpWidget(MaterialApp(
           home: ChangeNotifierProvider(
@@ -124,16 +117,20 @@ main() {
   });
 
   group("Màn hình sửa note", () {
-
     testWidgets("Vào màn hình Chi tiết Note", (WidgetTester tester) async {
       MaterialApp app = MaterialApp(
         title: 'Small Habits',
         initialRoute: "/",
-        onUnknownRoute: (setting){
-          return MaterialPageRoute(
-            builder: (_) => Center(child: Text("Không thể tìm thấy trang này"))
-          );
+        onUnknownRoute: (setting) => MaterialPageRoute(
+            builder: (_) =>
+                Center(child: Text("Không thể tìm thấy trang này"))),
+        supportedLocales: [Locale('vi', 'VI'), Locale('en', 'US')],
+        localeListResolutionCallback: (locales, supportedLocales) {
+          for (Locale locale in locales!)
+            if (supportedLocales.contains(locale)) return locale;
+          return Locale('vi', 'VI');
         },
+        locale: Locale('vi', 'VI'),
         onGenerateRoute: (settings) {
           WidgetBuilder builder =
               (_) => Center(child: Text("Can't find route name"));

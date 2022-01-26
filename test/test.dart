@@ -1,7 +1,12 @@
 
+import 'package:intl/intl.dart';
+
 main() {
-  
-  for(int i = 0; i< 100; i ++){
-    print( (DateTime.now().subtract(Duration(days: i)).millisecondsSinceEpoch / (86400 * 1000)).round()  );
-  }
+  DateTime aDateTime = DateTime.now();
+  print(DateFormat.yMMMMEEEEd().format(aDateTime));
+  // ==> 'Wednesday, January 10, 2012'
+  print(DateFormat('EEEEE', 'en_US').format(aDateTime));
+  // ==> 'Wednesday'
+  print(DateFormat('EEEEE', 'ln').format(aDateTime));
+  // ==> 'mokɔlɔ mwa mísáto'
 }

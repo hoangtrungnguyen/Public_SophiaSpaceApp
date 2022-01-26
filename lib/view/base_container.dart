@@ -1,8 +1,13 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:provider/provider.dart';
+import 'package:sophia_hub/provider/ui_logic.dart';
 import 'package:sophia_hub/view/page/home_container.dart';
+import 'package:url_launcher/url_launcher.dart';
 
+import 'package:sophia_hub/constant/sophia_hub_app.dart';
 import 'widget/drawer_menu.dart';
 
 class BaseContainer extends StatefulWidget {
@@ -20,7 +25,8 @@ class BaseContainer extends StatefulWidget {
   _BaseContainerState createState() => _BaseContainerState();
 }
 
-class _BaseContainerState extends State<BaseContainer> with SingleTickerProviderStateMixin{
+class _BaseContainerState extends State<BaseContainer>
+    with SingleTickerProviderStateMixin {
   late AnimationController animController;
 
   @override
@@ -47,6 +53,7 @@ class _BaseContainerState extends State<BaseContainer> with SingleTickerProvider
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
     double maxSlide = size.width * 2.5 / 3;
+    Color primary = Theme.of(context).colorScheme.primary;
     return GestureDetector(
       onHorizontalDragStart: (details) {
         bool isDragFromLeft = animController.isDismissed &&
@@ -73,18 +80,7 @@ class _BaseContainerState extends State<BaseContainer> with SingleTickerProvider
       },
       child: Stack(
         children: [
-          Positioned.fill(
-              child: Container(
-                color: Theme.of(context).brightness == Brightness.light
-                    ? Colors.white.withOpacity(0.9)
-                    : Colors.white.withOpacity(0.25),
-                child:/* Image(
-                  image: AssetImage('media/images/random_round_square.png'),
-
-                  fit: BoxFit.fill,
-                ),*/
-                Image.network("https://firebasestorage.googleapis.com/v0/b/small-habits-0812.appspot.com/o/astronaut%20(1).jpg?alt=media&token=92ff8444-d939-48f8-975c-cc2a67b25a9a")
-              )),
+          Positioned.fill(child: Background()),
 
           //Drawer Menu
           AnimatedBuilder(
@@ -131,37 +127,97 @@ class _BaseContainerState extends State<BaseContainer> with SingleTickerProvider
             },
             child: HomeContainer(),
           ),
+
           //animated AppBar
-          AnimatedBuilder(
-            animation: animController,
-            builder: (BuildContext context, Widget? child) {
-              return Transform.translate(
-                  offset: Offset(maxSlide * animController.value, 0),
-                  child: child);
+          Consumer<UILogic>(
+            builder: (_, value, child) {
+              //Index =1 là quote view
+              return Visibility(
+                  visible: value.homePageIndex != 1, child: child!);
             },
-            child: SizedBox(
-              height: 92,
-              child: AppBar(
-                elevation: 0,
-                backgroundColor: Colors.transparent,
-                leading: IconButton(
-                    color: Colors.black,
-                    icon: Icon(Icons.menu
-                    ),
-                    onPressed: () {
-                      if (animController.status == AnimationStatus.completed)
-                        animController.reverse();
-                      if (animController.status == AnimationStatus.dismissed)
-                        animController.forward();
-                    }),
-                title: Text("Small Habits",style: TextStyle(color: Colors.black),),
-                centerTitle: true,
-                actions: <Widget>[],
+            child: AnimatedBuilder(
+              animation: animController,
+              builder: (BuildContext context, Widget? child) {
+                return Transform.translate(
+                    offset: Offset(maxSlide * animController.value, 0),
+                    child: SizedBox(
+                      height: 92,
+                      child: AppBar(
+                        elevation: 0,
+                        backgroundColor: Colors.transparent,
+                        leading: IconButton(
+                            icon: Icon(Icons.menu_rounded,
+                                color:ColorTween(begin: primary, end: Colors.white).animate(animController).value
+                            ),
+                            onPressed: () {
+                              if (animController.status == AnimationStatus.completed)
+                                animController.reverse();
+                              if (animController.status == AnimationStatus.dismissed)
+                                animController.forward();
+                            }),
+                        title: Text(
+                          /*"Small Habits"*/'',
+                          style: TextStyle(color: Colors.black),
+                        ),
+                        centerTitle: true,
+                        actions: <Widget>[
+                          child!
+                        ],
+                      ),
+                    ));
+              },
+              child: Tooltip(
+                message: "web: small-habits.com",
+                child: TextButton(
+                    onPressed: ()async{
+                      if (!await launch(smallHabitsWebUrl)) throw 'Could not launch $smallHabitsWebUrl';
+                    }, child: Icon(FontAwesomeIcons.chrome)),
               ),
             ),
           ),
         ],
       ),
+    );
+  }
+}
+
+class Background extends StatelessWidget {
+  const Background({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    Color primary = Theme.of(context).colorScheme.primary;
+    return Container(
+      // color: Theme.of(context).brightness == Brightness.light
+      //     ? Theme.of(context).colorScheme.secondary.withOpacity(0.9)
+      //     : Theme.of(context).colorScheme.secondary.withOpacity(0.25),
+      // child:/* Image(
+      //   image: AssetImage('media/images/random_round_square.png'),
+      //
+      //   fit: BoxFit.fill,
+      // ),*/
+      // Image.network("https://firebasestorage.googleapis.com/v0/b/small-habits-0812.appspot.com/o/astronaut%20(1).jpg?alt=media&token=92ff8444-d939-48f8-975c-cc2a67b25a9a")
+
+      decoration: BoxDecoration(
+          gradient: RadialGradient(
+        radius: 1,
+        center: Alignment(0.0, 0.0),
+        stops: [
+          0.5,
+          1.1,
+        ],
+        colors: [
+          Theme.of(context).colorScheme.primary,
+          () {
+            int blue = primary.blue;
+            int green = primary.green;
+            int red = primary.red;
+
+            return Color.fromRGBO((red).toInt(), (green * 1.5).toInt(),
+                (blue * 1.4).toInt(), 1.0);
+          }(),
+        ],
+      )),
     );
   }
 }

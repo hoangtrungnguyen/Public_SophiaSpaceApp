@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:sophia_hub/model/emotion.dart';
+import 'package:sophia_hub/model/activity.dart';
 import 'package:sophia_hub/model/note.dart';
-import 'package:sophia_hub/view/page/note/create_note_step_3.dart';
 
 class EmotionObjectsView extends StatefulWidget {
   static const String nameRoute = "/EmotionObjectsView";
@@ -28,11 +27,11 @@ class _EmotionObjectsViewState extends State<EmotionObjectsView> {
         builder: (BuildContext context, value, Widget? child) {
           Widget button;
           button = FloatingActionButton.extended(
-             elevation: value.emotions.length <= 0 ? 0 : 6,
-              backgroundColor: value.emotions.length <= 0
+             elevation: value.activities.length <= 0 ? 0 : 6,
+              backgroundColor: value.activities.length <= 0
                   ? Colors.grey.withOpacity(0.3)
                   : Colors.white,
-              onPressed: value.emotions.length <= 0
+              onPressed: value.activities.length <= 0
                   ? null
                   : () {
                     Provider.of<TabController>(context,listen: false).animateTo(2,
@@ -43,7 +42,7 @@ class _EmotionObjectsViewState extends State<EmotionObjectsView> {
                 child: Text(
                   "Tiếp tục",
                   style: Theme.of(context).textTheme.headline6?.apply(
-                    color: value.emotions.length <= 0
+                    color: value.activities.length <= 0
                         ? Colors.grey.withOpacity(0.5)
                         : Theme.of(context).colorScheme.primary,
                   ),
@@ -90,7 +89,7 @@ class EmotionGrid extends StatefulWidget {
 }
 
 class _EmotionGridState extends State<EmotionGrid> {
-  List<Emotion> _emotions = emotions;
+  List<Activity> _activities = activities;
 
   @override
   Widget build(BuildContext context) {
@@ -99,11 +98,11 @@ class _EmotionGridState extends State<EmotionGrid> {
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 3,
         ),
-        itemCount: _emotions.length,
+        itemCount: _activities.length,
         scrollDirection: Axis.horizontal,
         itemBuilder: (BuildContext context, int index) {
-          Emotion emotion = _emotions[index];
-          bool isChosen = note.emotions.contains(emotion);
+          Activity emotion = _activities[index];
+          bool isChosen = note.activities.contains(emotion);
           return Padding(
             padding: EdgeInsets.all(10),
             child: ElevatedButton(
@@ -120,7 +119,7 @@ class _EmotionGridState extends State<EmotionGrid> {
               },
               child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
-                  mainAxisSize: MainAxisSize.max,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     Icon(emotion.icon),
                     Text(

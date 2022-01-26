@@ -40,9 +40,26 @@ class _DrawerMenuState extends State<DrawerMenu>
           child: Container(
               child: Column(
                 children: <Widget>[
-                  FlutterLogo(
-                    size: 200,
-                    style: FlutterLogoStyle.stacked,
+                  Container(
+                    margin: EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.white,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.grey,
+                          offset: Offset(0.0, 1.0), //(x,y)
+                          blurRadius: 6.0,
+                        ),
+                      ],
+                    ),
+                    height: 150,
+                    width: 150,
+                    child: Image(
+                      fit: BoxFit.fill,
+                      image: AssetImage('media/logo/SophiaHub.png'),
+
+                    ),
                   ),
                   ListTile(leading: Icon(Icons.person), title: Text("Cá nhân")),
                   Spacer(flex: 9,),

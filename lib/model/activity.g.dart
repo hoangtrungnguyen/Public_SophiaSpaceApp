@@ -1,17 +1,17 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'emotion.dart';
+part of 'activity.dart';
 
 // **************************************************************************
 // JsonSerializableGenerator
 // **************************************************************************
 
-Emotion _$EmotionFromJson(Map<String, dynamic> json) => Emotion(
+Activity _$ActivityFromJson(Map<String, dynamic> json) => Activity(
       id: json['id'] as String,
       name: json['name'] as String?,
     );
 
-Map<String, dynamic> _$EmotionToJson(Emotion instance) => <String, dynamic>{
+Map<String, dynamic> _$ActivityToJson(Activity instance) => <String, dynamic>{
       'id': instance.id,
       'name': instance.name,
     };

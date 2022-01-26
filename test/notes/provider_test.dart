@@ -5,7 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:sophia_hub/model/emotion.dart';
+import 'package:sophia_hub/model/activity.dart';
 import 'package:sophia_hub/model/note.dart';
 import 'package:sophia_hub/model/result_container.dart';
 import 'package:sophia_hub/provider/notes_provider.dart';
@@ -23,7 +23,7 @@ main() async {
   group("Kiểm tra dữ trước khi tải lên liệu", () {
     setUp(() {
       provider = NotesProvider(
-          uid: mockFirebaseAuth.currentUser!.uid,
+          auth: mockFirebaseAuth,
           fireStore: fireStore,
           isTesting: true);
     });
@@ -40,36 +40,36 @@ main() async {
           title: 'test1',
           description: "Nội dung test 1",
           emotionPoint: 8,
-          emotions: LinkedHashSet.from([
-            emotions[0],
-            emotions[1],
-            emotions[2],
+          activities: LinkedHashSet.from([
+            activities[0],
+            activities[1],
+            activities[2],
           ]));
 
       Result result = await provider.addNote(note: note);
       expectLater(result.data != null, true);
     });
 
-    test("2/ Trường 'emotionsPoint' không hợp lệ", () async {
+    test("2/ Trường 'activitiesPoint' không hợp lệ", () async {
       Note note = Note(
           title: 'test1',
           description: "Nội dung test 1",
           emotionPoint: -1,
-          emotions: LinkedHashSet.from([
-            emotions[0],
-            emotions[1],
-            emotions[2],
+          activities: LinkedHashSet.from([
+            activities[0],
+            activities[1],
+            activities[2],
           ]));
       Result result = await provider.addNote(note: note);
       expectLater(result.data == null, true);
     });
 
-    test("3/ Trường 'emotions' không hợp lệ", () async {
+    test("3/ Trường 'activities' không hợp lệ", () async {
       Note note = Note(
           title: 'test1',
           description: "Nội dung test 1",
           emotionPoint: 0,
-          emotions: LinkedHashSet.from([]));
+          activities: LinkedHashSet.from([]));
       Result result = await provider.addNote(note: note);
       expectLater(result.data == null, true);
     });
@@ -79,7 +79,7 @@ main() async {
   group("Đọc dữ liệu", () {
     setUp(() async {
       provider = NotesProvider(
-          uid: mockFirebaseAuth.currentUser!.uid,
+          auth: mockFirebaseAuth,
           fireStore: fireStore,
           isTesting: true);
     });
@@ -98,22 +98,23 @@ main() async {
             title: 'title$e',
             description: "Nội dung test $e",
             emotionPoint: Random().nextInt(10),
-            emotions: LinkedHashSet.from([
-              emotions[0],
-              emotions[1],
-              emotions[2],
+            activities: LinkedHashSet.from([
+              activities[0],
+              activities[1],
+              activities[2],
             ]));
         note
           ..timeCreated =
-              DateTime.now().subtract(Duration(days: Random().nextInt(15)));
+              DateTime.now().subtract(Duration(days: Random().nextInt(15),
+              seconds: Random().nextInt(60)));
         provider.notes.add(note);
       });
-      provider.quickSort(provider.notes, 0, provider.notes.length - 1);
-
+      provider.sort();
+      print(provider.notes);
       //Kiểm tra độ dài
       expect(provider.notes.length, 10);
       // kiểm tra ngẫu nghiên
-      for (int _ in [1, 2]) {
+      for (int _ in [0,0,0,0,0]) {
         int length = provider.notes.length;
         int randomIndex = Random().nextInt(length - 1);
         if (randomIndex == 0) randomIndex += 1;
@@ -134,15 +135,16 @@ main() async {
             title: 'test1',
             description: "Nội dung test 1",
             emotionPoint: 8,
-            emotions: LinkedHashSet.from([
-              emotions[0],
-              emotions[1],
-              emotions[2],
+            activities: LinkedHashSet.from([
+              activities[0],
+              activities[1],
+              activities[2],
             ]));
         Result result = await provider.addNote(note: note..title = 'title$e');
         expect(result.data != null, true);
       });
       await provider.loadMoreNotes();
+      print(provider.notes);
       expect(provider.notes.length, 10);
     });
 
@@ -152,10 +154,10 @@ main() async {
             title: 'title$i',
             description: "Nội dung test $i",
             emotionPoint: Random().nextInt(10),
-            emotions: LinkedHashSet.from([
-              emotions[0],
-              emotions[1],
-              emotions[2],
+            activities: LinkedHashSet.from([
+              activities[0],
+              activities[1],
+              activities[2],
             ]));
         note
           ..timeCreated =
@@ -189,10 +191,10 @@ main() async {
             title: 'Tiêu đề - $i',
             description: "Nội dung test $i",
             emotionPoint: Random().nextInt(10),
-            emotions: LinkedHashSet.from([
-              emotions[0],
-              emotions[1],
-              emotions[2],
+            activities: LinkedHashSet.from([
+              activities[0],
+              activities[1],
+              activities[2],
             ]));
         note
           ..timeCreated =

@@ -23,6 +23,9 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+
 
 
   # The following adds the Cupertino Icons font to your application.
@@ -43,6 +46,15 @@ dependencies:
   json_annotation:
   google_fonts: ^2.2.0
 
+  grouped_list: 4.1.0
+
+  font_awesome_flutter:
+
+  cached_network_image: ^3.2.0
+
+  url_launcher:
+
+  flutter_slidable:
 
 dev_dependencies:
   integration_test:
@@ -58,11 +70,14 @@ dev_dependencies:
 
 # The following section is specific to Flutter.
 flutter:
+  generate: true
+
   uses-material-design: true
 
   assets:
     - media/
     - media/images/
+    - media/logo/
     - google_fonts/
 
   # An image asset can refer to one or more resolution-specific "variants", see

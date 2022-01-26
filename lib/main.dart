@@ -3,12 +3,15 @@ import 'package:firebase_auth/firebase_auth.dart' show FirebaseAuth;
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:sophia_hub/constant/theme.dart';
 import 'package:sophia_hub/firebase_options.dart';
 import 'package:sophia_hub/model/note.dart';
 import 'package:sophia_hub/provider/notes_provider.dart';
+import 'package:sophia_hub/provider/quote_provider.dart';
 import 'package:sophia_hub/provider/task_provider.dart';
+import 'package:sophia_hub/provider/ui_logic.dart';
 import 'package:sophia_hub/provider/user_provider.dart';
 import 'package:sophia_hub/view/animation/route_change_anim.dart';
 import 'package:sophia_hub/view/base_container.dart';
@@ -78,7 +81,7 @@ class _MyAppState extends State<MyApp> {
             // type: Note.
             try {
               Note note = settings.arguments as Note;
-              widget = NoteDetails.view(note);
+              widget = NoteDetails.view(note,key: LabeledGlobalKey("${note.id}"));
             } catch (e) {
               print("Phải có object Note");
             }
@@ -103,12 +106,37 @@ class _MyAppState extends State<MyApp> {
         // );
         return RouteAnimation.buildDefaultRouteTransition(widget, settings);
       },
+      localizationsDelegates: [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: [Locale('vi', 'VI'), Locale('en', 'US')],
+      localeListResolutionCallback: (locales, supportedLocales) {
+        print('device locales=$locales supported locales=$supportedLocales');
+        for (Locale locale in locales!) {
+          // if device language is supported by the app,
+          // just return it to set it as current app language
+          if (supportedLocales.contains(locale)) {
+            return locale;
+          }
+        }
+
+        // if device language is not supported by the app,
+        // the app will set it to english but return this to set to Bahasa instead
+        return Locale('vi', 'VI');
+      },
+      locale: Locale('vi', 'VI'),
       theme: lightTheme(context),
       darkTheme: lightTheme(context),
     );
 
     // Providers cần thiết.
     MultiProvider multiProvider = MultiProvider(providers: [
+      ChangeNotifierProvider<UILogic>(
+        create: (_) => UILogic(),
+      ),
+
       StreamProvider<firebase_auth.User?>(
         create: (_) => FirebaseAuth.instance.authStateChanges(),
         initialData: FirebaseAuth.instance.currentUser,
@@ -130,19 +158,29 @@ class _MyAppState extends State<MyApp> {
 
       ChangeNotifierProxyProvider<Auth, NotesProvider>(
         create: (_) => NotesProvider(
-            uid: FirebaseAuth.instance.currentUser?.uid ?? 'NaN',
+            auth: FirebaseAuth.instance,
             fireStore: FirebaseFirestore.instance),
         lazy: true,
         update: (_, auth, preNotesProvider) {
           //TODO logic thay doi du lieu moi khi thay doi tai khoan nguoi dung
-          if (auth.firebaseAuth.currentUser == null) preNotesProvider?.clear();
           print("updating notes Data ${auth.firebaseAuth.currentUser?.uid}");
+          if (auth.firebaseAuth.currentUser == null) preNotesProvider?.clear();
+          else preNotesProvider?.config();
 
           return preNotesProvider!;
         },
       ),
       ChangeNotifierProxyProvider<Auth, TaskProvider>(
         create: (_) => TaskProvider(),
+        lazy: true,
+        update: (_, userProvider, preTaskProvider) {
+          // print("updating notes task provider");
+          return preTaskProvider!;
+        },
+      ),
+
+      ChangeNotifierProxyProvider<Auth, QuotesProvider>(
+        create: (_) => QuotesProvider(fireStore: FirebaseFirestore.instance),
         lazy: true,
         update: (_, userProvider, preTaskProvider) {
           // print("updating notes task provider");

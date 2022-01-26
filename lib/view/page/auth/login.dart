@@ -30,105 +30,131 @@ class _LoginViewState extends State<LoginView> {
   @override
   Widget build(BuildContext context) {
     Auth auth = Provider.of<Auth>(context, listen: false);
+    Color primary = Theme.of(context).colorScheme.primary;
+    return Container(
+      decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            stops: [
+              0.1,
+              1.0,
+            ],
+            colors: [
+              Theme.of(context).colorScheme.secondary,
+              Theme.of(context).colorScheme.primary,
 
-    return SafeArea(
-      child: Container(
-        alignment: Alignment.center,
-        padding: EdgeInsets.symmetric(horizontal: 20),
-        child: Stack(
-          children: [
-            Align(
-              alignment: Alignment.bottomLeft,
-              child:  TextButton.icon(onPressed: (){
-                Navigator.of(context).pop();
-              }, icon: Icon(Icons.arrow_back_rounded,color: Colors.white,), label: Text('')),
+            ],
+          )),
+      alignment: Alignment.center,
+      padding: EdgeInsets.symmetric(horizontal: 20),
+      child: Stack(
+        children: [
+          Align(
+            alignment: Alignment.topRight,
+            child: SafeArea(
+              child: Container(
+                  alignment: Alignment.center,
+                  margin: EdgeInsets.only(top: 12, right: 8),
+                  height: 50,
+                  width: 50,
+                  decoration: ShapeDecoration(
+                      color: Colors.grey.shade200.withOpacity(0.5),
+                      shape: ContinuousRectangleBorder(
+                          borderRadius: BorderRadius.circular(16))),
+                  child: TextButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    child: Icon(Icons.close_rounded),
+                  )),
             ),
-            Form(
-              key: _formKey,
-              child: Column(
+          ),
+          Form(
+            key: _formKey,
+            child: Column(
 
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Spacer(),
-                  Text("Đăng nhập tài khoản",
-                    textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.headline3?.copyWith(
-                      color: Theme.of(context).colorScheme.primary.withOpacity(0.7)
-                    ),),
-                  Spacer(),
-                  Tooltip(
-                    message: "Login email form field",
-                    child: TextFormField(
-                      initialValue: email,
-                      style: TextStyle(
-                          color: Colors.white
-                      ),
-                      decoration: InputDecoration(label: Text("Email")),
-                      validator: checkFormatEmail,
-                      onChanged: (e) => this.email = e,
-                    ),
-                  ),
-                  SizedBox(height: 20,),
-                  Tooltip(
-                    message: "Login password form field",
-                    child: TextFormField(
-                      initialValue: pwd,
-                      obscureText: _isObscure,
-                      style: TextStyle(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Spacer(),
+                Text("Đăng nhập tài khoản",
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.headline3?.copyWith(
+                    color: primary.withOpacity(0.7)
+                  ),),
+                Spacer(),
+                Tooltip(
+                  message: "Login email form field",
+                  child: TextFormField(
+                    initialValue: email,
+                    style: TextStyle(
                         color: Colors.white
-                      ),
-                      decoration: InputDecoration(
-                        label: Text("Mật khẩu"),
-                        suffixIcon: IconButton(
-                          icon: Icon(
-                            _isObscure ? Icons.visibility : Icons.visibility_off,
-                          ),
-                          onPressed: () {
-                            setState(() {
-                              _isObscure = !_isObscure;
-                            });
-                          },
-                        ),
-                      ),
-                      onChanged: (pwd) => this.pwd = pwd,
                     ),
+                    decoration: InputDecoration(label: Text("Email")),
+                    validator: checkFormatEmail,
+                    onChanged: (e) => this.email = e,
                   ),
-                  ElevatedButton(
-                      onPressed: () async {
-                        print("Loading");
-                        bool isValidForm = _formKey.currentState?.validate() ?? false;
-                        if (!isValidForm) return;
+                ),
+                SizedBox(height: 20,),
+                Tooltip(
+                  message: "Login password form field",
+                  child: TextFormField(
+                    initialValue: pwd,
+                    obscureText: _isObscure,
+                    style: TextStyle(
+                      color: Colors.white
+                    ),
+                    decoration: InputDecoration(
+                      label: Text("Mật khẩu"),
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          _isObscure ? Icons.visibility : Icons.visibility_off,
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            _isObscure = !_isObscure;
+                          });
+                        },
+                      ),
+                    ),
+                    onChanged: (pwd) => this.pwd = pwd,
+                  ),
+                ),
+                ElevatedButton(
+                    onPressed: () async {
+                      print("Loading");
+                      bool isValidForm = _formKey.currentState?.validate() ?? false;
+                      if (!isValidForm) return;
 
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Processing Data'),
-                          ),
-                        );
-                        Result<UserCredential> result =
-                            await auth.login(email, pwd);
-                        print(result);
-                        if (result.data != null) {
-                          Navigator.of(context, rootNavigator: true)
-                              .pushReplacementNamed(BaseContainer.nameRoute);
-                        } else {
-                          showDialog(
-                              context: context,
-                              builder: (_) {
-                                return Dialog(
-                                    child: Text("${result.error}"),
-                                );
-                              });
-                        }
-                      },
-                      child: Text("Đăng nhập")),
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Processing Data'),
+                        ),
+                      );
+                      Result<UserCredential> result =
+                          await auth.login(email, pwd);
+                      print(result);
+                      if (result.data != null) {
+                        Navigator.of(context, rootNavigator: true)
+                            .pushNamed(BaseContainer.nameRoute);
+                      } else {
+                        showDialog(
+                            context: context,
+                            builder: (_) {
+                              return Dialog(
+                                  child: Text("${result.error}"),
+                              );
+                            });
+                      }
+                    },
+                    child: Text("Đăng nhập")),
 
-                  Spacer(flex: 2,)
-                ],
-              ),
+                Spacer(flex: 2,)
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

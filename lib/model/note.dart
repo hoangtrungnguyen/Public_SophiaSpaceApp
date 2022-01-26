@@ -4,7 +4,7 @@ import 'dart:core';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:json_annotation/json_annotation.dart';
-import 'package:sophia_hub/model/emotion.dart';
+import 'package:sophia_hub/model/activity.dart';
 
 part 'note.g.dart';
 
@@ -15,7 +15,7 @@ class Note with ChangeNotifier implements Comparable<Note> {
   @JsonKey(name: 'emotion_point')
   int emotionPoint = 0;
   @JsonKey(ignore: true)
-  late LinkedHashSet<Emotion> emotions;
+  late LinkedHashSet<Activity> activities;
   String? title;
   String? description;
   @JsonKey(
@@ -30,6 +30,7 @@ class Note with ChangeNotifier implements Comparable<Note> {
 
   static Timestamp timeCreatedToJson(DateTime date) => Timestamp.fromDate(date);
 
+  @JsonKey(ignore: true)
   String get id => _id ?? "NaN";
 
   //Chỉ cho phép đặt Id một lần
@@ -40,7 +41,7 @@ class Note with ChangeNotifier implements Comparable<Note> {
       _id = id;
   }
 
-  set point(int point){
+  set point(int point) {
     this.emotionPoint = point;
     notifyListeners();
   }
@@ -48,40 +49,41 @@ class Note with ChangeNotifier implements Comparable<Note> {
   Note({
     this.title,
     this.description,
-    LinkedHashSet<Emotion>? emotions,
+    LinkedHashSet<Activity>? activities,
     required this.emotionPoint,
   }) {
-    this.emotions = emotions ?? LinkedHashSet.from([]);
+    this.activities = activities ?? LinkedHashSet.from([]);
     this.timeCreated = DateTime.now();
   }
 
-  addEmotion(Emotion emotion) {
-    this.emotions.add(emotion);
+  addEmotion(Activity emotion) {
+    this.activities.add(emotion);
     notifyListeners();
   }
 
-  void removeEmotion(Emotion emotion) {
-    this.emotions.remove(emotion);
+  void removeEmotion(Activity emotion) {
+    this.activities.remove(emotion);
     notifyListeners();
   }
 
   bool isValid() =>
-      emotions.length > 0 && emotionPoint <= 10 && emotionPoint >= 0;
+      activities.length > 0 && emotionPoint <= 10 && emotionPoint >= 0;
 
-  @override
-  String toString() {
-    return """{
-      "emotionPoint": $emotionPoint,
-      "title": $title,
-      "description": $description,
-      "time_created": ${timeCreated},
-      "emotions": $emotions,
-    }""";
+  Note copy() {
+    return Note(
+      emotionPoint: this.emotionPoint,
+      description: this.description,
+      title: this.title,
+      activities: this.activities,
+    )
+      ..timeCreated = this.timeCreated
+      ..id = _id ?? 'NaN';
   }
 
   factory Note.fromJson(Map<String, dynamic> json) => _$NoteFromJson(json);
 
   /// Connect the generated [_$NoteToJson] function to the `toJson` method.
+
   Map<String, dynamic> toJson() => _$NoteToJson(this);
 
   @override
@@ -96,13 +98,30 @@ class Note with ChangeNotifier implements Comparable<Note> {
     }
   }
 
+  //Method này sẽ tác động đến method List.contains(element). Hàm contains được sử dụng trong class NotesProviders
   @override
-  bool operator ==(Object other) {
-    if (other.runtimeType == Note)
+  bool operator ==(Object _other) {
+    if (_other.runtimeType == Note) {
+      Note other = _other as Note;
       return /*this.timeCreated.isAtSameMomentAs((other as Note).timeCreated) &&*/
-          this.id == (other as Note).id;
-    else
+          this.id == other.id &&
+              this.description == other.description &&
+              this.title == other.title &&
+              // this.activities == other.activities &&
+              this.emotionPoint == other.emotionPoint;
+    } else
       return false;
+  }
+
+  @override
+  String toString() {
+    return """{
+      "emotionPoint": $emotionPoint,
+      "title": $title,
+      "description": $description,
+      "time_created": ${timeCreated},
+      "activities": $activities,
+    }""";
   }
 }
 

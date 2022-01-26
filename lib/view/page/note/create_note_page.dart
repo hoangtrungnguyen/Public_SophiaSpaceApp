@@ -42,7 +42,7 @@ class _CreateNotePageState extends State<CreateNotePage>
             title: "",
             description: "",
             emotionPoint: 0,
-            emotions: LinkedHashSet(),
+            activities: LinkedHashSet(),
           ),
         ),
         //This provider is to check if this screen is first screen

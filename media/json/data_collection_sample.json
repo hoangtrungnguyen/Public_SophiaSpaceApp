@@ -1,0 +1,15 @@
+{
+  "uid1": {
+    "notes_count": 1,
+    "notes": {
+      "id1": {
+        "title": "title",
+        "description": "description",
+        "time_created": "Jan 25, 2022 08:18:45 PM",
+        "emotion_point": 10,
+      }
+    }
+  },
+  "uid2": {
+  }
+}

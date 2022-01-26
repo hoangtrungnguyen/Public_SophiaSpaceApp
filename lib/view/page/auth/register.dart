@@ -28,135 +28,164 @@ class _RegisterViewState extends State<RegisterView> {
     Auth userProvider = Provider.of<Auth>(context, listen: false);
     return Container(
       alignment: Alignment.center,
+      decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            stops: [
+              0.1,
+              1.0,
+            ],
+            colors: [
+              Theme.of(context).colorScheme.secondary,
+              Theme.of(context).colorScheme.primary,
+
+            ],
+          )),
       padding: EdgeInsets.symmetric(horizontal: 20),
-      child: Form(
-        key: _formKey,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Spacer(),
-            TextFormField(
-              initialValue: '',
-              style: TextStyle(
-                  color: Colors.white
-              ),
-              decoration: InputDecoration(label: Text("Tên của bạn")),
-              validator: (name) {
-                String? message;
-                if (name == null) {
-                  message = "Tên không được để trống";
-                }
-                return message;
-              },
-              onChanged: (e) => this.displayName = e,
-            ),
-            SizedBox(height: 20,),
-            TextFormField(
-              style: TextStyle(
-                  color: Colors.white
-              ),
-              decoration: InputDecoration(label: Text("Email")),
-              validator: checkFormatEmail,
-              onChanged: (e) => this.email = e,
-            ),
-            SizedBox(height: 20,),
-            TextFormField(
-              style: TextStyle(
-                  color: Colors.white
-              ),
-              obscureText: _isObscure,
-              decoration: InputDecoration(
-                  suffixIcon: IconButton(
-                    icon: Icon(
-                      _isObscure ? Icons.visibility : Icons.visibility_off,
-                    ),
+      child: Stack(
+        children: [
+          Align(
+            alignment: Alignment.topRight,
+            child: SafeArea(
+              child: Container(
+                  alignment: Alignment.center,
+                  margin: EdgeInsets.only(top: 12, right: 8),
+                  height: 50,
+                  width: 50,
+                  decoration: ShapeDecoration(
+                      color: Colors.grey.shade200.withOpacity(0.5),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16))),
+                  child: TextButton(
                     onPressed: () {
-                      setState(() {
-                        _isObscure = !_isObscure;
-                      });
+                      Navigator.pop(context);
                     },
-                  ),
-                  label: Text("Mật khẩu")),
-              onChanged: (pwd1) => this.pwd1 = pwd1,
-              validator: (pwd) {
-                String? message;
-
-                if (pwd == null || pwd.isEmpty) {
-                  message = "Mật khẩu không được để trống";
-                }
-
-                return message;
-              },
+                    child: Icon(Icons.close_rounded),
+                  )),
             ),
-            SizedBox(height: 20,),
-            TextFormField(
-              style: TextStyle(
-                  color: Colors.white
-              ),
-              obscureText: _isObscure,
-              decoration: InputDecoration(
-                  suffixIcon: IconButton(
-                    icon: Icon(
-                      _isObscure ? Icons.visibility : Icons.visibility_off,
-                    ),
-                    onPressed: () {
-                      setState(() {
-                        _isObscure = !_isObscure;
-                      });
-                    },
+          ),
+          Form(
+            key: _formKey,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Spacer(),
+                TextFormField(
+                  initialValue: '',
+                  style: TextStyle(
+                      color: Colors.white
                   ),
-                  label: Text("Xác nhận mật khẩu")),
-              onChanged: (pwd2) => this.pwd2 = pwd2,
-              validator: (pwd) {
-                String? message;
-                if (pwd == null || pwd.isEmpty) {
-                  message = "Mật khẩu không được để trống";
-                } else if (pwd != this.pwd1) {
-                  message = "Hai mật khẩu không trùng nhau";
-                }
-
-                return message;
-              },
-            ),
-            SizedBox(height: 20,),
-            ElevatedButton(
-                onPressed: () async {
-                  if (!(_formKey.currentState?.validate() ?? false)) return;
-
-                  print("Loading");
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Đang xử lý ...')),
-                  );
-                  Result<UserCredential> result = await userProvider
-                      .register(email, pwd1, displayName: displayName);
-                  print(result);
-                  if (result.data != null) {
-                    Navigator.of(context, rootNavigator: true)
-                        .pushReplacementNamed(BaseContainer.nameRoute);
-                  } else {
-                    showDialog(
-                        context: context,
-                        builder: (_) {
-                          return Dialog(
-                              child: Text("${result.error}"),
-                          );
-                        });
-                  }
-                },
-                child: Text("Đăng ký")),
-            Spacer(),
-            Container(
-              alignment: Alignment.bottomLeft,
-              child: TextButton.icon(
-                  onPressed: () {
-                    Navigator.maybePop(context);
+                  decoration: InputDecoration(label: Text("Tên của bạn")),
+                  validator: (name) {
+                    String? message;
+                    if (name == null) {
+                      message = "Tên không được để trống";
+                    }
+                    return message;
                   },
-                  icon: Icon(Icons.arrow_back,color: Colors.white,),
-                  label: Text('')),
-            )
-          ],
-        ),
+                  onChanged: (e) => this.displayName = e,
+                ),
+                SizedBox(height: 20,),
+                TextFormField(
+                  style: TextStyle(
+                      color: Colors.white
+                  ),
+                  decoration: InputDecoration(label: Text("Email")),
+                  validator: checkFormatEmail,
+                  onChanged: (e) => this.email = e,
+                ),
+                SizedBox(height: 20,),
+                TextFormField(
+                  style: TextStyle(
+                      color: Colors.white
+                  ),
+                  obscureText: _isObscure,
+                  decoration: InputDecoration(
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          _isObscure ? Icons.visibility : Icons.visibility_off,
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            _isObscure = !_isObscure;
+                          });
+                        },
+                      ),
+                      label: Text("Mật khẩu")),
+                  onChanged: (pwd1) => this.pwd1 = pwd1,
+                  validator: (pwd) {
+                    String? message;
+
+                    if (pwd == null || pwd.isEmpty) {
+                      message = "Mật khẩu không được để trống";
+                    }
+
+                    return message;
+                  },
+                ),
+                SizedBox(height: 20,),
+                TextFormField(
+                  style: TextStyle(
+                      color: Colors.white
+                  ),
+                  obscureText: _isObscure,
+                  decoration: InputDecoration(
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          _isObscure ? Icons.visibility : Icons.visibility_off,
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            _isObscure = !_isObscure;
+                          });
+                        },
+                      ),
+                      label: Text("Xác nhận mật khẩu")),
+                  onChanged: (pwd2) => this.pwd2 = pwd2,
+                  validator: (pwd) {
+                    String? message;
+                    if (pwd == null || pwd.isEmpty) {
+                      message = "Mật khẩu không được để trống";
+                    } else if (pwd != this.pwd1) {
+                      message = "Hai mật khẩu không trùng nhau";
+                    }
+
+                    return message;
+                  },
+                ),
+                SizedBox(height: 20,),
+                ElevatedButton(
+                    onPressed: () async {
+                      if (!(_formKey.currentState?.validate() ?? false)) return;
+
+                      print("Loading");
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Đang xử lý ...')),
+                      );
+                      Result<UserCredential> result = await userProvider
+                          .register(email, pwd1, displayName: displayName);
+                      print(result);
+                      if (result.data != null) {
+                        Navigator.of(context, rootNavigator: true)
+                            .pushReplacementNamed(BaseContainer.nameRoute);
+                      } else {
+                        showDialog(
+                            context: context,
+                            builder: (_) {
+                              return Dialog(
+                                  child: Text("${result.error}"),
+                              );
+                            });
+                      }
+                    },
+                    child: Text("Đăng ký")),
+                Spacer(),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

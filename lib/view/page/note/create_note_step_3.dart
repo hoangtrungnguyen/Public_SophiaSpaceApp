@@ -74,8 +74,8 @@ class _NoteDetailsViewState extends State<NoteDetailsView> {
                 alignment: WrapAlignment.start,
                 crossAxisAlignment: WrapCrossAlignment.start,
                 runAlignment: WrapAlignment.start,
-                children: note.emotions.length > 0
-                    ? note.emotions.map((e) {
+                children: note.activities.length > 0
+                    ? note.activities.map((e) {
                   return Padding(
                     padding: EdgeInsets.symmetric(horizontal: 2),
                     child: Chip(

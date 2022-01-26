@@ -5,17 +5,19 @@ ShapeBorder roundedRectangleBorder = ContinuousRectangleBorder(
   borderRadius: BorderRadius.circular(28.0),
 );
 
+ShapeDecoration commonDecoration (Color color) => ShapeDecoration(
+    color: color,
+    shape: ContinuousRectangleBorder(borderRadius: BorderRadius.circular(32)));
+
 ColorScheme getColorScheme(
   BuildContext context, {
-  MaterialColor color: Colors.red,
+  MaterialColor color: Colors.indigo,
 }) {
   final primary = color[700];
   final secondary = color[400];
   return Theme.of(context).colorScheme.copyWith(
         primary: primary,
         secondary: secondary,
-
-
       );
 }
 
@@ -26,22 +28,29 @@ TextTheme getTextTheme(BuildContext context, {String fontName = "Dongle"}) {
 }
 
 ThemeData lightTheme(BuildContext context) {
-  ThemeData themeData = Theme.of(context).copyWith(
-      colorScheme: getColorScheme(context),
-      textTheme: getTextTheme(context, fontName: 'Nunito'));
+  ColorScheme colorScheme = getColorScheme(context);
+  ThemeData themeData = Theme.of(context)
+      .copyWith(colorScheme: colorScheme, textTheme: getTextTheme(context));
 
   themeData = themeData.copyWith(
+    // shadowColor: (){
+    //   Color primary = colorScheme.primary;
+    //   int blue = primary.blue;
+    //   int green = primary.green;
+    //   int red = primary.red;
+    //
+    //   return Color.fromRGBO((red).toInt(), (green ~/ 1.1).toInt(),
+    //       (blue ~/ 1.1).toInt(), 0.5);
+    // }(),
     chipTheme: ChipTheme.of(context).copyWith(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         padding: EdgeInsets.symmetric(horizontal: 0, vertical: 0)),
-
     inputDecorationTheme: InputDecorationTheme(
       border: OutlineInputBorder(
-        borderSide: BorderSide(color: Colors.white),
-        borderRadius: BorderRadius.all(Radius.circular(8.0))
-      ),
+          borderSide: BorderSide(color: Colors.white),
+          borderRadius: BorderRadius.all(Radius.circular(8.0))),
       contentPadding: EdgeInsets.symmetric(
-        vertical:12,
+        vertical: 12,
         horizontal: 12,
       ),
       hintStyle: TextStyle(
