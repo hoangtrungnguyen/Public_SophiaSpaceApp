@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import 'package:sophia_hub/constant/theme.dart';
+import 'package:sophia_hub/helper/note_helper_func.dart';
 import 'package:sophia_hub/model/note.dart';
 import 'package:sophia_hub/view/page/note/note_detail_is_editing.dart';
 
 class NoteDetails extends StatefulWidget {
   static const String nameRoute = "/NoteDetails";
-
 
   static Route<dynamic> route() {
     return MaterialPageRoute(builder: (BuildContext context) {
@@ -15,17 +14,17 @@ class NoteDetails extends StatefulWidget {
     });
   }
 
-  static Widget view(Note note,{Key? key}) {
+  static Widget view(Note note, {Key? key}) {
     Note copied = note.copy();
     return ChangeNotifierProvider<Note>(
       create: (_) {
         return copied;
       },
-      child:NoteDetails(),
+      child: NoteDetails(),
     );
   }
 
-  NoteDetails({Key? key}):super(key: key);
+  NoteDetails({Key? key}) : super(key: key);
 
   @override
   _NoteDetailsState createState() => _NoteDetailsState();
@@ -35,6 +34,12 @@ class _NoteDetailsState extends State<NoteDetails> {
   @override
   Widget build(BuildContext context) {
     Note note = Provider.of<Note>(context);
+    Color primary = Theme.of(context).colorScheme.primary;
+    final head4 = Theme.of(context).textTheme.headline4?.copyWith(
+        color: primary.withOpacity(0.3), fontWeight: FontWeight.bold);
+    final head6 = Theme.of(context).textTheme.headline6?.copyWith(
+        color: primary.withOpacity(0.3), fontWeight: FontWeight.bold);
+    Size size = MediaQuery.of(context).size;
     return Scaffold(
         floatingActionButton: FloatingActionButton(
           shape: ContinuousRectangleBorder(
@@ -85,47 +90,95 @@ class _NoteDetailsState extends State<NoteDetails> {
         body: Container(
             child: Column(
           children: [
-            SizedBox(
-              height: 20,
-            ),
-            SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Row(
+            Container(
+              height: 210,
+              width: double.infinity,
+              child: Stack(
                 children: [
-                  SizedBox(width: 32,),
-                  ...note.activities.map((e) {
-                  return Hero(
-                    tag: "emotions ${e.id}",
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 2),
-                      child: Material(
-                        child: Chip(
-                            elevation: 6,
-                            backgroundColor: Colors.white,
-                            avatar: Icon(
-                              e.icon,
-                              color: Theme.of(context).colorScheme.primary,
-                            ),
-                            label: Text(
-                              e.name ?? "NaN",
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .caption
-                                  ?.copyWith(
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .primary),
-                            )),
+                  Positioned(
+                      top: size.width / 28,
+                      bottom: size.width / 8.2,
+                      left: size.width / 3.8,
+                      right: 0,
+                      child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text('Trạng thái', style: head4),
+                            Text("Hoạt động", style: head4),
+                          ])),
+                  Align(
+                    alignment: Alignment(-1.3, -0.5),
+                    child: Hero(
+                      tag: "mood icon",
+                      child: Icon(
+                        generateMoodIcon(note.emotionPoint),
+                        color: primary.withOpacity(0.1),
+                        size: 130,
                       ),
                     ),
-                  );
-                }).toList(),
-          ]
+                  ),
+                  Positioned(
+                      left: size.width / 4,
+                      // right: size.width/4,
+                      top: 45,
+                      child: Card(
+                        elevation: 4,
+                        child: Padding(
+                          padding:
+                              EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                          child: Hero(
+                            tag: "mood text",
+                            child: Text(
+                              "${generateMoodStatus(note.emotionPoint)}",
+                              style: head6?.copyWith(color: primary),
+                            ),
+                          ),
+                        ),
+                      )),
+                  Positioned(
+                    left: 0,
+                    right: 0,
+                    bottom: 10,
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(children: [
+                        SizedBox(
+                          width: size.width / 4,
+                        ),
+                        ...note.activities.map((e) {
+                          return Hero(
+                            tag: "emotions ${e.id}",
+                            child: Padding(
+                              padding:
+                                  EdgeInsets.only(left: 8, right: 8, bottom: 8),
+                              child: Material(
+                                color: Colors.transparent,
+                                child: Chip(
+                                    backgroundColor: Colors.transparent,
+                                    avatar: Icon(
+                                      e.icon,
+                                      color: primary,
+                                    ),
+                                    label: Text(
+                                      e.name ?? "NaN",
+                                    )),
+                              ),
+                            ),
+                          );
+                        }).toList(),
+                      ]),
+                    ),
+                  ),
+                ],
               ),
             ),
+
             SizedBox(
               height: 20,
             ),
+
+            //TextField
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 16),
               child: Builder(

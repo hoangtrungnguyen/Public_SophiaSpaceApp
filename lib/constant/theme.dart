@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-ShapeBorder roundedRectangleBorder = ContinuousRectangleBorder(
+ShapeBorder continuousRectangleBorder = ContinuousRectangleBorder(
   borderRadius: BorderRadius.circular(28.0),
 );
 
@@ -42,9 +42,18 @@ ThemeData lightTheme(BuildContext context) {
     //   return Color.fromRGBO((red).toInt(), (green ~/ 1.1).toInt(),
     //       (blue ~/ 1.1).toInt(), 0.5);
     // }(),
+
+    dialogTheme:
+        DialogTheme.of(context).copyWith(shape: continuousRectangleBorder),
     chipTheme: ChipTheme.of(context).copyWith(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        padding: EdgeInsets.symmetric(horizontal: 0, vertical: 0)),
+      elevation: 4,
+      shape: ContinuousRectangleBorder(borderRadius: BorderRadius.circular(24)),
+      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+      labelStyle: themeData.textTheme.headline5
+          ?.copyWith(color: themeData.colorScheme.primary),
+      secondaryLabelStyle: themeData.textTheme.headline5
+          ?.copyWith(color: themeData.colorScheme.primary),
+    ),
     inputDecorationTheme: InputDecorationTheme(
       border: OutlineInputBorder(
           borderSide: BorderSide(color: Colors.white),
@@ -65,22 +74,22 @@ ThemeData lightTheme(BuildContext context) {
       elevation: 100,
     ),
     listTileTheme: ListTileTheme.of(context).copyWith(
-      shape: roundedRectangleBorder,
+      shape: continuousRectangleBorder,
     ),
     floatingActionButtonTheme: Theme.of(context)
         .floatingActionButtonTheme
         .copyWith(
-            shape: roundedRectangleBorder,
+            shape: continuousRectangleBorder,
             backgroundColor: getColorScheme(context).primary),
     cardTheme: Theme.of(context).cardTheme.copyWith(
           margin: EdgeInsets.all(10),
-          shape: roundedRectangleBorder,
+          shape: continuousRectangleBorder,
         ),
     elevatedButtonTheme: ElevatedButtonThemeData(
         style: ButtonStyle(
             // backgroundColor: MaterialStateProperty.all<Color?>(Colors.white) ,
             shape: MaterialStateProperty.all<OutlinedBorder?>(
-                roundedRectangleBorder as OutlinedBorder))),
+                continuousRectangleBorder as OutlinedBorder))),
   );
 
   return themeData;

@@ -39,21 +39,27 @@ class _WelcomeState extends State<Welcome> {
                   child: ElevatedButton(
 
                       onPressed: () async {
-                        Navigator.pushNamed(context, LoginView.routeName);
+                        Navigator.pushNamed(context, RegisterView.routeName);
                       },
                       child: Container(
-                        margin: EdgeInsets.symmetric(horizontal: 16,vertical: 4),
-                        child: Text("Đăng nhập",
-                        style: Theme.of(context).textTheme.headline5?.copyWith(color: Colors.white),),
+                        margin:
+                            EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                        child: Text(
+                          "Bắt đầu",
+                          style: Theme.of(context)
+                              .textTheme
+                              .headline5
+                              ?.copyWith(color: Colors.white),
+                        ),
                       ))),
               Align(
                  alignment: Alignment(0,0.97),
                 child: TextButton(
                     onPressed: () {
-                      Navigator.pushNamed(context, RegisterView.routeName);
+                      Navigator.pushNamed(context, LoginView.routeName);
                     },
                     child: Text(
-                      "Đăng ký",
+                      "Đã có tài khoản",
                       style: TextStyle(color: Colors.white),
                     )),
               ),

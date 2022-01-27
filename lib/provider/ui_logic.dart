@@ -11,6 +11,5 @@ class UILogic extends ChangeNotifier{
     notifyListeners();
   }
 
-
-
+  final notesListKey = GlobalKey<AnimatedListState>();
 }

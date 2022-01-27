@@ -1,14 +1,13 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:grouped_list/grouped_list.dart';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import 'package:sophia_hub/constant/theme.dart';
-import 'package:sophia_hub/helper/note_helper_func.dart';
 import 'package:sophia_hub/model/note.dart';
+import 'package:sophia_hub/model/result_container.dart';
 import 'package:sophia_hub/provider/notes_provider.dart';
-import 'package:sophia_hub/view/page/note/note_detail.dart';
+import 'package:sophia_hub/provider/ui_logic.dart';
+import 'package:sophia_hub/view/page/home/notes/single_item_note.dart';
 
 class NotesView extends StatefulWidget {
   @override
@@ -23,7 +22,15 @@ class _NotesViewState extends State<NotesView> {
     super.initState();
     _listNoteController = ScrollController()..addListener(_scrollListener);
     Future.microtask(() {
-      Provider.of<NotesProvider>(context, listen: false).loadMoreNotes();
+      Provider.of<NotesPublisher>(context, listen: false)
+          .loadMoreNotes()
+          .forEach((index) {
+        print(index);
+        Provider.of<UILogic>(context, listen: false)
+            .notesListKey
+            .currentState
+            ?.insertItem(index);
+      });
     });
   }
 
@@ -36,7 +43,15 @@ class _NotesViewState extends State<NotesView> {
   void _scrollListener() {
     if (_listNoteController?.position.extentAfter == 0) {
       print("loadmore");
-      Provider.of<NotesProvider>(context, listen: false).loadMoreNotes();
+      Provider.of<NotesPublisher>(context, listen: false)
+          .loadMoreNotes()
+          .forEach((index) {
+        print(index);
+        Provider.of<UILogic>(context, listen: false)
+            .notesListKey
+            .currentState
+            ?.insertItem(index);
+      });
     }
   }
 
@@ -44,243 +59,192 @@ class _NotesViewState extends State<NotesView> {
   Widget build(BuildContext context) {
     ColorScheme colorScheme = Theme.of(context).colorScheme;
     return Container(
+      width: double.infinity,
+      height: double.infinity,
       padding: EdgeInsets.only(top: 100),
-      alignment: Alignment.topCenter,
-      child: Consumer<NotesProvider>(builder: (ctx, data, child) {
-        if (data.isLoading && data.notes.length == 0) {
-          return Center(
-              child: Column(mainAxisSize: MainAxisSize.min, children: [
-            Icon(
-              Icons.cloud_download_outlined,
-              size: 100,
-              color: colorScheme.primary,
-            ),
-            Text("Loading...")
-          ]));
-        }
-
-        if (data.notes.length == 0) {
-          return Center(
-            child: Text(
-              "Hãy thêm ghi chú \nvề ngày của bạn tại đây",
-              style: Theme.of(context).textTheme.headline5,
-              textAlign: TextAlign.center,
-            ),
-          );
-        }
-
-        Widget groupListView = GroupedListView<Note, DateTime>(
-          elements: data.notes,
-          order: GroupedListOrder.DESC,
-          groupBy: (Note e) => DateTime(
-            e.timeCreated.year,
-            e.timeCreated.month,
-            e.timeCreated.day, /*e.timeCreated.hour*/
-          ),
-          groupSeparatorBuilder: (e) => SizedBox(
-            height: 40,
-          ),
-          shrinkWrap: true,
-          groupHeaderBuilder: (e) => _Header(e: e),
-          itemBuilder: (context, Note e) => Slidable(
-              endActionPane: ActionPane(
-                motion: ScrollMotion(),
-                children: [
-                  Card (
-                    color: Colors.red,
-                    // padding: EdgeInsets.all(8),
-                    // decoration: commonDecoration(Colors.red),
-                    child: Padding(padding: EdgeInsets.all(12),
-                    child: Icon(Icons.delete,color: Colors.white, size: 35,))
-                  ),
-                ],
-              ),
-              child: DailyNotes(note: e)),
-          controller: _listNoteController,
-        );
-
-        return SingleChildScrollView(
-          physics: BouncingScrollPhysics(),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children:[
-              _StatHeader(),
-              groupListView
-            ]
-          ),
-        );
-      }),
-    );
-  }
-
-  _buildListNote() {}
-}
-
-
-class _StatHeader extends StatelessWidget {
-  const _StatHeader({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
       child: Stack(
         children: [
           Align(
-            child: Text("Nhật ký của bạn",
-              style: Theme.of(context).textTheme.headline4?.apply(
-                  color: Colors.grey.withOpacity(0.8)
-              ),
-              textAlign: TextAlign.center,),
-            alignment: Alignment.topCenter,
+            alignment: Alignment.center,
+            child: Consumer<NotesPublisher>(builder: (ctx, data, child) {
+              if (data.isLoading && data.notes.length == 0) {
+                return Column(mainAxisSize: MainAxisSize.min, children: [
+                  Icon(
+                    Icons.cloud_download_outlined,
+                    size: 100,
+                    color: colorScheme.primary,
+                  ),
+                  Text("Loading...")
+                ]);
+              }
+
+              if (data.notes.length == 0) {
+                return Center(
+                  child: Text(
+                    "Hãy thêm ghi chú \nvề ngày của bạn tại đây",
+                    style: Theme.of(context).textTheme.headline5,
+                    textAlign: TextAlign.center,
+                  ),
+                );
+              }
+
+              return Container();
+            }),
           ),
-          // Align(
-          //   alignment: Alignment.bottomCenter,
-          //   child: Card(
-          //     elevation: 12,
-          //     child: Container(
-          //         height: 100,
-          //         child: ListTile(
-          //           title: Text("Nhật ký của bạn",style:
-          //           Theme.of(context).textTheme.headline5),
-          //           subtitle: Text(""),
-          //         )
-          //     ),
-          //   ),
-          // ),
+          Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              child: _buildListNote(context))
         ],
       ),
     );
   }
-}
 
-
-
-class _Header extends StatefulWidget {
-  final Note e;
-
-  const _Header({Key? key, required this.e}) : super(key: key);
-
-  @override
-  State<_Header> createState() => _HeaderState();
-}
-
-class _HeaderState extends State<_Header> {
-  @override
-  Widget build(BuildContext context) {
-    return ListTile(
-      leading: Container(
-          margin: EdgeInsets.only(top: 0),
-          padding: EdgeInsets.only(top: 5),
-          width: 50,
-          alignment: Alignment.center,
-          decoration: ShapeDecoration(
-              color: Colors.grey.shade200,
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16))),
-          child: Column(
-            children: [
-              Text(
-                "${DateFormat.d('vi').format(
-                  widget.e.timeCreated,
-                )}",
-              ),
-              Text(
-                "${DateFormat.MMM('vi').format(widget.e.timeCreated)}",
-                style: Theme.of(context).textTheme.caption,
-              ),
-            ],
-          )),
-      title: Text("${DateFormat.EEEE('vi').format(widget.e.timeCreated)}"),
-      subtitle: Text("${DateFormat.y('vi').format(widget.e.timeCreated)}"),
+  Widget _buildListNote(BuildContext context) {
+    // TextStyle? head5 = Theme.of(context).textTheme.headline5;
+    Widget groupListView = AnimatedList(
+      key: Provider.of<UILogic>(context, listen: false).notesListKey,
+      initialItemCount:
+          Provider.of<NotesPublisher>(context, listen: false).notes.length,
+      shrinkWrap: true,
+      itemBuilder: _buildItem,
+      controller: _listNoteController,
     );
-  }
-}
 
-class DailyNotes extends StatelessWidget {
-  final Note note;
-
-  DailyNotes({required this.note});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-      child: ElevatedButton(
-        style: Theme.of(context).elevatedButtonTheme.style?.copyWith(
-            padding: MaterialStateProperty.all<EdgeInsetsGeometry?>(
-              EdgeInsets.symmetric(horizontal: 16),
-            ),
-            shape:MaterialStateProperty.all<OutlinedBorder?>(
-                ContinuousRectangleBorder(
-                  borderRadius: BorderRadius.circular(32.0),
-                )
-            ) ,
-            elevation: MaterialStateProperty.all<double?>(8),
-            backgroundColor: MaterialStateProperty.all<Color?>(Colors.white)),
-        onPressed: () {
-          Navigator.pushNamed(context, NoteDetails.nameRoute, arguments: note);
-        },
-        child: Column(
+    return SingleChildScrollView(
+      physics: BouncingScrollPhysics(),
+      child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.start,
-          mainAxisSize: MainAxisSize.max,
+          mainAxisSize: MainAxisSize.min,
           children: [
-            ListTile(
-              leading: Icon(
-                generateMoodIcon(note.emotionPoint),
-                size: 36,
-              ),
-              contentPadding: EdgeInsets.zero,
-              title: Text("${displayTitle()}"),
-              subtitle: Text("${DateFormat.jm().format(note.timeCreated)} "),
-            ),
-            Wrap(
-              children: note.activities.length > 0
-                  ? note.activities.map((e) {
-                      return Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 2),
-                        child: Chip(
-                            avatar: Icon(
-                              e.icon,
-                              color: Colors.grey,
-                            ),
-                            label: Text(
-                              e.name ?? "NaN",
-                              style: Theme.of(context).textTheme.caption,
-                            )),
-                      );
-                    }).toList()
-                  : [],
-            )
-          ],
-        ),
-      ),
+            Padding(padding: EdgeInsets.only(bottom: 30), child: StatHeader()),
+            groupListView
+          ]),
     );
   }
 
-  String displayTitle() {
-    String? title = note.title;
-    int emotionPoint = note.emotionPoint;
-    String status;
-    if (title != null) if (title.isNotEmpty) return title;
+  Widget _buildItem(
+      BuildContext context, int index, Animation<double> animation) {
+    // TextStyle? head5 = Theme.of(context).textTheme.headline5;
+    NotesPublisher publisher =
+        Provider.of<NotesPublisher>(context, listen: false);
+    Note note = publisher.notes[index];
 
-    assert(emotionPoint >= 0 || emotionPoint < 10, 'Out of bound');
-    if (2 > emotionPoint && emotionPoint >= 0) {
-      status = "Rất tệ";
-    } else if (4 > emotionPoint && emotionPoint >= 2) {
-      status = "Hơi tệ";
-    } else if (5 > emotionPoint && emotionPoint >= 4) {
-      status = "Tạm ổn";
-    } else if (7 > emotionPoint && emotionPoint >= 5) {
-      status = "Tốt";
-    } else if (9 > emotionPoint && emotionPoint >= 7) {
-      status = "Rất tốt";
-    } else {
-      status = "Tuyệt vời";
+    Widget item = ChangeNotifierProvider<Note>.value(
+      value: note,
+      builder: (_, child) {
+        return Slidable(
+            endActionPane: ActionPane(
+              motion: ScrollMotion(),
+              children: [
+                Card(
+                    color: Colors.red,
+                    // margin: EdgeInsets.all(8),
+                    // decoration: commonDecoration(Colors.red),
+                    child: Padding(
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 0, vertical: 6),
+                        child: TextButton(
+                            onPressed: () {
+                              showDialog(
+                                  context: _,
+                                  barrierDismissible: false,
+                                  builder: (context) {
+                                    return _buildDialog(context, note);
+                                  });
+                            },
+                            child: Icon(
+                              Icons.delete,
+                              color: Colors.white,
+                              size: 30,
+                            )))),
+              ],
+            ),
+            child: DailyNotes(
+              note: note,
+            ));
+      },
+    );
+
+    Widget header = Container();
+
+    DateTime indexDay = DateTime(
+      note.timeCreated.year,
+      note.timeCreated.month,
+      note.timeCreated.day,
+    );
+    if (index == 0) {
+      header = NoteDayHeader(
+        e: note,
+      );
+    } else if (index > 0) {
+      Note prev = publisher.notes[index - 1];
+      bool isSameDay = indexDay.isAtSameMomentAs(DateTime(
+        prev.timeCreated.year,
+        prev.timeCreated.month,
+        prev.timeCreated.day,
+      ));
+      if (!isSameDay) {
+        header = NoteDayHeader(e: note);
+      }
     }
 
-    return status;
+    // if()
+
+    Widget main = Column(
+      children: [header, item],
+    );
+    return FadeTransition(
+        opacity: animation.drive(Tween<double>(begin: 0, end: 1)), child: main);
+  }
+
+  Widget _buildDialog(BuildContext context, Note note) {
+    return ChangeNotifierProvider<Note>.value(
+      value: note,
+      builder: (context, child) {
+        return AlertDialog(
+          title: Text("Bạn có chắc chắc không?",
+              style: TextStyle(color: Colors.red)),
+          content: Text(
+              "Hành động sẽ xóa toàn bộ thành phần này và không thể hoàn tác"),
+          actionsAlignment: MainAxisAlignment.spaceEvenly,
+          actions: [
+            TextButton(
+                child: Icon(Icons.cancel_outlined),
+                onPressed: () => Navigator.of(context).pop()),
+            TextButton(
+              child: Icon(FontAwesomeIcons.trash, color: Colors.red),
+              onPressed: () async {
+                NotesPublisher publisher =
+                    Provider.of<NotesPublisher>(context, listen: false);
+                try {
+                  Result result = await publisher
+                      .delete(Provider.of<Note>(context, listen: false));
+                  int deletedIndex = result.data['deletedIndex'] as int;
+                  print(result.data);
+                  Provider.of<UILogic>(context, listen: false)
+                      .notesListKey
+                      .currentState
+                      ?. /*AnimatedList.maybeOf(context)?.*/ removeItem(
+                    deletedIndex,
+                    (_, animation) {
+                      return FadeTransition(
+                          opacity: animation,
+                          child: DailyNotes(note: result.data['note']));
+                    },
+                  );
+                  Navigator.pop(context);
+                } catch (e) {
+                  print(e);
+                }
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 }

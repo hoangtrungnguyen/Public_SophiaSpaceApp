@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart' show FirebaseAuth;
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
@@ -26,17 +28,22 @@ import 'package:sophia_hub/view/page/task/list_task_page.dart';
 bool USE_FIRESTORE_EMULATOR = false;
 
 Future<void> main() async {
-  // needed if you intend to initialize in the `main` function
-  WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform)
-      .then((value) => print(value));
+  runZonedGuarded(() async {
+    WidgetsFlutterBinding.ensureInitialized();
+    await Firebase.initializeApp(
+            options: DefaultFirebaseOptions.currentPlatform)
+        .then((value) => print(value));
 
-  if (USE_FIRESTORE_EMULATOR) {
-    FirebaseFirestore.instance.settings = const Settings(
-        host: 'localhost:8080', sslEnabled: false, persistenceEnabled: false);
-  }
+    if (USE_FIRESTORE_EMULATOR) {
+      FirebaseFirestore.instance.settings = const Settings(
+          host: 'localhost:8080', sslEnabled: false, persistenceEnabled: false);
+    }
 
-  runApp(MyApp());
+    runApp(MyApp());
+  }, (Object error, StackTrace stack) {
+    // myBackend.sendError(error, stack);
+    print("Send error's info to server: ${error} with stack $stack");
+  });
 }
 
 class MyApp extends StatefulWidget {
@@ -72,16 +79,17 @@ class _MyAppState extends State<MyApp> {
             widget = BaseContainer();
             break;
           case CreateNotePage.nameRoute:
-            // Cast the arguments to the correct
-            // type: Note.
+          // Cast the arguments to the correct
+          // type: Note.
             widget = CreateNotePage();
             break;
           case NoteDetails.nameRoute:
-            // Cast the arguments to the correct
-            // type: Note.
+          // Cast the arguments to the correct
+          // type: Note.
             try {
               Note note = settings.arguments as Note;
-              widget = NoteDetails.view(note,key: LabeledGlobalKey("${note.id}"));
+              widget =
+                  NoteDetails.view(note, key: LabeledGlobalKey("${note.id}"));
             } catch (e) {
               print("Phải có object Note");
             }
@@ -93,10 +101,10 @@ class _MyAppState extends State<MyApp> {
             widget = ListTaskPage();
             break;
           default:
-            // The assertion here will help remind
-            // us of that higher up in the call stack, since
-            // this assertion would otherwise fire somewhere
-            // in the framework.
+          // The assertion here will help remind
+          // us of that higher up in the call stack, since
+          // this assertion would otherwise fire somewhere
+          // in the framework.
             assert(false, 'Need to implement ${settings.name}');
         }
 
@@ -156,16 +164,17 @@ class _MyAppState extends State<MyApp> {
         },
       ),
 
-      ChangeNotifierProxyProvider<Auth, NotesProvider>(
-        create: (_) => NotesProvider(
-            auth: FirebaseAuth.instance,
-            fireStore: FirebaseFirestore.instance),
+      ChangeNotifierProxyProvider<Auth, NotesPublisher>(
+        create: (_) => NotesPublisher(
+            auth: FirebaseAuth.instance, fireStore: FirebaseFirestore.instance),
         lazy: true,
         update: (_, auth, preNotesProvider) {
           //TODO logic thay doi du lieu moi khi thay doi tai khoan nguoi dung
           print("updating notes Data ${auth.firebaseAuth.currentUser?.uid}");
-          if (auth.firebaseAuth.currentUser == null) preNotesProvider?.clear();
-          else preNotesProvider?.config();
+          if (auth.firebaseAuth.currentUser == null)
+            preNotesProvider?.clear();
+          else
+            preNotesProvider?.config();
 
           return preNotesProvider!;
         },

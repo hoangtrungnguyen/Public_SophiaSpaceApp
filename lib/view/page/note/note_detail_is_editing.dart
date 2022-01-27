@@ -7,8 +7,8 @@ import 'package:sophia_hub/model/activity.dart';
 import 'package:sophia_hub/model/note.dart';
 import 'package:sophia_hub/model/result_container.dart';
 import 'package:sophia_hub/provider/notes_provider.dart';
-import 'package:sophia_hub/view/base_container.dart';
 import 'package:sophia_hub/view/page/note/create_note_step_2.dart';
+import 'package:sophia_hub/view/widget/error_dialog.dart';
 
 class EditingNoteDetails extends StatefulWidget {
   static const String nameRoute = "/NoteDetails";
@@ -36,23 +36,31 @@ class _EditingNoteDetailsState extends State<EditingNoteDetails> {
     Note note = Provider.of<Note>(context);
     Color primary = Theme.of(context).colorScheme.primary;
     return Scaffold(
-        floatingActionButton: FloatingActionButton(
-          shape: ContinuousRectangleBorder(
-            borderRadius: BorderRadius.circular(28.0),
-          ),
-          child: Icon(Icons.done),
-          onPressed: () async {
-            try {
-              Result result =
-                  await Provider.of<NotesProvider>(context, listen: false)
-                      .updateNote(note);
-              if (result.isHasData) {
-                Navigator.popUntil(context,
-                    (route) => route.settings.name == BaseContainer.nameRoute);
-              }
-            } catch (e) {
-              print("Lỗi");
-            }
+        floatingActionButton: Consumer<NotesPublisher>(
+          builder: (_, value, child) {
+            return FloatingActionButton(
+              shape: ContinuousRectangleBorder(
+                borderRadius: BorderRadius.circular(28.0),
+              ),
+              child: Icon(value.isLoading ? Icons.refresh_rounded : Icons.done),
+              onPressed: value.isLoading
+                  ? null
+                  : () async {
+                      Result result = await value.updateNote(note);
+                      if (result.isHasData) {
+                        Navigator.pop(
+                          context,
+                        );
+                      } else {
+                        showDialog(
+                            context: context,
+                            useRootNavigator: false,
+                            builder: (_) {
+                              return ErrorDialog(exception: result.error);
+                            });
+                      }
+                    },
+            );
           },
         ),
         appBar: AppBar(
@@ -89,86 +97,99 @@ class _EditingNoteDetailsState extends State<EditingNoteDetails> {
             ),
           ),
         ),
-        body: Container(
-            child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Consumer<Note>(builder: (_, note, child) {
-              String status = '';
-              status = generateMoodStatus(note.emotionPoint.toInt());
-              return Container(
-                height: 120,
-                child: Stack(
-                  children: [
-                    Align(
-                      child: Icon(
-                        generateMoodIcon(note.emotionPoint),
-                        color: primary.withOpacity(0.1),
-                        size: 80,
-                      ),
-                      alignment: Alignment(0, -0.2),
-                    ),
-                    Align(
-                      child: Text(
-                        "$status",
-                        style:
-                            Theme.of(context).textTheme.headline5?.copyWith(),
-                      ),
-                      alignment: Alignment.bottomCenter,
-                    ),
-                  ],
-                ),
-              );
-            }),
-            SizedBox(
-              height: 20,
-            ),
-            SliderEmotionPoint(),
-            ListEmotion(),
-            SizedBox(
-              height: 20,
-            ),
-            Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16),
-                child: Column(
-                  children: [
-                    Hero(
-                      tag: "title",
-                      child: Material(
-                        child: TextFormField(
-                          initialValue: note.title,
-                          decoration: InputDecoration(
-                            hintText: "Tiêu đề",
+        body: SingleChildScrollView(
+          physics: BouncingScrollPhysics(),
+          child: Container(
+              padding: EdgeInsets.only(bottom: 100),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Consumer<Note>(builder: (_, note, child) {
+                    String status = '';
+                    status = generateMoodStatus(note.emotionPoint.toInt());
+                    return Container(
+                      height: 120,
+                      child: Stack(
+                        children: [
+                          Align(
+                            child: Hero(
+                              tag: "mood icon",
+                              child: Icon(
+                                generateMoodIcon(note.emotionPoint),
+                                color: primary.withOpacity(0.1),
+                                size: 80,
+                              ),
+                            ),
+                            alignment: Alignment(0, -0.2),
                           ),
-                          onChanged: (input) {
-                            note.title = input;
-                          },
-                        ),
+                          Align(
+                            child: Hero(
+                              tag: "mood text",
+                              child: Text(
+                                "$status",
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .headline5
+                                    ?.copyWith(
+                                        color: primary.withOpacity(0.8),
+                                        fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                            alignment: Alignment.bottomCenter,
+                          ),
+                        ],
                       ),
-                    ),
-                    SizedBox(
-                      height: 15,
-                    ),
-                    Hero(
-                      tag: "content",
-                      child: Material(
-                        child: TextFormField(
-                          initialValue: note.description,
-                          decoration: InputDecoration(
-                              // label: Text("Nội dung",style: TextStyle(color: textColor),),
-                              hintText: "Suy nghĩ của bạn..."),
-                          maxLines: 10,
-                          minLines: 3,
-                          onChanged: (input) {
-                            note.description = input;
-                          },
-                        ),
-                      ),
-                    ),
-                  ],
-                )),
-          ],
-        )));
+                    );
+                  }),
+                  SizedBox(
+                    height: 20,
+                  ),
+                  SliderEmotionPoint(),
+                  Padding(
+                      padding: EdgeInsets.symmetric(vertical: 16),
+                      child: ListActivities()),
+                  Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 16),
+                      child: Column(
+                        children: [
+                          Hero(
+                            tag: "title",
+                            child: Material(
+                              child: TextFormField(
+                                initialValue: note.title,
+                                decoration: InputDecoration(
+                                  hintText: "Tiêu đề",
+                                ),
+                                onChanged: (input) {
+                                  note.title = input;
+                                },
+                              ),
+                            ),
+                          ),
+                          SizedBox(
+                            height: 15,
+                          ),
+                          Hero(
+                            tag: "content",
+                            child: Material(
+                              child: TextFormField(
+                                initialValue: note.description,
+                                decoration: InputDecoration(
+                                    // label: Text("Nội dung",style: TextStyle(color: textColor),),
+                                    hintText: "Suy nghĩ của bạn..."),
+                                maxLines: 10,
+                                minLines: 3,
+                                onChanged: (input) {
+                                  note.description = input;
+                                },
+                              ),
+                            ),
+                          ),
+                        ],
+                      )),
+                ],
+              )),
+        ));
   }
 }
 
@@ -198,21 +219,21 @@ class _SliderEmotionPointState extends State<SliderEmotionPoint> {
   }
 }
 
-class ListEmotion extends StatefulWidget {
-  const ListEmotion({Key? key}) : super(key: key);
+class ListActivities extends StatefulWidget {
+  const ListActivities({Key? key}) : super(key: key);
 
   @override
-  _ListEmotionState createState() => _ListEmotionState();
+  _ListActivitiesState createState() => _ListActivitiesState();
 }
 
-class _ListEmotionState extends State<ListEmotion> {
+class _ListActivitiesState extends State<ListActivities> {
   @override
   Widget build(BuildContext context) {
     Note note = Provider.of<Note>(context);
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 0),
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Padding(
+        padding: EdgeInsets.symmetric(vertical: 16),
         child: Row(mainAxisSize: MainAxisSize.min, children: [
           SizedBox(
             width: 16,
@@ -221,7 +242,7 @@ class _ListEmotionState extends State<ListEmotion> {
             height: 40,
             width: 40,
             decoration: ShapeDecoration(
-                shape: roundedRectangleBorder,
+                shape: continuousRectangleBorder,
                 color: Theme.of(context).colorScheme.primary),
             alignment: Alignment.center,
             child: TextButton(
@@ -277,7 +298,7 @@ class _NoteActivityIconState extends State<NoteActivityIcon> {
   Widget build(BuildContext context) {
     Color primary = Theme.of(context).colorScheme.primary;
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 2),
+      padding: EdgeInsets.symmetric(horizontal: 8),
       child: Material(
         child: InputChip(
           deleteIcon: Icon(
@@ -288,16 +309,13 @@ class _NoteActivityIconState extends State<NoteActivityIcon> {
             print('deleted');
             Provider.of<Note>(context, listen: false).removeEmotion(widget.e);
           },
-          elevation: 4,
           backgroundColor: Colors.white,
           avatar: Icon(
             widget.e.icon,
-            color: Theme.of(context).colorScheme.primary,
+            color: primary,
           ),
           label: Text(
             widget.e.name ?? "NaN",
-            style:
-                Theme.of(context).textTheme.caption?.copyWith(color: primary),
           ),
         ),
       ),

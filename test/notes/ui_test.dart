@@ -11,6 +11,7 @@ import 'package:sophia_hub/model/activity.dart';
 import 'package:sophia_hub/model/note.dart';
 import 'package:sophia_hub/provider/notes_provider.dart';
 import 'package:sophia_hub/view/page/home/notes.dart';
+import 'package:sophia_hub/view/page/home/notes/single_item_note.dart';
 import 'package:sophia_hub/view/page/home_container.dart';
 import 'package:sophia_hub/view/page/note/create_note_page.dart';
 import 'package:sophia_hub/view/page/note/note_detail.dart';
@@ -18,7 +19,7 @@ import 'package:sophia_hub/view/page/note/note_detail.dart';
 main() {
   late MockFirebaseAuth mockFirebaseAuth;
   late FakeFirebaseFirestore fireStore;
-  late NotesProvider provider;
+  late NotesPublisher provider;
   late Note note;
 
   setUpAll(() async {
@@ -27,10 +28,8 @@ main() {
   });
 
   setUp(() async {
-    provider = NotesProvider(
-        auth: mockFirebaseAuth,
-        fireStore: fireStore,
-        isTesting: true);
+    provider = NotesPublisher(
+        auth: mockFirebaseAuth, fireStore: fireStore, isTesting: true);
 
     await Future.forEach(List<int>.generate(10, (i) => i + 1), (int e) async {
       Note note = Note(
@@ -67,10 +66,8 @@ main() {
       await doc.reference.delete();
     });
 
-    provider = NotesProvider(
-        auth: mockFirebaseAuth,
-        fireStore: fireStore,
-        isTesting: true);
+    provider = NotesPublisher(
+        auth: mockFirebaseAuth, fireStore: fireStore, isTesting: true);
   });
 
   group("Hiển thị", () {
@@ -167,7 +164,7 @@ main() {
       );
 
       await tester.pumpWidget(MaterialApp(
-          home: ChangeNotifierProvider<NotesProvider>(
+          home: ChangeNotifierProvider<NotesPublisher>(
         create: (_) => provider,
         lazy: true,
         child: app,

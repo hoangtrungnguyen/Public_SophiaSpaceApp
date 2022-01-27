@@ -21,9 +21,6 @@ class NoteDetailsView extends StatefulWidget {
 class _NoteDetailsViewState extends State<NoteDetailsView> {
   @override
   Widget build(BuildContext context) {
-    TextStyle? textStyle = Theme.of(context).textTheme.headline6?.apply(
-      color: Colors.white
-    );
     Color textColor = Colors.white;
     Note note = Provider.of<Note>(context);
     return Scaffold(
@@ -35,10 +32,11 @@ class _NoteDetailsViewState extends State<NoteDetailsView> {
             backgroundColor:  Colors.white,
             onPressed: () async {
               Result res =
-                  await Provider.of<NotesProvider>(context, listen: false)
-                  .addNote(note: note);
+                  await Provider.of<NotesPublisher>(context, listen: false)
+                      .addNote(note: note);
               if (res.data != null) {
-                Navigator.of(context, rootNavigator: true).pop(true);
+                int index = res.data['addedIndex'];
+                Navigator.of(context, rootNavigator: true).pop(index);
               } else {
                 showDialog(
                     context: context,

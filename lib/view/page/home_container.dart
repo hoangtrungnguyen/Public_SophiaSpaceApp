@@ -4,10 +4,8 @@ import 'package:flutter/rendering.dart';
 import 'package:provider/provider.dart';
 import 'package:sophia_hub/constant/theme.dart';
 import 'package:sophia_hub/provider/ui_logic.dart';
-import 'package:sophia_hub/view/page/home/home.dart';
 import 'package:sophia_hub/view/page/home/notes.dart';
 import 'package:sophia_hub/view/page/home/quote.dart';
-import 'package:sophia_hub/view/page/home/tasks.dart';
 import 'package:sophia_hub/view/page/note/create_note_page.dart';
 
 class Destination {
@@ -109,11 +107,18 @@ class _HomeContainerState extends State<HomeContainer>
         floatingActionButton: FloatingActionButton(
           backgroundColor: allDestinations[_currentIndex].color,
           child: Icon(Icons.add),
-          onPressed: () {
-            Navigator.of(context, rootNavigator: true).pushNamed(
-              CreateNotePage.nameRoute,
-              // Id ngày hiện tại
-            );
+          onPressed: () async {
+            try {
+              //Dễ cast sai ở đây
+              int index =
+                  await Navigator.of(context, rootNavigator: true).pushNamed(
+                CreateNotePage.nameRoute,
+              ) as int;
+              Provider.of<UILogic>(context, listen: false)
+                  .notesListKey
+                  .currentState
+                  ?.insertItem(index, duration: Duration(seconds: 2));
+            } catch (e) {}
           },
         ),
         bottomNavigationBar: SizeTransition(
@@ -125,8 +130,9 @@ class _HomeContainerState extends State<HomeContainer>
             shape: AutomaticNotchedShape(
               RoundedRectangleBorder(
                   borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(10), topRight: Radius.circular(10))),
-              roundedRectangleBorder,
+                      topLeft: Radius.circular(10),
+                      topRight: Radius.circular(10))),
+              continuousRectangleBorder,
             ),
             child: BottomNavigationBar(
               backgroundColor: Theme.of(context).colorScheme.primary.withOpacity(0.15),
