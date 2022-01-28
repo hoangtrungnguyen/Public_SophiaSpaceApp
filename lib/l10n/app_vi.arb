@@ -1,3 +1,4 @@
 {
-  "helloWorld": "Xin chào thế giới!!"
+  "helloWorld": "Xin chào thế giới!!",
+  "unknownError": "Lỗi không xác định đã xảy ra, xin vui lòng thử lại sau ít phút"
 }

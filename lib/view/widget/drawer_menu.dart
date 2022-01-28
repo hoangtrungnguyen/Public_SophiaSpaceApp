@@ -57,9 +57,8 @@ class _DrawerMenuState extends State<DrawerMenu>
                     width: 150,
                     child: Image(
                       fit: BoxFit.fill,
-                      image: AssetImage('media/logo/SophiaHub.png'),
-
-                    ),
+                  image: AssetImage('media/logo/astronaut_logo.png'),
+                ),
                   ),
                   ListTile(leading: Icon(Icons.person), title: Text("Cá nhân")),
                   Spacer(flex: 9,),

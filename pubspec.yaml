@@ -56,14 +56,18 @@ dependencies:
 
   flutter_slidable:
 
+  another_flushbar: ^1.10.28
+
 dev_dependencies:
   integration_test:
     sdk: flutter
   flutter_test:
     sdk: flutter
 
+
   build_runner:
   json_serializable: ^6.0.0
+
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -77,8 +81,10 @@ flutter:
   assets:
     - media/
     - media/images/
+    - media/icon/
     - media/logo/
     - google_fonts/
+    - assets/config/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.

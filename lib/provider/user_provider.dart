@@ -29,6 +29,10 @@ class Auth extends App {
           .set({"display_name": displayName, 'email': email});
       print("User Added");
 
+      if (userCredential.user != null && !userCredential.user!.emailVerified) {
+        await userCredential.user!.sendEmailVerification();
+      }
+
       return Result<UserCredential>(data: userCredential, err: null);
     } on FirebaseAuthException catch (e) {
       if (e.code == 'weak-password') {
@@ -50,6 +54,30 @@ class Auth extends App {
       UserCredential userCredential = await FirebaseAuth.instance
           .signInWithEmailAndPassword(email: email, password: pwd);
       return Result<UserCredential>(data: userCredential, err: null);
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'weak-password') {
+        print('The password provided is too weak.');
+      } else if (e.code == 'email-already-in-use') {
+        print('The account already exists for that email.');
+      }
+      return Result(err: e, data: null);
+    } on Exception catch (e) {
+      return Result(err: e, data: null);
+    } catch (e) {
+      print("unkown");
+      return Result(err: Exception("Unknown Exception"), data: null);
+    }
+  }
+
+  Future<Result> resetPwd(String email) async {
+    try {
+      await FirebaseAuth.instance.sendPasswordResetEmail(
+        email: email,
+      );
+
+      return Result(data: {
+        "message": "Đã gửi email đặt lại mất khẩu, vui lòng kiểm tra hòm thư"
+      }, err: null);
     } on FirebaseAuthException catch (e) {
       if (e.code == 'weak-password') {
         print('The password provided is too weak.');

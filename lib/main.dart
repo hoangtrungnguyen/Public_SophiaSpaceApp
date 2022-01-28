@@ -115,11 +115,12 @@ class _MyAppState extends State<MyApp> {
         return RouteAnimation.buildDefaultRouteTransition(widget, settings);
       },
       localizationsDelegates: [
+        // AppLocalizations.delegate,
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
-      supportedLocales: [Locale('vi', 'VI'), Locale('en', 'US')],
+      supportedLocales: [Locale('vi', ''), Locale('en', '')],
       localeListResolutionCallback: (locales, supportedLocales) {
         print('device locales=$locales supported locales=$supportedLocales');
         for (Locale locale in locales!) {
@@ -132,9 +133,9 @@ class _MyAppState extends State<MyApp> {
 
         // if device language is not supported by the app,
         // the app will set it to english but return this to set to Bahasa instead
-        return Locale('vi', 'VI');
+        return Locale('vi', '');
       },
-      locale: Locale('vi', 'VI'),
+      locale: Locale('vi', ''),
       theme: lightTheme(context),
       darkTheme: lightTheme(context),
     );

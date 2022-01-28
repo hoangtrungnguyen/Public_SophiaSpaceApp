@@ -5,6 +5,9 @@ import 'package:sophia_hub/helper/auth_validator.dart';
 import 'package:sophia_hub/model/result_container.dart';
 import 'package:sophia_hub/provider/user_provider.dart';
 import 'package:sophia_hub/view/base_container.dart';
+import 'package:sophia_hub/view/page/auth/register/step_1.dart';
+import 'package:sophia_hub/view/page/auth/register/step_three.dart';
+import 'package:sophia_hub/view/page/auth/register/step_two.dart';
 
 class RegisterView extends StatefulWidget {
   static const String routeName = "/register";
@@ -15,7 +18,8 @@ class RegisterView extends StatefulWidget {
   _RegisterViewState createState() => _RegisterViewState();
 }
 
-class _RegisterViewState extends State<RegisterView> {
+class _RegisterViewState extends State<RegisterView>
+    with SingleTickerProviderStateMixin {
   String email = '';
   String displayName = '';
   String pwd1 = '';
@@ -23,170 +27,79 @@ class _RegisterViewState extends State<RegisterView> {
   bool _isObscure = true;
   final _formKey = GlobalKey<FormState>();
 
+  late TabController tabController;
+
+  @override
+  void initState() {
+    super.initState();
+    tabController = TabController(length: 3, vsync: this);
+  }
+
   @override
   Widget build(BuildContext context) {
     Auth userProvider = Provider.of<Auth>(context, listen: false);
-    return Container(
-      alignment: Alignment.center,
-      decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            stops: [
-              0.1,
-              1.0,
-            ],
-            colors: [
-              Theme.of(context).colorScheme.secondary,
-              Theme.of(context).colorScheme.primary,
 
-            ],
-          )),
-      padding: EdgeInsets.symmetric(horizontal: 20),
-      child: Stack(
-        children: [
-          Align(
-            alignment: Alignment.topRight,
-            child: SafeArea(
-              child: Container(
-                  alignment: Alignment.center,
-                  margin: EdgeInsets.only(top: 12, right: 8),
-                  height: 50,
-                  width: 50,
-                  decoration: ShapeDecoration(
-                      color: Colors.grey.shade200.withOpacity(0.5),
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16))),
-                  child: TextButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                    child: Icon(Icons.close_rounded),
-                  )),
-            ),
-          ),
-          Form(
-            key: _formKey,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
+    return WillPopScope(
+      onWillPop: () async {
+        return false;
+      },
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 16),
+        decoration: BoxDecoration(
+            gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          stops: [
+            0.1,
+            1.0,
+          ],
+          colors: [
+            Theme.of(context).colorScheme.secondary,
+            Theme.of(context).colorScheme.primary,
+          ],
+        )),
+        child: ChangeNotifierProvider<TabController>(
+          create: (_) => tabController,
+          builder: (context, child) {
+            return Stack(
               children: [
-                Spacer(),
-                TextFormField(
-                  initialValue: '',
-                  style: TextStyle(
-                      color: Colors.white
+                Positioned.fill(
+                  child: TabBarView(
+                    controller: tabController,
+                    physics: NeverScrollableScrollPhysics(),
+                    children: [StepOne(), StepTwo(), StepThree()],
                   ),
-                  decoration: InputDecoration(label: Text("Tên của bạn")),
-                  validator: (name) {
-                    String? message;
-                    if (name == null) {
-                      message = "Tên không được để trống";
-                    }
-                    return message;
-                  },
-                  onChanged: (e) => this.displayName = e,
                 ),
-                SizedBox(height: 20,),
-                TextFormField(
-                  style: TextStyle(
-                      color: Colors.white
+                Align(
+                  alignment: Alignment.topRight,
+                  child: AnimatedOpacity(
+                    opacity: context.watch<TabController>().index == 0 ? 1 : 0,
+                    duration: Duration(milliseconds: 300),
+                    child: SafeArea(
+                      child: Container(
+                          alignment: Alignment.center,
+                          margin: EdgeInsets.only(top: 12, right: 0),
+                          height: 50,
+                          width: 50,
+                          decoration: ShapeDecoration(
+                              color: Colors.grey.shade200.withOpacity(0.5),
+                              shape: ContinuousRectangleBorder(
+                                  borderRadius: BorderRadius.circular(32))),
+                          child: TextButton(
+                            onPressed: context.watch<TabController>().index == 0
+                                ? () => Navigator.pop(context)
+                                : null,
+                            child: Icon(Icons.close_rounded),
+                          )),
+                    ),
                   ),
-                  decoration: InputDecoration(label: Text("Email")),
-                  validator: checkFormatEmail,
-                  onChanged: (e) => this.email = e,
                 ),
-                SizedBox(height: 20,),
-                TextFormField(
-                  style: TextStyle(
-                      color: Colors.white
-                  ),
-                  obscureText: _isObscure,
-                  decoration: InputDecoration(
-                      suffixIcon: IconButton(
-                        icon: Icon(
-                          _isObscure ? Icons.visibility : Icons.visibility_off,
-                        ),
-                        onPressed: () {
-                          setState(() {
-                            _isObscure = !_isObscure;
-                          });
-                        },
-                      ),
-                      label: Text("Mật khẩu")),
-                  onChanged: (pwd1) => this.pwd1 = pwd1,
-                  validator: (pwd) {
-                    String? message;
-
-                    if (pwd == null || pwd.isEmpty) {
-                      message = "Mật khẩu không được để trống";
-                    }
-
-                    return message;
-                  },
-                ),
-                SizedBox(height: 20,),
-                TextFormField(
-                  style: TextStyle(
-                      color: Colors.white
-                  ),
-                  obscureText: _isObscure,
-                  decoration: InputDecoration(
-                      suffixIcon: IconButton(
-                        icon: Icon(
-                          _isObscure ? Icons.visibility : Icons.visibility_off,
-                        ),
-                        onPressed: () {
-                          setState(() {
-                            _isObscure = !_isObscure;
-                          });
-                        },
-                      ),
-                      label: Text("Xác nhận mật khẩu")),
-                  onChanged: (pwd2) => this.pwd2 = pwd2,
-                  validator: (pwd) {
-                    String? message;
-                    if (pwd == null || pwd.isEmpty) {
-                      message = "Mật khẩu không được để trống";
-                    } else if (pwd != this.pwd1) {
-                      message = "Hai mật khẩu không trùng nhau";
-                    }
-
-                    return message;
-                  },
-                ),
-                SizedBox(height: 20,),
-                ElevatedButton(
-                    onPressed: () async {
-                      if (!(_formKey.currentState?.validate() ?? false)) return;
-
-                      print("Loading");
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Đang xử lý ...')),
-                      );
-                      Result<UserCredential> result = await userProvider
-                          .register(email, pwd1, displayName: displayName);
-                      print(result);
-                      if (result.data != null) {
-                        Navigator.of(context, rootNavigator: true)
-                            .pushReplacementNamed(BaseContainer.nameRoute);
-                      } else {
-                        showDialog(
-                            context: context,
-                            builder: (_) {
-                              return Dialog(
-                                  child: Text("${result.error}"),
-                              );
-                            });
-                      }
-                    },
-                    child: Text("Đăng ký")),
-                Spacer(),
               ],
-            ),
-          ),
-        ],
+            );
+          },
+        ),
       ),
     );
+
   }
 }

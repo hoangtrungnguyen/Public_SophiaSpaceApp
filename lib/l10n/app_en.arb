@@ -2,5 +2,6 @@
   "helloWorld": "Hello World!",
   "@helloWorld": {
     "description": "The conventional newborn programmer greeting"
-  }
+  },
+  "unknownError": "Unkown error occurs, please re-try later"
 }

@@ -18,7 +18,7 @@ ColorScheme getColorScheme(
   return Theme.of(context).colorScheme.copyWith(
         primary: primary,
         secondary: secondary,
-      );
+        error: Colors.redAccent[100]);
 }
 
 TextTheme getTextTheme(BuildContext context, {String fontName = "Dongle"}) {
@@ -56,17 +56,23 @@ ThemeData lightTheme(BuildContext context) {
     ),
     inputDecorationTheme: InputDecorationTheme(
       border: OutlineInputBorder(
-          borderSide: BorderSide(color: Colors.white),
-          borderRadius: BorderRadius.all(Radius.circular(8.0))),
-      contentPadding: EdgeInsets.symmetric(
-        vertical: 12,
-        horizontal: 12,
-      ),
-      hintStyle: TextStyle(
-        color: Colors.grey.shade500,
-      ),
+          borderSide: BorderSide(color: Colors.transparent),
+          borderRadius: BorderRadius.circular(14)),
+      focusedBorder: OutlineInputBorder(
+          borderSide: BorderSide(color: Colors.transparent),
+          borderRadius: BorderRadius.circular(14)),
+      enabledBorder: OutlineInputBorder(
+          borderSide: BorderSide(color: Colors.transparent),
+          borderRadius: BorderRadius.circular(14)),
+      disabledBorder: InputBorder.none,
+      errorBorder: OutlineInputBorder(
+          borderSide: BorderSide(color: Theme.of(context).colorScheme.error),
+          borderRadius: BorderRadius.circular(14)),
+      suffixIconColor: Colors.white.withOpacity(0.8),
+      hintStyle: TextStyle(color: Colors.white.withOpacity(0.5)),
+      filled: true,
       labelStyle: TextStyle(
-        decorationColor: Colors.red,
+        decorationColor: Theme.of(context).colorScheme.error,
       ),
     ),
     bottomAppBarTheme: BottomAppBarTheme.of(context).copyWith(),
