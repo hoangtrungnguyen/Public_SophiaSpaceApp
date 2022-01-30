@@ -1,5 +1,7 @@
+import 'package:another_flushbar/flushbar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
@@ -17,20 +19,22 @@ class NotesView extends StatefulWidget {
 class _NotesViewState extends State<NotesView> {
   ScrollController? _listNoteController;
 
+  final notesListKey = GlobalKey<AnimatedListState>();
+
   @override
   void initState() {
     super.initState();
     _listNoteController = ScrollController()..addListener(_scrollListener);
+    Provider.of<NotesPublisher>(context,listen: false).listKey = notesListKey;
+    Provider.of<NotesPublisher>(context,listen: false).removedItemBuilder = _removalItemBuilder;
+    // SchedulerBinding.instance?.addPostFrameCallback((_) {
+    //   Provider.of<NotesPublisher>(context,listen: false).listKey = notesListKey;
+    // });
     Future.microtask(() {
+      print("initial loading notes");
       Provider.of<NotesPublisher>(context, listen: false)
-          .loadMoreNotes()
-          .forEach((index) {
-        print(index);
-        Provider.of<UILogic>(context, listen: false)
-            .notesListKey
-            .currentState
-            ?.insertItem(index);
-      });
+          .loadMoreNotes();
+
     });
   }
 
@@ -44,14 +48,7 @@ class _NotesViewState extends State<NotesView> {
     if (_listNoteController?.position.extentAfter == 0) {
       print("loadmore");
       Provider.of<NotesPublisher>(context, listen: false)
-          .loadMoreNotes()
-          .forEach((index) {
-        print(index);
-        Provider.of<UILogic>(context, listen: false)
-            .notesListKey
-            .currentState
-            ?.insertItem(index);
-      });
+          .loadMoreNotes();
     }
   }
 
@@ -105,10 +102,11 @@ class _NotesViewState extends State<NotesView> {
   Widget _buildListNote(BuildContext context) {
     // TextStyle? head5 = Theme.of(context).textTheme.headline5;
     Widget groupListView = AnimatedList(
-      key: Provider.of<UILogic>(context, listen: false).notesListKey,
+      key: notesListKey,
       initialItemCount:
-          Provider.of<NotesPublisher>(context, listen: false).notes.length,
+          Provider.of<NotesPublisher>(context,listen: false).notes.length,
       shrinkWrap: true,
+      physics: BouncingScrollPhysics(),
       itemBuilder: _buildItem,
       controller: _listNoteController,
     );
@@ -221,24 +219,21 @@ class _NotesViewState extends State<NotesView> {
                 NotesPublisher publisher =
                     Provider.of<NotesPublisher>(context, listen: false);
                 try {
-                  Result result = await publisher
-                      .delete(Provider.of<Note>(context, listen: false));
-                  int deletedIndex = result.data['deletedIndex'] as int;
-                  print(result.data);
-                  Provider.of<UILogic>(context, listen: false)
-                      .notesListKey
-                      .currentState
-                      ?. /*AnimatedList.maybeOf(context)?.*/ removeItem(
-                    deletedIndex,
-                    (_, animation) {
-                      return FadeTransition(
-                          opacity: animation,
-                          child: DailyNotes(note: result.data['note']));
-                    },
-                  );
-                  Navigator.pop(context);
+                  await publisher.delete(Provider.of<Note>(context, listen: false));
+
                 } catch (e) {
                   print(e);
+                  Flushbar(
+                    backgroundColor:
+                    Theme.of(context).colorScheme.error,
+                    message: "Lỗi đã xảy ra, xin vui lòng thử lại sau",
+                    flushbarPosition: FlushbarPosition.TOP,
+                    borderRadius: BorderRadius.circular(16),
+                    margin: EdgeInsets.all(8),
+                    duration: Duration(seconds: 3),
+                  )..show(context);
+                } finally{
+                  Navigator.pop(context);
                 }
               },
             ),
@@ -246,5 +241,12 @@ class _NotesViewState extends State<NotesView> {
         );
       },
     );
+  }
+
+  Widget _removalItemBuilder(Note removedItem, context,Animation animation,) {
+    var tween = Tween<Offset>(begin: Offset(-1.50,0), end: Offset.zero);
+  return
+      SlideTransition(position: animation.drive(tween),
+          child: DailyNotes(note: removedItem));
   }
 }

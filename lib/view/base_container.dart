@@ -54,128 +54,131 @@ class _BaseContainerState extends State<BaseContainer>
     Size size = MediaQuery.of(context).size;
     double maxSlide = size.width * 2.5 / 3;
     Color primary = Theme.of(context).colorScheme.primary;
-    return GestureDetector(
-      onHorizontalDragStart: (details) {
-        bool isDragFromLeft = animController.isDismissed &&
-            details.globalPosition.dx < /*size.width - size.width * 0.89442*/
-                size.width - maxSlide;
-        bool isDragFromRight = animController.isCompleted &&
-            details.globalPosition.dx > /*size.width - size.width * 0.89442*/
-                size.width - maxSlide;
-        canBeDragged = isDragFromLeft || isDragFromRight;
-      },
-      onHorizontalDragUpdate: (details) {
-        if (canBeDragged) {
-          double delta = details.primaryDelta! /
-              (/*size.width - size.width * 0.89442*/ maxSlide);
-          if (animController.value <= 1) animController.value += delta;
-        }
-      },
-      onHorizontalDragEnd: (details) {
-        if (animController.isCompleted || animController.isDismissed) return;
-        if (animController.value < 0.5)
-          animController.reverse();
-        else
-          animController.forward();
-      },
-      child: Stack(
-        children: [
-          Positioned.fill(child: Background()),
+    return ChangeNotifierProvider(
+      create: (BuildContext context) { return UILogic(); },
+      child: GestureDetector(
+        onHorizontalDragStart: (details) {
+          bool isDragFromLeft = animController.isDismissed &&
+              details.globalPosition.dx < /*size.width - size.width * 0.89442*/
+                  size.width - maxSlide;
+          bool isDragFromRight = animController.isCompleted &&
+              details.globalPosition.dx > /*size.width - size.width * 0.89442*/
+                  size.width - maxSlide;
+          canBeDragged = isDragFromLeft || isDragFromRight;
+        },
+        onHorizontalDragUpdate: (details) {
+          if (canBeDragged) {
+            double delta = details.primaryDelta! /
+                (/*size.width - size.width * 0.89442*/ maxSlide);
+            if (animController.value <= 1) animController.value += delta;
+          }
+        },
+        onHorizontalDragEnd: (details) {
+          if (animController.isCompleted || animController.isDismissed) return;
+          if (animController.value < 0.5)
+            animController.reverse();
+          else
+            animController.forward();
+        },
+        child: Stack(
+          children: [
+            Positioned.fill(child: Background()),
 
-          //Drawer Menu
-          AnimatedBuilder(
+            //Drawer Menu
+            AnimatedBuilder(
+                builder: (BuildContext context, Widget? child) {
+                  return Transform.translate(
+                    offset: Offset(maxSlide * (animController.value - 1), 0),
+                    child: Transform(
+                      alignment: Alignment.centerRight,
+                      transform: Matrix4.identity()
+                        ..setEntry(3, 2, 0.001)
+                        ..rotateY(math.pi / 2 * (1 - animController.value)),
+                      child: child,
+                    ),
+                  );
+                },
+                animation: animController,
+                child: Container(
+                  width: maxSlide,
+                  height: size.height,
+                  child: DrawerMenu(),
+                )),
+
+            // Home
+            AnimatedBuilder(
+              animation: animController,
               builder: (BuildContext context, Widget? child) {
+//              double scale = 1 - (animController.value * 0.2);
+//              double slide = maxSlide * animController.value;
                 return Transform.translate(
-                  offset: Offset(maxSlide * (animController.value - 1), 0),
+                  offset: Offset(maxSlide * animController.value, 0),
                   child: Transform(
-                    alignment: Alignment.centerRight,
                     transform: Matrix4.identity()
+//                  ..translate(slide)
+//                  ..scale(scale)
                       ..setEntry(3, 2, 0.001)
-                      ..rotateY(math.pi / 2 * (1 - animController.value)),
-                    child: child,
+                      ..rotateY(-math.pi * animController.value / 2),
+                    alignment: Alignment.centerLeft,
+                    child: ClipRRect(
+                      child: child,
+//                        BorderProvider.rounded(all: 16 * animController.value),
+                    ),
                   ),
                 );
               },
-              animation: animController,
-              child: Container(
-                width: maxSlide,
-                height: size.height,
-                child: DrawerMenu(),
-              )),
+              child: HomeContainer(),
+            ),
 
-          // Home
-          AnimatedBuilder(
-            animation: animController,
-            builder: (BuildContext context, Widget? child) {
-//              double scale = 1 - (animController.value * 0.2);
-//              double slide = maxSlide * animController.value;
-              return Transform.translate(
-                offset: Offset(maxSlide * animController.value, 0),
-                child: Transform(
-                  transform: Matrix4.identity()
-//                  ..translate(slide)
-//                  ..scale(scale)
-                    ..setEntry(3, 2, 0.001)
-                    ..rotateY(-math.pi * animController.value / 2),
-                  alignment: Alignment.centerLeft,
-                  child: ClipRRect(
-                    child: child,
-//                        BorderProvider.rounded(all: 16 * animController.value),
-                  ),
-                ),
-              );
-            },
-            child: HomeContainer(),
-          ),
-
-          //animated AppBar
-          Consumer<UILogic>(
-            builder: (_, value, child) {
-              //Index =1 là quote view
-              return Visibility(
-                  visible: value.homePageIndex != 1, child: child!);
-            },
-            child: AnimatedBuilder(
-              animation: animController,
-              builder: (BuildContext context, Widget? child) {
-                return Transform.translate(
-                    offset: Offset(maxSlide * animController.value, 0),
-                    child: SizedBox(
-                      height: 92,
-                      child: AppBar(
-                        elevation: 0,
-                        backgroundColor: Colors.transparent,
-                        leading: IconButton(
-                            icon: Icon(Icons.menu_rounded,
-                                color:ColorTween(begin: primary, end: Colors.white).animate(animController).value
-                            ),
-                            onPressed: () {
-                              if (animController.status == AnimationStatus.completed)
-                                animController.reverse();
-                              if (animController.status == AnimationStatus.dismissed)
-                                animController.forward();
-                            }),
-                        title: Text(
-                          /*"Small Habits"*/'',
-                          style: TextStyle(color: Colors.black),
-                        ),
-                        centerTitle: true,
-                        actions: <Widget>[
-                          child!
-                        ],
-                      ),
-                    ));
+            //animated AppBar
+            Consumer<UILogic>(
+              builder: (_, value, child) {
+                //Index =1 là quote view
+                return Visibility(
+                    visible: value.homePageIndex != 1, child: child!);
               },
-              child: Tooltip(
-                message: "web: small-habits.com",
-                child: TextButton(
-                    onPressed: ()async{
-                      if (!await launch(smallHabitsWebUrl)) throw 'Could not launch $smallHabitsWebUrl';
-                    }, child: Icon(FontAwesomeIcons.chrome)),
+              child: AnimatedBuilder(
+                animation: animController,
+                builder: (BuildContext context, Widget? child) {
+                  return Transform.translate(
+                      offset: Offset(maxSlide * animController.value, 0),
+                      child: SizedBox(
+                        height: 92,
+                        child: AppBar(
+                          elevation: 0,
+                          backgroundColor: Colors.transparent,
+                          leading: IconButton(
+                              icon: Icon(Icons.menu_rounded,
+                                  color:ColorTween(begin: primary, end: Colors.white).animate(animController).value
+                              ),
+                              onPressed: () {
+                                if (animController.status == AnimationStatus.completed)
+                                  animController.reverse();
+                                if (animController.status == AnimationStatus.dismissed)
+                                  animController.forward();
+                              }),
+                          title: Text(
+                            /*"Small Habits"*/'',
+                            style: TextStyle(color: Colors.black),
+                          ),
+                          centerTitle: true,
+                          actions: <Widget>[
+                            child!
+                          ],
+                        ),
+                      ));
+                },
+                child: Tooltip(
+                  message: "web: small-habits.com",
+                  child: TextButton(
+                      onPressed: ()async{
+                        if (!await launch(smallHabitsWebUrl)) throw 'Could not launch $smallHabitsWebUrl';
+                      }, child: Icon(FontAwesomeIcons.chrome)),
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

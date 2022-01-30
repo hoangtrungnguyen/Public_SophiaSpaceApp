@@ -56,12 +56,12 @@ class Note with ChangeNotifier implements Comparable<Note> {
     this.timeCreated = DateTime.now();
   }
 
-  addEmotion(Activity emotion) {
+  addActivity(Activity emotion) {
     this.activities.add(emotion);
     notifyListeners();
   }
 
-  void removeEmotion(Activity emotion) {
+  void removeActivity(Activity emotion) {
     this.activities.remove(emotion);
     notifyListeners();
   }
@@ -122,6 +122,17 @@ class Note with ChangeNotifier implements Comparable<Note> {
       "time_created": ${timeCreated},
       "activities": $activities,
     }""";
+  }
+
+  refresh({Note? note}) {
+    if(note != null) {
+    this.emotionPoint = note.emotionPoint;
+    this.title = note.title;
+    this.description = note.description;
+    this.timeCreated = note.timeCreated;
+    this.activities = note.activities;
+    }
+    notifyListeners();
   }
 }
 

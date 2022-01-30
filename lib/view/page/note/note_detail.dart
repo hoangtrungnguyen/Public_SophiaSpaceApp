@@ -15,11 +15,8 @@ class NoteDetails extends StatefulWidget {
   }
 
   static Widget view(Note note, {Key? key}) {
-    Note copied = note.copy();
-    return ChangeNotifierProvider<Note>(
-      create: (_) {
-        return copied;
-      },
+    return ChangeNotifierProvider(
+      create: (_) => note.copy(),
       child: NoteDetails(),
     );
   }
@@ -31,6 +28,12 @@ class NoteDetails extends StatefulWidget {
 }
 
 class _NoteDetailsState extends State<NoteDetails> {
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    print("call didchange");
+  }
+
   @override
   Widget build(BuildContext context) {
     Note note = Provider.of<Note>(context);

@@ -22,8 +22,6 @@ class CreateNotePage extends StatefulWidget {
 
 class _CreateNotePageState extends State<CreateNotePage>
     with SingleTickerProviderStateMixin {
-  LabeledGlobalKey _keyNoteNavigator =
-      LabeledGlobalKey<NavigatorState>("note_navigator");
 
   late TabController tabController;
 

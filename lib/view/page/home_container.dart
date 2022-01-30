@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:provider/provider.dart';
 import 'package:sophia_hub/constant/theme.dart';
+import 'package:sophia_hub/provider/notes_provider.dart';
 import 'package:sophia_hub/provider/ui_logic.dart';
 import 'package:sophia_hub/view/page/home/notes.dart';
 import 'package:sophia_hub/view/page/home/quote.dart';
@@ -43,7 +44,6 @@ class _HomeContainerState extends State<HomeContainer>
   late List<Key> _destinationKeys;
   late int _currentIndex;
 
-
   late AnimationController _hideBottomBar;
 
   @override
@@ -63,6 +63,7 @@ class _HomeContainerState extends State<HomeContainer>
 
     _hideBottomBar = AnimationController(
         vsync: this, duration: Duration(milliseconds: 500))..value = 1;
+
     super.initState();
   }
 
@@ -114,10 +115,6 @@ class _HomeContainerState extends State<HomeContainer>
                   await Navigator.of(context, rootNavigator: true).pushNamed(
                 CreateNotePage.nameRoute,
               ) as int;
-              Provider.of<UILogic>(context, listen: false)
-                  .notesListKey
-                  .currentState
-                  ?.insertItem(index, duration: Duration(seconds: 2));
             } catch (e) {}
           },
         ),

@@ -1,4 +1,7 @@
+import 'dart:collection';
+
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:sophia_hub/constant/theme.dart';
@@ -7,7 +10,6 @@ import 'package:sophia_hub/model/activity.dart';
 import 'package:sophia_hub/model/note.dart';
 import 'package:sophia_hub/model/result_container.dart';
 import 'package:sophia_hub/provider/notes_provider.dart';
-import 'package:sophia_hub/view/page/note/create_note_step_2.dart';
 import 'package:sophia_hub/view/widget/error_dialog.dart';
 
 class EditingNoteDetails extends StatefulWidget {
@@ -31,176 +33,192 @@ class EditingNoteDetails extends StatefulWidget {
 }
 
 class _EditingNoteDetailsState extends State<EditingNoteDetails> {
+  late Note note;
+  @override
+  void initState() {
+    super.initState();
+    note = Provider.of<Note>(context,listen: false).copy();
+  }
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+  }
   @override
   Widget build(BuildContext context) {
-    Note note = Provider.of<Note>(context);
+
     Color primary = Theme.of(context).colorScheme.primary;
-    return Scaffold(
-        floatingActionButton: Consumer<NotesPublisher>(
-          builder: (_, value, child) {
-            return FloatingActionButton(
-              shape: ContinuousRectangleBorder(
-                borderRadius: BorderRadius.circular(28.0),
+    return ChangeNotifierProvider<Note>(
+      create: (BuildContext context) { return note; },
+      child: Scaffold(
+          floatingActionButton: Consumer<NotesPublisher>(
+            builder: (_, value, child) {
+              return FloatingActionButton(
+                shape: ContinuousRectangleBorder(
+                  borderRadius: BorderRadius.circular(28.0),
+                ),
+                child: Icon(value.isLoading ? Icons.refresh_rounded : Icons.done),
+                onPressed: value.isLoading
+                    ? null
+                    : () async {
+                        Result result = await value.updateNote(note);
+                        if (result.isHasData) {
+                          Provider.of<Note>(context,listen: false).refresh(note: result.data['note']);
+                          Navigator.pop(context,);
+                        } else {
+                          showDialog(
+                              context: context,
+                              useRootNavigator: false,
+                              builder: (_) {
+                                return ErrorDialog(exception: result.error);
+                              });
+                        }
+                      },
+              );
+            },
+          ),
+          appBar: AppBar(
+            toolbarHeight: 100,
+            backgroundColor: Colors.transparent,
+            leading: Container(),
+            actions: [
+              Hero(
+                tag: "backButton",
+                child: Container(
+                    alignment: Alignment.center,
+                    margin: EdgeInsets.only(top: 26, right: 16, bottom: 26),
+                    height: 50,
+                    width: 50,
+                    decoration: ShapeDecoration(
+                        color: Colors.grey.shade200,
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16))),
+                    child: TextButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      child: Icon(Icons.close_rounded),
+                    )),
+              )
+            ],
+            elevation: 0,
+            centerTitle: true,
+            title: Hero(
+              tag: "appBarTitle",
+              child: Text(
+                "${DateFormat.yMd().add_jm().format(note.timeCreated)}",
+                style: Theme.of(context).textTheme.bodyText1,
               ),
-              child: Icon(value.isLoading ? Icons.refresh_rounded : Icons.done),
-              onPressed: value.isLoading
-                  ? null
-                  : () async {
-                      Result result = await value.updateNote(note);
-                      if (result.isHasData) {
-                        Navigator.pop(
-                          context,
-                        );
-                      } else {
-                        showDialog(
-                            context: context,
-                            useRootNavigator: false,
-                            builder: (_) {
-                              return ErrorDialog(exception: result.error);
-                            });
-                      }
-                    },
-            );
-          },
-        ),
-        appBar: AppBar(
-          toolbarHeight: 100,
-          backgroundColor: Colors.transparent,
-          leading: Container(),
-          actions: [
-            Hero(
-              tag: "backButton",
-              child: Container(
-                  alignment: Alignment.center,
-                  margin: EdgeInsets.only(top: 26, right: 16, bottom: 26),
-                  height: 50,
-                  width: 50,
-                  decoration: ShapeDecoration(
-                      color: Colors.grey.shade200,
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16))),
-                  child: TextButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                    child: Icon(Icons.close_rounded),
-                  )),
-            )
-          ],
-          elevation: 0,
-          centerTitle: true,
-          title: Hero(
-            tag: "appBarTitle",
-            child: Text(
-              "${DateFormat.yMd().add_jm().format(note.timeCreated)}",
-              style: Theme.of(context).textTheme.bodyText1,
             ),
           ),
-        ),
-        body: SingleChildScrollView(
-          physics: BouncingScrollPhysics(),
-          child: Container(
-              padding: EdgeInsets.only(bottom: 100),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Consumer<Note>(builder: (_, note, child) {
-                    String status = '';
-                    status = generateMoodStatus(note.emotionPoint.toInt());
-                    return Container(
-                      height: 120,
-                      child: Stack(
-                        children: [
-                          Align(
-                            child: Hero(
-                              tag: "mood icon",
-                              child: Icon(
-                                generateMoodIcon(note.emotionPoint),
-                                color: primary.withOpacity(0.1),
-                                size: 80,
-                              ),
-                            ),
-                            alignment: Alignment(0, -0.2),
-                          ),
-                          Align(
-                            child: Hero(
-                              tag: "mood text",
-                              child: Text(
-                                "$status",
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .headline5
-                                    ?.copyWith(
-                                        color: primary.withOpacity(0.8),
-                                        fontWeight: FontWeight.bold),
-                              ),
-                            ),
-                            alignment: Alignment.bottomCenter,
-                          ),
-                        ],
-                      ),
-                    );
-                  }),
-                  SizedBox(
-                    height: 20,
-                  ),
-                  SliderEmotionPoint(),
-                  Padding(
-                      padding: EdgeInsets.symmetric(vertical: 16),
-                      child: ListActivities()),
-                  Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 16),
-                      child: Column(
-                        children: [
-                          Hero(
-                            tag: "title",
-                            child: Material(
-                              child: TextFormField(
-                                initialValue: note.title,
-                                decoration: InputDecoration(
-                                  hintText: "Tiêu đề",
+          body: SingleChildScrollView(
+            physics: BouncingScrollPhysics(),
+            child: Container(
+                padding: EdgeInsets.only(bottom: 100),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Consumer<Note>(builder: (_, note, child) {
+                      String status = '';
+                      status = generateMoodStatus(note.emotionPoint.toInt());
+                      return Container(
+                        height: 120,
+                        child: Stack(
+                          children: [
+                            Align(
+                              child: Hero(
+                                tag: "mood icon",
+                                child: Icon(
+                                  generateMoodIcon(note.emotionPoint),
+                                  color: primary.withOpacity(0.1),
+                                  size: 80,
                                 ),
-                                onChanged: (input) {
-                                  note.title = input;
-                                },
+                              ),
+                              alignment: Alignment(0, -0.2),
+                            ),
+                            Align(
+                              child: Hero(
+                                tag: "mood text",
+                                child: Text(
+                                  "$status",
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .headline5
+                                      ?.copyWith(
+                                          color: primary.withOpacity(0.8),
+                                          fontWeight: FontWeight.bold),
+                                ),
+                              ),
+                              alignment: Alignment.bottomCenter,
+                            ),
+                          ],
+                        ),
+                      );
+                    }),
+                    SizedBox(
+                      height: 20,
+                    ),
+                    SliderEmotionPoint(),
+                    Padding(
+                        padding: EdgeInsets.symmetric(vertical: 16),
+                        child: ListActivities()),
+                    Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 16),
+                        child: Column(
+                          children: [
+                            Hero(
+                              tag: "title",
+                              child: Material(
+                                child: TextFormField(
+                                  initialValue: note.title,
+                                  decoration: InputDecoration(
+                                    hintText: "Tiêu đề",
+                                  ),
+                                  onChanged: (input) {
+                                    note.title = input;
+                                  },
+                                ),
                               ),
                             ),
-                          ),
-                          SizedBox(
-                            height: 15,
-                          ),
-                          Hero(
-                            tag: "content",
-                            child: Material(
-                              child: TextFormField(
-                                initialValue: note.description,
-                                decoration: InputDecoration(
-                                    // label: Text("Nội dung",style: TextStyle(color: textColor),),
-                                    hintText: "Suy nghĩ của bạn..."),
-                                maxLines: 10,
-                                minLines: 3,
-                                onChanged: (input) {
-                                  note.description = input;
-                                },
+                            SizedBox(
+                              height: 15,
+                            ),
+                            Hero(
+                              tag: "content",
+                              child: Material(
+                                child: TextFormField(
+                                  initialValue: note.description,
+                                  decoration: InputDecoration(
+                                      // label: Text("Nội dung",style: TextStyle(color: textColor),),
+                                      hintText: "Suy nghĩ của bạn..."),
+                                  maxLines: 10,
+                                  minLines: 3,
+                                  onChanged: (input) {
+                                    note.description = input;
+                                  },
+                                ),
                               ),
                             ),
-                          ),
-                        ],
-                      )),
-                ],
-              )),
-        ));
+                          ],
+                        )),
+                  ],
+                )),
+          )),
+    );
   }
 }
 
 class SliderEmotionPoint extends StatefulWidget {
-  const SliderEmotionPoint({Key? key}) : super(key: key);
+  const SliderEmotionPoint( {Key? key}) : super(key: key);
 
   @override
   _SliderEmotionPointState createState() => _SliderEmotionPointState();
 }
 
 class _SliderEmotionPointState extends State<SliderEmotionPoint> {
+  @override
+  void initState() {
+    super.initState();
+  }
   @override
   Widget build(BuildContext context) {
     Note note = Provider.of<Note>(context);
@@ -227,6 +245,11 @@ class ListActivities extends StatefulWidget {
 }
 
 class _ListActivitiesState extends State<ListActivities> {
+
+  @override
+  void initState() {
+    super.initState();
+  }
   @override
   Widget build(BuildContext context) {
     Note note = Provider.of<Note>(context);
@@ -246,19 +269,11 @@ class _ListActivitiesState extends State<ListActivities> {
                 color: Theme.of(context).colorScheme.primary),
             alignment: Alignment.center,
             child: TextButton(
-              onPressed: () {
-                showDialog(
+              onPressed: () async {
+                Object activities = await showDialog(
                     context: context,
-                    builder: (_) {
-                      return ChangeNotifierProvider.value(
-                          value: note,
-                          child: Container(
-                            height: 200,
-                            child: Card(
-                                child: Container(
-                                    height: 200, child: EmotionGrid())),
-                          ));
-                    });
+                    builder: (ctx)=> _buildActivitiesDialog(ctx,note));
+                print("updated activity:\n$activities");
               },
               child: Icon(
                 Icons.add,
@@ -281,6 +296,36 @@ class _ListActivitiesState extends State<ListActivities> {
         ]),
       ),
     );
+  }
+
+  Widget _buildActivitiesDialog(BuildContext context,Note note){
+    return Provider<LinkedHashSet<Activity>>(
+        create: (context) => LinkedHashSet.of(note.activities.toList()),
+        builder: (context,child ) =>
+         SimpleDialog(
+          title: Text("Chọn hoạt động",textAlign: TextAlign.center,),
+          children: [
+            Container(
+              height: 300,
+                width: 200,
+                child: EmotionGrid()),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+              TextButton(
+                  child: Icon(Icons.done_outline),
+                  onPressed: () => Navigator.of(context).pop(context.read<LinkedHashSet<Activity>>())),
+              TextButton(
+                child: Icon(Icons.cancel),
+                onPressed: () async {
+                    Navigator.of(context).pop(false);
+                },
+              ),
+            ],)
+          ],
+
+          ),
+        );
   }
 }
 
@@ -307,7 +352,7 @@ class _NoteActivityIconState extends State<NoteActivityIcon> {
           ),
           onDeleted: () {
             print('deleted');
-            Provider.of<Note>(context, listen: false).removeEmotion(widget.e);
+            Provider.of<Note>(context,listen: false).removeActivity(widget.e);
           },
           backgroundColor: Colors.white,
           avatar: Icon(
@@ -320,5 +365,61 @@ class _NoteActivityIconState extends State<NoteActivityIcon> {
         ),
       ),
     );
+  }
+}
+
+
+class EmotionGrid extends StatefulWidget {
+  const EmotionGrid({Key? key}) : super(key: key);
+
+  @override
+  _EmotionGridState createState() => _EmotionGridState();
+}
+
+class _EmotionGridState extends State<EmotionGrid> {
+  List<Activity> _activities = activities;
+  late LinkedHashSet<Activity> chosenActivities ;
+
+  @override
+  void initState() {
+    super.initState();
+    chosenActivities = Provider.of<LinkedHashSet<Activity>>(context,listen: false);
+  }
+  @override
+  Widget build(BuildContext context) {
+    return GridView.builder(
+        shrinkWrap: true,
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 3,
+        ),
+        itemCount: _activities.length,
+        scrollDirection: Axis.horizontal,
+        itemBuilder: (BuildContext context, int index) {
+          Activity activity = _activities[index];
+          bool isChosen = chosenActivities.toList().indexWhere((e) => e.id == activity.id) != -1;
+          return Container(
+            height: 40,
+            width: 40,
+            padding: EdgeInsets.all(10),
+            child: ElevatedButton(
+              style: Theme.of(context).elevatedButtonTheme.style?.copyWith(
+                  backgroundColor:
+                  MaterialStateProperty.all<Color?>(isChosen ? Theme.of(context).colorScheme.primary : Colors.grey)
+              ),
+              onPressed: () {
+                setState(() {
+                  if (isChosen) {
+                    chosenActivities.remove(activity);
+
+                  } else {
+                    chosenActivities.add(activity);
+                  }
+              });
+
+              },
+              child: Icon(activity.icon),
+            ),
+          );
+        });
   }
 }

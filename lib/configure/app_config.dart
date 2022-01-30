@@ -7,7 +7,7 @@ class AppConfig {
 
   AppConfig({required this.apiUrl});
 
-  static Future<AppConfig> forEnvironment(String env) async {
+  static Future<AppConfig> forEnvironment(String? env) async {
     // set default to dev if nothing was passed
     env = (env ?? 'dev').toLowerCase();
 

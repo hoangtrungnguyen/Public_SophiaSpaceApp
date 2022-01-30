@@ -95,6 +95,7 @@ class _EmotionGridState extends State<EmotionGrid> {
   Widget build(BuildContext context) {
     Note note = Provider.of<Note>(context);
     return GridView.builder(
+      shrinkWrap: true,
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 3,
         ),
@@ -112,9 +113,9 @@ class _EmotionGridState extends State<EmotionGrid> {
               ),
               onPressed: () {
                 if (isChosen) {
-                  note.removeEmotion(emotion);
+                  note.removeActivity(emotion);
                 } else {
-                  note.addEmotion(emotion);
+                  note.addActivity(emotion);
                 }
               },
               child: Column(

@@ -24,12 +24,6 @@ class _AuthPageState extends State<AuthPage> {
 
   @override
   void initState() {
-    if (FirebaseAuth.instance.currentUser != null) {
-      // wrong call in wrong place!
-      Navigator.of(context,rootNavigator: true).pushNamedAndRemoveUntil(BaseContainer.nameRoute,
-              (route) => route.settings.name == AuthPage.nameRoute);
-     return;
-    }
     super.initState();
   }
 

@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sophia_hub/constant/firebase.dart';
 import 'package:sophia_hub/model/activity.dart';
@@ -9,10 +10,13 @@ import 'package:sophia_hub/provider/app_data.dart';
 import 'package:sophia_hub/provider/connection_state.dart';
 
 class NotesPublisher extends App
-    with ConnectionState
     implements ReassembleHandler {
   final isTesting;
+  bool isLoading = false;
   List<Note> notes = [];
+
+  GlobalKey<AnimatedListState>? listKey;
+  RemovedItemBuilder<Note>? removedItemBuilder;
 
   //Không thể null
   late CollectionReference notesRef;
@@ -37,6 +41,8 @@ class NotesPublisher extends App
   /// Function trả về index đã của note được thêm vào
   Future<Result> addNote({required Note note}) async {
     try {
+      this.isLoading = true;
+      notifyListeners();
       if (!note.isValid()) {
         return Result(err: FormatException("Dữ liệu không hợp lệ"));
       }
@@ -45,7 +51,7 @@ class NotesPublisher extends App
 
       // set emotion objects
       CollectionReference activityRef =
-          currentDoc.collection(FirebaseKey.activities);
+      currentDoc.collection(FirebaseKey.activities);
       WriteBatch batch = this.fireStore.batch();
       for (final emotion in note.activities) {
         batch.set(activityRef.doc(emotion.id), emotion.toJson());
@@ -59,11 +65,16 @@ class NotesPublisher extends App
       note.id = currentDoc.id;
 
       //Thêm note vào danh sách hiện tại
-      int index = insertSorted(note);
+      int index = insertSorted(note.copy());
+      listKey?.currentState?.insertItem(index);
       return Result(data: {"addedIndex": index}, err: null);
     } catch (e) {
       print("Failed to add user: $e");
+
       return Result(data: null, err: Exception("Failed to add user: $e"));
+    } finally {
+      this.isLoading = false;
+      notifyListeners();
     }
   }
 
@@ -73,8 +84,9 @@ class NotesPublisher extends App
     notes.insert(0, Note(emotionPoint: 0));
     int i;
     for (i = 1;
-        (i < notes.length && notes[i].timeCreated.isAfter(note.timeCreated));
-        i++) notes[i - 1] = notes[i];
+    (i < notes.length && notes[i].timeCreated.isAfter(note.timeCreated));
+    i++)
+      notes[i - 1] = notes[i];
     notes[i - 1] = note;
     return (i - 1);
   }
@@ -125,9 +137,8 @@ class NotesPublisher extends App
   Query getNotesQuery() =>
       notesRef.orderBy('time_created', descending: true).limit(10);
 
-  Stream<int> noteIndexStream = Stream.empty();
 
-  Stream<int> loadMoreNotes() async* {
+  loadMoreNotes() async {
     this.isLoading = true;
     notifyListeners();
     try {
@@ -148,18 +159,23 @@ class NotesPublisher extends App
         note.id = doc.id;
 
         note.activities.addAll((await notesRef
-                .doc(doc.id)
-                .collection(FirebaseKey.activities)
-                .get())
+            .doc(doc.id)
+            .collection(FirebaseKey.activities)
+            .get())
             .docs
             .map((e) {
           return Activity.fromJson(e.data())
             ..icon =
-                activities.firstWhere((element) => element.id == e.id).icon;
+                activities
+                    .firstWhere((element) => element.id == e.id)
+                    .icon;
         }));
 
         //Kiểm tra note này đã tồn tại trong danh sách chưa?
-        if (!this.notes.contains(note)) yield insertSorted(note);
+        if (!this.notes.contains(note)) {
+          int index = insertSorted(note);
+          listKey?.currentState?.insertItem(index);
+        }
       }
     } catch (e) {
       print(e);
@@ -201,14 +217,16 @@ class NotesPublisher extends App
         }
         await batch.commit();
       });
-
-      return Result(data: {
-        "deletedIndex": indexDeleted,
-        "addedIndex": indexAdded,
+      listKey?.currentState?.removeItem(indexDeleted, (context, animation) {
+        return removedItemBuilder!(note, context, animation);
       });
+      listKey?.currentState?.insertItem(indexAdded);
+      return Result(data: {"note": note});
     } on Exception catch (e) {
       return Result(err: e);
     } finally {
+      this.isLoading = false;
+      note.notifyListeners();
       notifyListeners();
     }
   }
@@ -242,6 +260,12 @@ class NotesPublisher extends App
             .doc(activity.id));
       await batch.commit();
       int index = deleteSorted(note);
+      listKey!.currentState?.removeItem(
+        index, (BuildContext context, Animation<double> animation) {
+          return removedItemBuilder!(note, context, animation);
+        },
+        duration: Duration(seconds: 1)
+      );
       return Result(data: {"deletedIndex": index, "note": note});
     } catch (e) {
       return Result(err: Exception("Lỗi, thử lại sau"));
@@ -252,6 +276,10 @@ class NotesPublisher extends App
 
   @override
   void reassemble() {
-    // print("HotReload ${this.notes}");
+    print("HotReload:\n${notes}");
+    loadMoreNotes();
   }
 }
+
+typedef RemovedItemBuilder<T> = Widget Function(
+    T item, BuildContext context, Animation<double> animation);

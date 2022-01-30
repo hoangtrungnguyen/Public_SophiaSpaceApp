@@ -25,6 +25,13 @@ class _DrawerMenuState extends State<DrawerMenu>
         ColorTween(begin: beginColor, end: endValue).animate(controller);
   }
 
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Material(

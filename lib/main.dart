@@ -88,8 +88,7 @@ class _MyAppState extends State<MyApp> {
           // type: Note.
             try {
               Note note = settings.arguments as Note;
-              widget =
-                  NoteDetails.view(note, key: LabeledGlobalKey("${note.id}"));
+              widget = NoteDetails.view(note);
             } catch (e) {
               print("Phải có object Note");
             }
@@ -109,9 +108,11 @@ class _MyAppState extends State<MyApp> {
         }
 
         // MaterialPageRoute route = MaterialPageRoute(
-        //
-        //   builder: builder,
+        //   settings: settings,
+        //   builder: (_)=> widget,
         // );
+        // return route;
+
         return RouteAnimation.buildDefaultRouteTransition(widget, settings);
       },
       localizationsDelegates: [
@@ -142,9 +143,6 @@ class _MyAppState extends State<MyApp> {
 
     // Providers cần thiết.
     MultiProvider multiProvider = MultiProvider(providers: [
-      ChangeNotifierProvider<UILogic>(
-        create: (_) => UILogic(),
-      ),
 
       StreamProvider<firebase_auth.User?>(
         create: (_) => FirebaseAuth.instance.authStateChanges(),
@@ -174,8 +172,10 @@ class _MyAppState extends State<MyApp> {
           print("updating notes Data ${auth.firebaseAuth.currentUser?.uid}");
           if (auth.firebaseAuth.currentUser == null)
             preNotesProvider?.clear();
-          else
+          else {
             preNotesProvider?.config();
+            preNotesProvider?.loadMoreNotes();
+          }
 
           return preNotesProvider!;
         },

@@ -37,6 +37,13 @@ class _WelcomeState extends State<Welcome> with TickerProviderStateMixin {
   }
 
   @override
+  void dispose() {
+    _starterAnim.dispose();
+    _lateAnim.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () async {
