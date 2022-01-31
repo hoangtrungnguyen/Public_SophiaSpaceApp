@@ -18,6 +18,7 @@ class Auth extends App {
   Future<Result<UserCredential>> register(String email, String pwd,
       {String? displayName}) async {
     try {
+      isLoadingPublisher.add(true);
       UserCredential userCredential = await firebaseAuth
           .createUserWithEmailAndPassword(email: email, password: pwd);
 
@@ -46,11 +47,14 @@ class Auth extends App {
     } catch (e) {
       print("unkown");
       return Result(err: Exception("Unknown Exception"), data: null);
+    } finally{
+      isLoadingPublisher.add(false);
     }
   }
 
   Future<Result<UserCredential>> login(String email, pwd) async {
     try {
+      isLoadingPublisher.add(true);
       UserCredential userCredential = await FirebaseAuth.instance
           .signInWithEmailAndPassword(email: email, password: pwd);
       return Result<UserCredential>(data: userCredential, err: null);
@@ -66,11 +70,14 @@ class Auth extends App {
     } catch (e) {
       print("unkown");
       return Result(err: Exception("Unknown Exception"), data: null);
+    } finally{
+      isLoadingPublisher.add(false);
     }
   }
 
   Future<Result> resetPwd(String email) async {
     try {
+      isLoadingPublisher.add(true);
       await FirebaseAuth.instance.sendPasswordResetEmail(
         email: email,
       );
@@ -90,6 +97,8 @@ class Auth extends App {
     } catch (e) {
       print("unkown");
       return Result(err: Exception("Unknown Exception"), data: null);
+    } finally {
+      isLoadingPublisher.add(false);
     }
   }
 

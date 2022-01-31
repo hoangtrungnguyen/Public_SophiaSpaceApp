@@ -15,7 +15,7 @@ class Note with ChangeNotifier implements Comparable<Note> {
   @JsonKey(name: 'emotion_point')
   int emotionPoint = 0;
   @JsonKey(ignore: true)
-  late LinkedHashSet<Activity> activities;
+  late List<Activity> activities;
   String? title;
   String? description;
   @JsonKey(
@@ -49,14 +49,15 @@ class Note with ChangeNotifier implements Comparable<Note> {
   Note({
     this.title,
     this.description,
-    LinkedHashSet<Activity>? activities,
+    List<Activity>? activities,
     required this.emotionPoint,
   }) {
-    this.activities = activities ?? LinkedHashSet.from([]);
+    this.activities = activities ?? [];
     this.timeCreated = DateTime.now();
   }
 
   addActivity(Activity emotion) {
+    if (activities.contains(emotion)) return;
     this.activities.add(emotion);
     notifyListeners();
   }
@@ -74,7 +75,7 @@ class Note with ChangeNotifier implements Comparable<Note> {
       emotionPoint: this.emotionPoint,
       description: this.description,
       title: this.title,
-      activities: this.activities,
+      activities: List.of(this.activities),
     )
       ..timeCreated = this.timeCreated
       ..id = _id ?? 'NaN';

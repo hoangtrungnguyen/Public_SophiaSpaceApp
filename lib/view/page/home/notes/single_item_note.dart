@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import 'package:sophia_hub/helper/note_helper_func.dart';
 import 'package:sophia_hub/model/note.dart';
 import 'package:sophia_hub/view/page/note/note_detail.dart';
@@ -105,9 +106,8 @@ class _NoteDayHeaderState extends State<NoteDayHeader>
 }
 
 class DailyNotes extends StatefulWidget {
-  final Note note;
 
-  DailyNotes({Key? key, required this.note}) : super(key: key);
+  DailyNotes({Key? key}) : super(key: key);
 
   @override
   State<DailyNotes> createState() => _DailyNotesState();
@@ -125,8 +125,16 @@ class _DailyNotesState extends State<DailyNotes>
     super.dispose();
   }
 
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    print("Single Item called didChangeDependencies()");
+  }
+
   @override
   Widget build(BuildContext context) {
+    Note note = Provider.of<Note>(context);
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       child: ElevatedButton(
@@ -141,8 +149,7 @@ class _DailyNotesState extends State<DailyNotes>
             elevation: MaterialStateProperty.all<double?>(8),
             backgroundColor: MaterialStateProperty.all<Color?>(Colors.white)),
         onPressed: () {
-          Navigator.pushNamed(context, NoteDetails.nameRoute,
-              arguments: widget.note);
+          Navigator.push(context,NoteDetails.route(Provider.of<Note>(context,listen: false)));
         },
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -151,17 +158,17 @@ class _DailyNotesState extends State<DailyNotes>
           children: [
             ListTile(
               leading: Icon(
-                generateMoodIcon(widget.note.emotionPoint),
+                generateMoodIcon(note.emotionPoint),
                 size: 36,
               ),
               contentPadding: EdgeInsets.zero,
-              title: Text("${displayTitle()}"),
+              title: Text("${displayTitle(note)}"),
               subtitle:
-                  Text("${DateFormat.jm().format(widget.note.timeCreated)} "),
+                  Text("${DateFormat.jm().format(note.timeCreated)} "),
             ),
             Wrap(
               children: [
-                ...widget.note.activities.map((e) {
+                ...note.activities.map((e) {
                   return Padding(
                     padding: EdgeInsets.symmetric(horizontal: 2),
                     child: Chip(
@@ -187,9 +194,9 @@ class _DailyNotesState extends State<DailyNotes>
     );
   }
 
-  String displayTitle() {
-    String? title = widget.note.title;
-    int emotionPoint = widget.note.emotionPoint;
+  String displayTitle(Note note) {
+    String? title = note.title;
+    int emotionPoint = note.emotionPoint;
     String status;
     if (title != null) if (title.isNotEmpty) return title;
 

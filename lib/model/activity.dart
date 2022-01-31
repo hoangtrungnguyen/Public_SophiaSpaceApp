@@ -44,4 +44,12 @@ class Activity{
     }""";
   }
 
+  @override
+  bool operator ==(Object _other) {
+    if (_other.runtimeType == Activity) {
+      Activity other = _other as Activity;
+      return this.id == other.id;
+    } else
+      return false;
+  }
 }

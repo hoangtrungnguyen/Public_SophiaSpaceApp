@@ -1,3 +1,4 @@
+import 'package:another_flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -25,36 +26,41 @@ class _NoteDetailsViewState extends State<NoteDetailsView> {
     Note note = Provider.of<Note>(context);
     return Scaffold(
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      floatingActionButton: Consumer<Note>(
-        builder: (BuildContext context, value, Widget? child) {
-          Widget button;
-          button = FloatingActionButton.extended(
+      floatingActionButton:  StreamBuilder<bool>(
+        initialData: false,
+        stream: Provider.of<NotesPublisher>(context,listen: false).isLoadingPublisher,
+        builder: (context,snapshot){
+          return FloatingActionButton.extended(
             backgroundColor:  Colors.white,
-            onPressed: () async {
+            onPressed: snapshot.data! ? null: () async {
               Result res =
-                  await Provider.of<NotesPublisher>(context, listen: false)
-                      .addNote(note: note);
+              await Provider.of<NotesPublisher>(context, listen: false)
+                  .addNote(note: note);
               if (res.data != null) {
                 int index = res.data['addedIndex'];
                 Navigator.of(context, rootNavigator: true).pop(index);
               } else {
-                showDialog(
-                    context: context,
-                    builder: (_) {
-                      return Card(child: Text("${res.error}"));
-                    });
+                Flushbar(
+                  backgroundColor:
+                  Theme.of(context).colorScheme.error,
+                  message: res.error.toString(),
+                  flushbarPosition: FlushbarPosition.TOP,
+                  borderRadius: BorderRadius.circular(16),
+                  margin: EdgeInsets.all(8),
+                  duration: Duration(seconds: 3),
+                )..show(context);
               }
             },
-            label:  Padding(
-              padding: EdgeInsets.symmetric(horizontal: 32),
-              child: Text(
+            label:  Container(
+              width: 350,
+              alignment: Alignment.center,
+              child: snapshot.data! ? Icon(Icons.refresh,color: Theme.of(context).colorScheme.primary,): Text(
                 "Hoàn thành check-in",
                 style: Theme.of(context).textTheme.headline6?.apply(
                   color: Theme.of(context).colorScheme.primary,
                 ),
               ),
             ),);
-          return button;
         },
       ),
       body: Container(

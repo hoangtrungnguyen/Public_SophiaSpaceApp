@@ -36,7 +36,7 @@ main() {
           title: 'Tiêu đề $e',
           description: "Nội dung  $e",
           emotionPoint: Random().nextInt(10),
-          activities: LinkedHashSet.from([
+          activities: List.from([
             activities[0],
             activities[1],
             activities[2],
@@ -52,7 +52,7 @@ main() {
         title: 'Tiêu đề mới nhất',
         description: "Nội dung  $e",
         emotionPoint: Random().nextInt(10),
-        activities: LinkedHashSet.from([
+        activities: List.from([
           activities[0],
           activities[1],
           activities[2],

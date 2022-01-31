@@ -8,9 +8,9 @@ import 'package:sophia_hub/view/page/note/note_detail_is_editing.dart';
 class NoteDetails extends StatefulWidget {
   static const String nameRoute = "/NoteDetails";
 
-  static Route<dynamic> route() {
+  static Route<dynamic> route(Note note) {
     return MaterialPageRoute(builder: (BuildContext context) {
-      return NoteDetails();
+      return NoteDetails.view(note);
     });
   }
 
@@ -31,7 +31,7 @@ class _NoteDetailsState extends State<NoteDetails> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    print("call didchange");
+    print("call didchange in note details page");
   }
 
   @override
@@ -49,8 +49,10 @@ class _NoteDetailsState extends State<NoteDetails> {
             borderRadius: BorderRadius.circular(28.0),
           ),
           child: Icon(Icons.edit_outlined),
-          onPressed: () {
-            Navigator.push(context, EditingNoteDetails.route(note));
+          onPressed: () async{
+            Note? note = await Navigator.push(context, EditingNoteDetails.route(Provider.of<Note>(context,listen: false)));
+            if(note != null)
+              Provider.of<Note>(context, listen: false).refresh(note: note);
           },
         ),
         appBar: AppBar(
@@ -200,7 +202,7 @@ class _NoteDetailsState extends State<NoteDetails> {
                                       readOnly: true,
                                       initialValue: note.title,
                                       decoration:
-                                          InputDecoration(hintText: "Tiêu đề"),
+                                          InputDecoration(hintText: "Tiêu đề",hintStyle: TextStyle(color: Colors.grey.withOpacity(0.8))),
                                       onChanged: null),
                                 ),
                               ),
@@ -213,6 +215,7 @@ class _NoteDetailsState extends State<NoteDetails> {
                                   child: TextFormField(
                                       decoration: InputDecoration(
                                           // label: Text("Nội dung",style: TextStyle(color: textColor),),
+                                        hintStyle:TextStyle(color: Colors.grey.withOpacity(0.8)),
                                           hintText: "Suy nghĩ của bạn..."),
                                       maxLines: 10,
                                       minLines: 3,

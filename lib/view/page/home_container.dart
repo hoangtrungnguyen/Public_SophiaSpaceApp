@@ -115,6 +115,7 @@ class _HomeContainerState extends State<HomeContainer>
                   await Navigator.of(context, rootNavigator: true).pushNamed(
                 CreateNotePage.nameRoute,
               ) as int;
+              Provider.of<NotesPublisher>(context,listen: false).loadMoreNotes();
             } catch (e) {}
           },
         ),

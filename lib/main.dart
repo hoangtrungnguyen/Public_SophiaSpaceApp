@@ -88,7 +88,7 @@ class _MyAppState extends State<MyApp> {
           // type: Note.
             try {
               Note note = settings.arguments as Note;
-              widget = NoteDetails.view(note);
+              widget = NoteDetails.view(note.copy());
             } catch (e) {
               print("Phải có object Note");
             }

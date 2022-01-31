@@ -130,10 +130,11 @@ class _NotesViewState extends State<NotesView> {
     NotesPublisher publisher =
         Provider.of<NotesPublisher>(context, listen: false);
     Note note = publisher.notes[index];
-
+    print(note.activities);
     Widget item = ChangeNotifierProvider<Note>.value(
+      key: ValueKey(note.id),
       value: note,
-      builder: (_, child) {
+      builder: (context, child) {
         return Slidable(
             endActionPane: ActionPane(
               motion: ScrollMotion(),
@@ -148,7 +149,7 @@ class _NotesViewState extends State<NotesView> {
                         child: TextButton(
                             onPressed: () {
                               showDialog(
-                                  context: _,
+                                  context: context,
                                   barrierDismissible: false,
                                   builder: (context) {
                                     return _buildDialog(context, note);
@@ -161,8 +162,9 @@ class _NotesViewState extends State<NotesView> {
                             )))),
               ],
             ),
-            child: DailyNotes(
-              note: note,
+            child: ChangeNotifierProvider.value(
+              value: note,
+              builder: (context,child) => DailyNotes(),
             ));
       },
     );
@@ -247,6 +249,8 @@ class _NotesViewState extends State<NotesView> {
     var tween = Tween<Offset>(begin: Offset(-1.50,0), end: Offset.zero);
   return
       SlideTransition(position: animation.drive(tween),
-          child: DailyNotes(note: removedItem));
+          child: ChangeNotifierProvider<Note>.value(
+            value: removedItem,
+              child: DailyNotes()));
   }
 }

@@ -34,35 +34,7 @@ main() async {
     });
 
     test("Hàm group", () {
-      List<int>.generate(20, (i) => i).forEach((int e) async {
-        Note note = Note(
-            title: 'title$e',
-            description: "Nội dung test $e",
-            emotionPoint: Random().nextInt(10),
-            activities: LinkedHashSet.from([
-              activities[0],
-              activities[1],
-              activities[2],
-            ]));
-        note
-          ..timeCreated = DateTime.now().subtract(Duration(
-              days: Random().nextInt(15), seconds: Random().nextInt(60)));
-        provider.notes.add(note);
-      });
 
-      expect(provider.notes.length, 20);
-      for (Object e in provider.group()) {
-        if (e is DateTime) {
-          print("\n\nHeader: ${e}");
-          print("-----------------");
-          expect(e.runtimeType, DateTime);
-        } else if (e is Note) {
-          print("Element: ${e.title} - ${e.timeCreated}");
-          expect(e.runtimeType, Note);
-        } else {
-          assert(false, "Unknown");
-        }
-      }
     });
 
     test("Hàm insertedSort", () {
@@ -71,7 +43,7 @@ main() async {
             title: 'title$e',
             description: "Nội dung test $e",
             emotionPoint: 1,
-            activities: LinkedHashSet.from([
+            activities: List.from([
               activities[0],
             ]));
         note..timeCreated = DateTime.now().subtract(Duration(days: e));
@@ -82,7 +54,7 @@ main() async {
           title: 'TEST NOTE',
           description: "TEST",
           emotionPoint: 1,
-          activities: LinkedHashSet.from([
+          activities: List.from([
             activities[0],
           ]))
         ..timeCreated = DateTime.now().subtract(Duration(days: 3));
@@ -96,7 +68,7 @@ main() async {
           title: 'TEST NOTE 2',
           description: "TEST",
           emotionPoint: 1,
-          activities: LinkedHashSet.from([
+          activities: List.from([
             activities[0],
           ]))
         ..timeCreated = DateTime.now();
@@ -126,7 +98,7 @@ main() async {
           title: 'test1',
           description: "Nội dung test 1",
           emotionPoint: 8,
-          activities: LinkedHashSet.from([
+          activities: List.from([
             activities[0],
             activities[1],
             activities[2],
@@ -141,7 +113,7 @@ main() async {
           title: 'test1',
           description: "Nội dung test 1",
           emotionPoint: -1,
-          activities: LinkedHashSet.from([
+          activities: List.from([
             activities[0],
             activities[1],
             activities[2],
@@ -155,7 +127,7 @@ main() async {
           title: 'test1',
           description: "Nội dung test 1",
           emotionPoint: 0,
-          activities: LinkedHashSet.from([]));
+          activities: List.from([]));
       Result result = await provider.addNote(note: note);
       expectLater(result.data == null, true);
     });
@@ -181,7 +153,7 @@ main() async {
             title: 'test1',
             description: "Nội dung test 1",
             emotionPoint: 8,
-            activities: LinkedHashSet.from([
+            activities: List.from([
               activities[0],
               activities[1],
               activities[2],
@@ -200,7 +172,7 @@ main() async {
             title: 'title$i',
             description: "Nội dung test $i",
             emotionPoint: Random().nextInt(10),
-            activities: LinkedHashSet.from([
+            activities: List.from([
               activities[0],
               activities[1],
               activities[2],
@@ -237,7 +209,7 @@ main() async {
             title: 'Tiêu đề - $i',
             description: "Nội dung test $i",
             emotionPoint: Random().nextInt(10),
-            activities: LinkedHashSet.from([
+            activities: List.from([
               activities[0],
               activities[1],
               activities[2],

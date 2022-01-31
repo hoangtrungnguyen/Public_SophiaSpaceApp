@@ -2,6 +2,7 @@ import 'package:another_flushbar/flushbar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:sophia_hub/helper/auth_validator.dart';
 import 'package:sophia_hub/model/result_container.dart';
@@ -138,45 +139,55 @@ class _LoginViewState extends State<LoginView> {
                   Spacer(
                     flex: 5,
                   ),
-                  ElevatedButton(
-                      style: ElevatedButtonTheme.of(context).style?.copyWith(
-                          backgroundColor:
-                              MaterialStateProperty.all<Color?>(Colors.white)),
-                      onPressed: () async {
-                        bool isValidForm =
-                            _formKey.currentState?.validate() ?? false;
-                        if (!isValidForm) return;
+                  StreamBuilder<bool>(
+                    initialData: false,
+                    stream: auth.isLoadingPublisher,
+                    builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
+                      return Container(
+                        width: 250,
+                        height: 50,
+                        child: ElevatedButton(
+                            style: ElevatedButtonTheme.of(context).style?.copyWith(
+                                backgroundColor:
+                                MaterialStateProperty.all<Color?>(Colors.white)),
+                            onPressed: snapshot.data! ? null: () async {
+                              bool isValidForm =
+                                  _formKey.currentState?.validate() ?? false;
+                              if (!isValidForm) return;
 
-                        Result<UserCredential> result =
-                            await auth.login(email, pwd);
-                        print(result);
-                        if (result.data != null) {
-                          Navigator.of(context, rootNavigator: true)
-                              .pushNamed(BaseContainer.nameRoute);
-                        } else {
-                          Flushbar(
-                            backgroundColor:
-                                Theme.of(context).colorScheme.error,
-                            message: "Lỗi đã xảy ra, xin vui lòng thử lại sau",
-                            flushbarPosition: FlushbarPosition.TOP,
-                            borderRadius: BorderRadius.circular(16),
-                            margin: EdgeInsets.all(8),
-                            duration: Duration(seconds: 3),
-                          )..show(context);
-                        }
-                      },
-                      child: Padding(
-                        padding:
-                            EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                        child: Text(
-                          "Đăng nhập",
-                          style: Theme.of(context)
-                              .textTheme
-                              .headline5
-                              ?.copyWith(
-                                  color: Theme.of(context).colorScheme.primary),
-                        ),
-                      )),
+                              Result<UserCredential> result =
+                              await auth.login(email, pwd);
+                              print(result);
+                              if (result.data != null) {
+                                Navigator.of(context, rootNavigator: true)
+                                    .pushReplacementNamed(BaseContainer.nameRoute);
+                              } else {
+                                Flushbar(
+                                  backgroundColor:
+                                  Theme.of(context).colorScheme.error,
+                                  message: "Lỗi đã xảy ra, xin vui lòng thử lại sau",
+                                  flushbarPosition: FlushbarPosition.TOP,
+                                  borderRadius: BorderRadius.circular(16),
+                                  margin: EdgeInsets.all(8),
+                                  duration: Duration(seconds: 3),
+                                )..show(context);
+                              }
+                            },
+                            child: Padding(
+                              padding:
+                              EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                              child: snapshot.data! ? Icon(Icons.refresh_rounded,color: primary,size: 30,): Text(
+                                "Đăng nhập",
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .headline5
+                                    ?.copyWith(
+                                    color: Theme.of(context).colorScheme.primary),
+                              ),
+                            )),
+                      );
+                    },
+                  ),
                   Spacer()
                 ],
               ),

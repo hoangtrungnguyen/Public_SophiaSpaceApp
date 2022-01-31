@@ -57,6 +57,8 @@ dependencies:
   flutter_slidable:
 
   another_flushbar: ^1.10.28
+  connectivity_plus: ^2.2.0
+  rxdart: ^0.27.3
 
 dev_dependencies:
   integration_test:
