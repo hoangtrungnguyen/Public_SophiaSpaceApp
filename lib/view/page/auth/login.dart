@@ -155,9 +155,7 @@ class _LoginViewState extends State<LoginView> {
                                   _formKey.currentState?.validate() ?? false;
                               if (!isValidForm) return;
 
-                              Result<UserCredential> result =
-                              await auth.login(email, pwd);
-                              print(result);
+                              Result<UserCredential> result = await auth.login(email, pwd);
                               if (result.data != null) {
                                 Navigator.of(context, rootNavigator: true)
                                     .pushReplacementNamed(BaseContainer.nameRoute);

@@ -64,6 +64,8 @@ class Auth extends App {
       } else if (e.code == 'email-already-in-use') {
         print('The account already exists for that email.');
       }
+      print(e.code);
+      print(e);
       return Result(err: e, data: null);
     } on Exception catch (e) {
       return Result(err: e, data: null);

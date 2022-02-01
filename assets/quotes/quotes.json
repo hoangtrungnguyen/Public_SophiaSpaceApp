@@ -1,0 +1,20 @@
+{
+  "quote1": {
+    "author_id": "leo_tolstoy",
+    "author_name": "Leo Tolstoy",
+    "content": "Ai cũng nghĩ muốn thay đổi thế giới nhưng không ai nghĩ đến việc thay đổi bản thân",
+    "image_url": "https://images.unsplash.com/photo-1567626143573-dfee80dddb2c?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8"
+  },
+  "quote2": {
+    "author_id": "leo_tolstoy",
+    "author_name": "Leo Tolstoy",
+    "content": "Ai cũng nghĩ muốn thay đổi thế giới nhưng không ai nghĩ đến việc thay đổi bản thân",
+    "image_url": "https://images.unsplash.com/photo-1567626143573-dfee80dddb2c?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8"
+  },
+  "quote3": {
+    "author_id": "leo_tolstoy",
+    "author_name": "Leo Tolstoy",
+    "content": "Ai cũng nghĩ muốn thay đổi thế giới nhưng không ai nghĩ đến việc thay đổi bản thân",
+    "image_url": "https://images.unsplash.com/photo-1567626143573-dfee80dddb2c?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8"
+  }
+}

@@ -51,11 +51,11 @@ class NotesPublisher extends App implements ReassembleHandler {
   Future<Result> addNote({required Note note}) async {
     try {
       this.isLoadingPublisher.add(true);
-      ConnectivityResult result = await checkingNetwork();
-      if (result == ConnectivityResult.none) {
-        return Result(
-            err: Exception("Không có mạng, vui lòng kết nối lại internet"));
-      }
+      if (!isTesting)
+        if (await checkingNetwork() == ConnectivityResult.none) {
+          return Result(
+              err: Exception("Không có mạng, vui lòng kết nối lại internet"));
+        }
 
       this.isLoading = true;
       notifyListeners();
@@ -67,7 +67,7 @@ class NotesPublisher extends App implements ReassembleHandler {
 
       // set emotion objects
       CollectionReference activityRef =
-          currentDoc.collection(FirebaseKey.activities);
+      currentDoc.collection(FirebaseKey.activities);
       WriteBatch batch = this.fireStore.batch();
       for (final emotion in note.activities) {
         batch.set(activityRef.doc(emotion.id), emotion.toJson());
@@ -100,11 +100,12 @@ class NotesPublisher extends App implements ReassembleHandler {
 
   loadMoreNotes() async {
     try {
-      ConnectivityResult result = await checkingNetwork();
-      if (result == ConnectivityResult.none) {
-        return Result(
-            err: Exception("Không có mạng, vui lòng kết nối lại internet"));
-      }
+      if (!isTesting)
+        if (await checkingNetwork() == ConnectivityResult.none) {
+          return Result(
+              err: Exception("Không có mạng, vui lòng kết nối lại internet"));
+        }
+
       this.isLoadingPublisher.add(true);
       this.isLoading = true;
       notifyListeners();
@@ -125,14 +126,16 @@ class NotesPublisher extends App implements ReassembleHandler {
         note.id = doc.id;
 
         note.activities.addAll((await notesRef
-                .doc(doc.id)
-                .collection(FirebaseKey.activities)
-                .get())
+            .doc(doc.id)
+            .collection(FirebaseKey.activities)
+            .get())
             .docs
             .map((e) {
           return Activity.fromJson(e.data())
             ..icon =
-                activities.firstWhere((element) => element.id == e.id).icon;
+                activities
+                    .firstWhere((element) => element.id == e.id)
+                    .icon;
         }));
 
         //Kiểm tra note này đã tồn tại trong danh sách chưa?
@@ -154,10 +157,11 @@ class NotesPublisher extends App implements ReassembleHandler {
   // Gọi hàm này sau mỗi lần thêm, sửa danh sách
   Future updateNote(Note note) async {
     try {
-      ConnectivityResult result =  await checkingNetwork();
-      if(result == ConnectivityResult.none){
-        return Result(err: Exception("Không có mạng, vui lòng kết nối lại internet"));
-      }
+      if (!isTesting)
+        if (await checkingNetwork() == ConnectivityResult.none) {
+          return Result(
+              err: Exception("Không có mạng, vui lòng kết nối lại internet"));
+        }
       this.isLoadingPublisher.add(true);
       this.isLoading = true;
       notifyListeners();
@@ -174,19 +178,29 @@ class NotesPublisher extends App implements ReassembleHandler {
       int indexDeleted = deleteSorted(note);
       int indexAdded = insertSorted(copied);
 
-      //Cập nhật object cảm xúc
-      await notesRef.doc(note.id).update(note.toJson()).then((value) async {
-        WriteBatch batch = this.fireStore.batch();
-        for (final activity in note.activities) {
-          batch.set(
-              notesRef
-                  .doc(note.id)
-                  .collection(FirebaseKey.activities)
-                  .doc(activity.id),
-              activity.toJson());
-        }
-        await batch.commit();
+      //Cập nhật
+      await notesRef.doc(note.id).update(note.toJson());
+
+      // Xóa tất cả activity hiện tại trong note
+      final snapshot = await notesRef.doc(note.id).collection(
+          FirebaseKey.activities).get();
+      await
+      Future.forEach(snapshot.docs, (QueryDocumentSnapshot e) async {
+        await notesRef
+            .doc(note.id)
+            .collection(FirebaseKey.activities)
+            .doc(e.id).delete();
       });
+      //Cập nhật activity mới
+      WriteBatch activitiesBatch = this.fireStore.batch();
+      for (final activity in note.activities) {
+        activitiesBatch.set(notesRef.doc(note.id)
+            .collection(FirebaseKey.activities)
+            .doc(activity.id),
+            activity.toJson());
+      }
+      await activitiesBatch.commit();
+
       listKey?.currentState?.removeItem(indexDeleted, (context, animation) {
         return removedItemBuilder!(note, context, animation);
       });
@@ -203,10 +217,11 @@ class NotesPublisher extends App implements ReassembleHandler {
 
   Future<Result> delete(Note note) async {
     try {
-      ConnectivityResult result =  await checkingNetwork();
-      if(result == ConnectivityResult.none){
-        return Result(err: Exception("Không có mạng, vui lòng kết nối lại internet"));
-      }
+      if (!isTesting)
+        if (await checkingNetwork() == ConnectivityResult.none) {
+          return Result(
+              err: Exception("Không có mạng, vui lòng kết nối lại internet"));
+        }
       this.isLoadingPublisher.add(true);
       await notesRef.doc(note.id).delete().then((value) {
         print("OKAY");
@@ -220,9 +235,9 @@ class NotesPublisher extends App implements ReassembleHandler {
       await batch.commit();
       int index = deleteSorted(note);
       listKey!.currentState?.removeItem(index,
-          (BuildContext context, Animation<double> animation) {
-        return removedItemBuilder!(note, context, animation);
-      }, duration: Duration(seconds: 1));
+              (BuildContext context, Animation<double> animation) {
+            return removedItemBuilder!(note, context, animation);
+          }, duration: Duration(seconds: 1));
       return Result(data: {"deletedIndex": index, "note": note});
     } catch (e) {
       return Result(err: Exception("Lỗi, thử lại sau"));
@@ -234,10 +249,11 @@ class NotesPublisher extends App implements ReassembleHandler {
 
   Future<Result> getById(String id) async {
     try {
-      ConnectivityResult result =  await checkingNetwork();
-      if(result == ConnectivityResult.none){
-        return Result(err: Exception("Không có mạng, vui lòng kết nối lại internet"));
-      }
+      if (!isTesting)
+        if (await checkingNetwork() == ConnectivityResult.none) {
+          return Result(
+              err: Exception("Không có mạng, vui lòng kết nối lại internet"));
+        }
       this.isLoadingPublisher.add(true);
       DocumentSnapshot doc = await notesRef.doc(id).get();
 
@@ -248,9 +264,11 @@ class NotesPublisher extends App implements ReassembleHandler {
           (await notesRef.doc(doc.id).collection(FirebaseKey.activities).get())
               .docs
               .map((e) {
-        return Activity.fromJson(e.data())
-          ..icon = activities.firstWhere((element) => element.id == e.id).icon;
-      }));
+            return Activity.fromJson(e.data())
+              ..icon = activities
+                  .firstWhere((element) => element.id == e.id)
+                  .icon;
+          }));
       return Result(data: {"note": note});
     } catch (e) {
       return Result(err: Exception("Lỗi, thử lại sau"));
@@ -286,8 +304,9 @@ class NotesPublisher extends App implements ReassembleHandler {
     notes.insert(0, Note(emotionPoint: 0));
     int i;
     for (i = 1;
-        (i < notes.length && notes[i].timeCreated.isAfter(note.timeCreated));
-        i++) notes[i - 1] = notes[i];
+    (i < notes.length && notes[i].timeCreated.isAfter(note.timeCreated));
+    i++)
+      notes[i - 1] = notes[i];
     notes[i - 1] = note;
     return (i - 1);
   }

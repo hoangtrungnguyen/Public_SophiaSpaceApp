@@ -60,6 +60,9 @@ dependencies:
   connectivity_plus: ^2.2.0
   rxdart: ^0.27.3
 
+  #config environment
+  flutter_dotenv: ^5.0.2
+
 dev_dependencies:
   integration_test:
     sdk: flutter
@@ -87,6 +90,7 @@ flutter:
     - media/logo/
     - google_fonts/
     - assets/config/
+    - dev.env
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.

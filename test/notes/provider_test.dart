@@ -33,9 +33,7 @@ main() async {
       });
     });
 
-    test("Hàm group", () {
-
-    });
+    test("Hàm group", () {});
 
     test("Hàm insertedSort", () {
       List<int>.generate(10, (i) => i).forEach((int e) async {
@@ -94,6 +92,7 @@ main() async {
     });
 
     test("1/ Dữ liệu hợp lệ", () async {
+      //Data mẫu
       Note note = Note(
           title: 'test1',
           description: "Nội dung test 1",
@@ -103,8 +102,8 @@ main() async {
             activities[1],
             activities[2],
           ]));
-
       Result result = await provider.addNote(note: note);
+      print(result.data);
       expectLater(result.data != null, true);
     });
 
@@ -216,7 +215,7 @@ main() async {
             ]));
         note
           ..timeCreated =
-          //Random thời gina trong 15 ngày
+              //Random thời gina trong 15 ngày
               DateTime.now().subtract(Duration(days: Random().nextInt(15)));
         //Chọn note để cập nhật
         if (i == 2) testNote = note;
@@ -246,6 +245,62 @@ main() async {
       print(provider.notes);
       //Kiểm tra phần từ cuối cùng
       expect(provider.notes[provider.notes.length - 1] == testNote, true);
+    });
+  });
+
+  group("Sửa dữ liệu", () {
+    setUp(() async {
+      provider = NotesPublisher(
+          auth: mockFirebaseAuth, fireStore: fireStore, isTesting: true);
+      await Future.forEach(List<int>.generate(10, (i) => i), (int i) async {
+        //Data mẫu
+        Note note = Note(
+            title: 'test1',
+            description: "Nội dung test 1",
+            emotionPoint: 8,
+            activities: List.from([
+              activities[0],
+              activities[1],
+              activities[2],
+            ]));
+
+        note
+          ..title = "Title - $i"
+          ..timeCreated =
+              //Random thời gina trong 15 ngày
+              DateTime.now().subtract(Duration(days: Random().nextInt(15)));
+
+        await provider.addNote(note: note);
+      });
+    });
+
+    tearDown(() async {
+      QuerySnapshot snapshots =
+          await fireStore.collection(mockFirebaseAuth.currentUser!.uid).get();
+      await Future.forEach<QueryDocumentSnapshot>(snapshots.docs, (doc) async {
+        await doc.reference.delete();
+      });
+    });
+
+    test("Sửa các trường: Title, Point, Title, Description, TimeCreated",
+        () async {
+      Note note = provider.notes[2]
+        ..title = "New Title 2"
+        ..description = "New Description 2";
+      provider.loadMoreNotes();
+      provider.updateNote(note);
+      final doc = await provider.notesRef.doc(note.id).get();
+      expect(doc.get('title'), 'New Title 2');
+      expect(doc.get('description'), 'New Description 2');
+    });
+    test("Sửa activities", () async {
+      Note note = provider.notes[2]
+        ..activities = List.from([activities[2], activities[5], activities[1]]);
+      await provider.updateNote(note);
+      Result res = await provider.getById(note.id);
+      expect((res.data['note'] as Note).activities.contains(activities[5]), true);
+      expect((res.data['note'] as Note).activities.contains(activities[2]), true);
+      expect((res.data['note'] as Note).activities.contains(activities[1]), true);
     });
   });
 }

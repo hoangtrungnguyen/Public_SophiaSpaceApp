@@ -7,6 +7,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
+import 'package:sophia_hub/configure/firebase_config.dart';
 import 'package:sophia_hub/constant/theme.dart';
 import 'package:sophia_hub/firebase_options.dart';
 import 'package:sophia_hub/model/note.dart';
@@ -31,13 +32,11 @@ Future<void> main() async {
   runZonedGuarded(() async {
     WidgetsFlutterBinding.ensureInitialized();
     await Firebase.initializeApp(
-            options: DefaultFirebaseOptions.currentPlatform)
-        .then((value) => print(value));
+      options: DefaultFirebaseOptions.currentPlatform
+    ).then((value) =>
+        print("$value"));
 
-    if (USE_FIRESTORE_EMULATOR) {
-      FirebaseFirestore.instance.settings = const Settings(
-          host: 'localhost:8080', sslEnabled: false, persistenceEnabled: false);
-    }
+    await FirebaseConfig.config();
 
     runApp(MyApp());
   }, (Object error, StackTrace stack) {
@@ -79,13 +78,13 @@ class _MyAppState extends State<MyApp> {
             widget = BaseContainer();
             break;
           case CreateNotePage.nameRoute:
-          // Cast the arguments to the correct
-          // type: Note.
+            // Cast the arguments to the correct
+            // type: Note.
             widget = CreateNotePage();
             break;
           case NoteDetails.nameRoute:
-          // Cast the arguments to the correct
-          // type: Note.
+            // Cast the arguments to the correct
+            // type: Note.
             try {
               Note note = settings.arguments as Note;
               widget = NoteDetails.view(note.copy());
@@ -100,10 +99,10 @@ class _MyAppState extends State<MyApp> {
             widget = ListTaskPage();
             break;
           default:
-          // The assertion here will help remind
-          // us of that higher up in the call stack, since
-          // this assertion would otherwise fire somewhere
-          // in the framework.
+            // The assertion here will help remind
+            // us of that higher up in the call stack, since
+            // this assertion would otherwise fire somewhere
+            // in the framework.
             assert(false, 'Need to implement ${settings.name}');
         }
 
@@ -143,7 +142,6 @@ class _MyAppState extends State<MyApp> {
 
     // Providers cần thiết.
     MultiProvider multiProvider = MultiProvider(providers: [
-
       StreamProvider<firebase_auth.User?>(
         create: (_) => FirebaseAuth.instance.authStateChanges(),
         initialData: FirebaseAuth.instance.currentUser,
