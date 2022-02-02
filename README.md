@@ -9,8 +9,14 @@ flutter run --release
 Kết nối điện thoại và máy tính vào cùng một wifi
 Chạy debug cần khởi động Firebase emulators trước:
 
+Cấu hình lần đầu
 ```sh
 firebase init emulator
+```
+
+Khởi động
+```sh
+firebase emulators:start
 ```
 
 #### Thay đổi thành ip local ở các file:

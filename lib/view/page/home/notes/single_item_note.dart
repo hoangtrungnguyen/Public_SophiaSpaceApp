@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:sophia_hub/helper/note_helper_func.dart';
 import 'package:sophia_hub/model/note.dart';
+import 'package:sophia_hub/provider/user_provider.dart';
 import 'package:sophia_hub/view/page/note/note_detail.dart';
 
 class StatHeader extends StatelessWidget {
@@ -15,10 +16,10 @@ class StatHeader extends StatelessWidget {
         children: [
           Align(
             child: Text(
-              "Nhật ký của bạn",
+              "Nhật ký của ${Provider.of<Auth>(context,listen: false).firebaseAuth.currentUser?.displayName}",
               style: Theme.of(context)
                   .textTheme
-                  .headline4
+                  .headline5
                   ?.apply(color: Colors.grey.withOpacity(0.8)),
               textAlign: TextAlign.center,
             ),

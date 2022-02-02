@@ -201,7 +201,7 @@ class Background extends StatelessWidget {
       // ),*/
       // Image.network("https://firebasestorage.googleapis.com/v0/b/small-habits-0812.appspot.com/o/astronaut%20(1).jpg?alt=media&token=92ff8444-d939-48f8-975c-cc2a67b25a9a")
 
-      foregroundDecoration: BoxDecoration(color: Colors.white.withOpacity(0.3)),
+      foregroundDecoration: BoxDecoration(color: Colors.black.withOpacity(0.3)),
       decoration: BoxDecoration(
           gradient: RadialGradient(
         radius: 1,
@@ -212,14 +212,7 @@ class Background extends StatelessWidget {
         ],
         colors: [
           Theme.of(context).colorScheme.primary,
-          () {
-                int blue = primary.blue;
-                int green = primary.green;
-                int red = primary.red;
-
-                return Color.fromRGBO((red).toInt(), (green * 1.5).toInt(),
-                    (blue * 1.4).toInt(), 1.0);
-              }(),
+          Theme.of(context).colorScheme.secondary,
             ],
           )),
     );

@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:sophia_hub/model/note.dart';
 import 'package:sophia_hub/model/result_container.dart';
 import 'package:sophia_hub/provider/notes_provider.dart';
+import 'package:sophia_hub/view/widget/animated_loading_icon.dart';
 
 class NoteDetailsView extends StatefulWidget {
   static const String nameRoute = "/NoteDetailsView";
@@ -54,7 +55,7 @@ class _NoteDetailsViewState extends State<NoteDetailsView> {
             label:  Container(
               width: 350,
               alignment: Alignment.center,
-              child: snapshot.data! ? Icon(Icons.refresh,color: Theme.of(context).colorScheme.primary,): Text(
+              child: snapshot.data! ? AnimatedLoadingIcon(): Text(
                 "Hoàn thành check-in",
                 style: Theme.of(context).textTheme.headline6?.apply(
                   color: Theme.of(context).colorScheme.primary,

@@ -1,6 +1,7 @@
 import 'dart:collection';
 
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:sophia_hub/model/note.dart';
 import 'package:sophia_hub/view/page/note/create_note_step_1.dart';
@@ -69,8 +70,14 @@ class _CreateNotePageState extends State<CreateNotePage>
             ),
             actions: [
               TextButton.icon(
-                  onPressed: () {
-                    Navigator.of(context).pop(false);
+                  onPressed: () async {
+                    if (tabController.index == 0)
+                      Navigator.of(context).pop(false);
+                    else {
+                      bool ok = await showDialog(context: context, builder: _buildCancelDialog);
+                      await Future.delayed(Duration(milliseconds: 500));
+                      if(ok) Navigator.of(context).pop(false);
+                    }
                   },
                   icon: Icon(
                     Icons.cancel,
@@ -117,6 +124,27 @@ class _CreateNotePageState extends State<CreateNotePage>
             ),
           )),
     );
+  }
+
+  Widget _buildCancelDialog(BuildContext context) {
+      return AlertDialog(
+        title: Text("Bạn có chắc chắc không?",
+            style: TextStyle(color: Colors.red)),
+        content: Text(
+            "Các thay đổi của bạn sẽ không được lưu"),
+        actionsAlignment: MainAxisAlignment.spaceEvenly,
+        actions: [
+          TextButton(
+              child: Icon(Icons.cancel_rounded),
+              onPressed: () => Navigator.of(context).pop(false)),
+          TextButton(
+            child: Icon(Icons.done, color: Colors.red),
+            onPressed: () async {
+              Navigator.of(context).pop(true);
+            },
+          ),
+        ],
+      );
   }
 }
 //Theme(

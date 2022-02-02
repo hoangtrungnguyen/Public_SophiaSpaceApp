@@ -5,20 +5,37 @@ ShapeBorder continuousRectangleBorder = ContinuousRectangleBorder(
   borderRadius: BorderRadius.circular(28.0),
 );
 
-ShapeDecoration commonDecoration (Color color) => ShapeDecoration(
-    color: color,
-    shape: ContinuousRectangleBorder(borderRadius: BorderRadius.circular(32)));
+ShapeDecoration commonDecoration(Color color) =>
+    ShapeDecoration(
+        color: color,
+        shape: ContinuousRectangleBorder(
+            borderRadius: BorderRadius.circular(32)));
 
-ColorScheme getColorScheme(
-  BuildContext context, {
+ShapeDecoration commonDecorationShadow = ShapeDecoration(
+  shape: continuousRectangleBorder,
+  color: Colors.white,
+  shadows: [
+    BoxShadow(
+      color: Colors.grey,
+      offset: Offset(0.0, 1.0), //(x,y)
+      blurRadius: 4.0,
+    ),
+  ],
+);
+
+ColorScheme getColorScheme(BuildContext context, {
   MaterialColor color: Colors.indigo,
 }) {
-  final primary = color[700];
-  final secondary = color[400];
-  return Theme.of(context).colorScheme.copyWith(
-        primary: primary,
-        secondary: secondary,
-        error: Colors.redAccent[100]);
+  final primary = color[600];
+  final secondary = color[300];
+  return Theme
+      .of(context)
+      .colorScheme
+      .copyWith(
+      primary: primary,
+      secondary: secondary,
+      background: color[50],
+      error: Colors.redAccent[100]);
 }
 
 TextTheme getTextTheme(BuildContext context, {String fontName = "Dongle"}) {
@@ -27,8 +44,8 @@ TextTheme getTextTheme(BuildContext context, {String fontName = "Dongle"}) {
   return GoogleFonts.varelaTextTheme();
 }
 
-ThemeData lightTheme(BuildContext context) {
-  ColorScheme colorScheme = getColorScheme(context);
+ThemeData lightTheme(BuildContext context, MaterialColor materialColor) {
+  ColorScheme colorScheme = getColorScheme(context,color: materialColor);
   ThemeData themeData = Theme.of(context)
       .copyWith(colorScheme: colorScheme, textTheme: getTextTheme(context));
 
@@ -44,7 +61,7 @@ ThemeData lightTheme(BuildContext context) {
     // }(),
 
     dialogTheme:
-        DialogTheme.of(context).copyWith(shape: continuousRectangleBorder),
+    DialogTheme.of(context).copyWith(shape: continuousRectangleBorder),
     chipTheme: ChipTheme.of(context).copyWith(
       elevation: 4,
       shape: ContinuousRectangleBorder(borderRadius: BorderRadius.circular(24)),
@@ -54,6 +71,7 @@ ThemeData lightTheme(BuildContext context) {
       secondaryLabelStyle: themeData.textTheme.headline5
           ?.copyWith(color: themeData.colorScheme.primary),
     ),
+
     inputDecorationTheme: InputDecorationTheme(
       border: OutlineInputBorder(
           borderSide: BorderSide(color: Colors.transparent),
@@ -66,13 +84,19 @@ ThemeData lightTheme(BuildContext context) {
           borderRadius: BorderRadius.circular(14)),
       disabledBorder: InputBorder.none,
       errorBorder: OutlineInputBorder(
-          borderSide: BorderSide(color: Theme.of(context).colorScheme.error),
+          borderSide: BorderSide(color: Theme
+              .of(context)
+              .colorScheme
+              .error),
           borderRadius: BorderRadius.circular(14)),
       suffixIconColor: Colors.white.withOpacity(0.8),
       hintStyle: TextStyle(color: Colors.white.withOpacity(0.5)),
       filled: true,
       labelStyle: TextStyle(
-        decorationColor: Theme.of(context).colorScheme.error,
+        decorationColor: Theme
+            .of(context)
+            .colorScheme
+            .error,
       ),
     ),
     bottomAppBarTheme: BottomAppBarTheme.of(context).copyWith(),
@@ -82,18 +106,23 @@ ThemeData lightTheme(BuildContext context) {
     listTileTheme: ListTileTheme.of(context).copyWith(
       shape: continuousRectangleBorder,
     ),
-    floatingActionButtonTheme: Theme.of(context)
+    floatingActionButtonTheme: Theme
+        .of(context)
         .floatingActionButtonTheme
         .copyWith(
-            shape: continuousRectangleBorder,
-            backgroundColor: getColorScheme(context).primary),
-    cardTheme: Theme.of(context).cardTheme.copyWith(
-          margin: EdgeInsets.all(10),
-          shape: continuousRectangleBorder,
-        ),
+        shape: continuousRectangleBorder,
+        backgroundColor: colorScheme.primary),
+    cardTheme: Theme
+        .of(context)
+        .cardTheme
+        .copyWith(
+      margin: EdgeInsets.all(10),
+      elevation: 4,
+      shape: continuousRectangleBorder,
+    ),
     elevatedButtonTheme: ElevatedButtonThemeData(
         style: ButtonStyle(
-            // backgroundColor: MaterialStateProperty.all<Color?>(Colors.white) ,
+          // backgroundColor: MaterialStateProperty.all<Color?>(Colors.white) ,
             shape: MaterialStateProperty.all<OutlinedBorder?>(
                 continuousRectangleBorder as OutlinedBorder))),
   );

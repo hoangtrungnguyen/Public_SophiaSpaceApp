@@ -2,6 +2,6 @@
 <network-security-config xmlns:android="http://schemas.android.com/apk/res/android">
     <domain-config cleartextTrafficPermitted="true">
         <!--TODO Thay đổi thành ip của máy tính dev-->
-        <domain includeSubdomains="true">172.16.0.226</domain>
+        <domain includeSubdomains="true">172.16.0.206</domain>
     </domain-config>
 </network-security-config>

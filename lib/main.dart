@@ -13,11 +13,13 @@ import 'package:sophia_hub/firebase_options.dart';
 import 'package:sophia_hub/model/note.dart';
 import 'package:sophia_hub/provider/notes_provider.dart';
 import 'package:sophia_hub/provider/quote_provider.dart';
+import 'package:sophia_hub/provider/share_pref.dart';
 import 'package:sophia_hub/provider/task_provider.dart';
 import 'package:sophia_hub/provider/ui_logic.dart';
 import 'package:sophia_hub/provider/user_provider.dart';
 import 'package:sophia_hub/view/animation/route_change_anim.dart';
 import 'package:sophia_hub/view/base_container.dart';
+import 'package:sophia_hub/view/page/account/account_page.dart';
 import 'package:sophia_hub/view/page/auth/auth_page.dart';
 import 'package:sophia_hub/view/page/note/create_note_page.dart';
 import 'package:sophia_hub/view/page/note/note_detail.dart';
@@ -36,108 +38,116 @@ Future<void> main() async {
     ).then((value) =>
         print("$value"));
 
-    await FirebaseConfig.config();
 
-    runApp(MyApp());
+    await FirebaseConfig.config();
+     SharePref sharePref = SharePref();
+     await sharePref.init();
+
+    runApp(MyApp(sharePref));
   }, (Object error, StackTrace stack) {
     // myBackend.sendError(error, stack);
     print("Send error's info to server: ${error} with stack $stack");
   });
 }
 
-class MyApp extends StatefulWidget {
-  @override
-  State<MyApp> createState() => _MyAppState();
-}
 
-class _MyAppState extends State<MyApp> {
-  @override
-  void initState() {
-    super.initState();
+class MyApp extends StatelessWidget {
+
+  SharePref? sharePref;
+
+  MyApp(SharePref sharePref){
+    this.sharePref = sharePref;
   }
 
   @override
   Widget build(BuildContext context) {
     //Configure App Small Habits
-    MaterialApp app = MaterialApp(
-      title: 'Small Habits',
-      initialRoute: FirebaseAuth.instance.currentUser == null
-          ? AuthPage.nameRoute
-          : BaseContainer.nameRoute,
-      onUnknownRoute: (setting) => MaterialPageRoute(
-          builder: (_) => Center(child: Text("Không thể tìm thấy trang này"))),
-      onGenerateRoute: (settings) {
-        //Read more in the link below
-        // https://docs.flutter.dev/cookbook/navigation/navigate-with-arguments
-        Widget widget = Container();
-        switch (settings.name) {
-          case AuthPage.nameRoute:
-            widget = AuthPage();
-            break;
-          case BaseContainer.nameRoute:
-            widget = BaseContainer();
-            break;
-          case CreateNotePage.nameRoute:
-            // Cast the arguments to the correct
-            // type: Note.
-            widget = CreateNotePage();
-            break;
-          case NoteDetails.nameRoute:
-            // Cast the arguments to the correct
-            // type: Note.
-            try {
-              Note note = settings.arguments as Note;
-              widget = NoteDetails.view(note.copy());
-            } catch (e) {
-              print("Phải có object Note");
+    Widget app = Consumer<SharePref>(
+      builder: (context,sharePrefs,child){
+        return MaterialApp(
+          title: 'Small Habits',
+          initialRoute: FirebaseAuth.instance.currentUser == null
+              ? AuthPage.nameRoute
+              : BaseContainer.nameRoute,
+          onUnknownRoute: (setting) => MaterialPageRoute(
+              builder: (_) => Center(child: Text("Không thể tìm thấy trang này"))),
+          onGenerateRoute: (settings) {
+            //Read more in the link below
+            // https://docs.flutter.dev/cookbook/navigation/navigate-with-arguments
+            Widget widget = Container();
+            switch (settings.name) {
+              case AuthPage.nameRoute:
+                widget = AuthPage();
+                break;
+              case BaseContainer.nameRoute:
+                widget = BaseContainer();
+                break;
+              case CreateNotePage.nameRoute:
+              // Cast the arguments to the correct
+              // type: Note.
+                widget = CreateNotePage();
+                break;
+              case NoteDetails.nameRoute:
+              // Cast the arguments to the correct
+              // type: Note.
+                try {
+                  Note note = settings.arguments as Note;
+                  widget = NoteDetails.view(note.copy());
+                } catch (e) {
+                  print("Phải có object Note");
+                }
+                break;
+              case CreateTaskPage.nameRoute:
+                widget = CreateTaskPage();
+                break;
+              case ListTaskPage.nameRoute:
+                widget = ListTaskPage();
+                break;
+              case AccountPage.nameRoute:
+                widget = AccountPage();
+                break;
+              default:
+              // The assertion here will help remind
+              // us of that higher up in the call stack, since
+              // this assertion would otherwise fire somewhere
+              // in the framework.
+                assert(false, 'Need to implement ${settings.name}');
             }
-            break;
-          case CreateTaskPage.nameRoute:
-            widget = CreateTaskPage();
-            break;
-          case ListTaskPage.nameRoute:
-            widget = ListTaskPage();
-            break;
-          default:
-            // The assertion here will help remind
-            // us of that higher up in the call stack, since
-            // this assertion would otherwise fire somewhere
-            // in the framework.
-            assert(false, 'Need to implement ${settings.name}');
-        }
 
-        // MaterialPageRoute route = MaterialPageRoute(
-        //   settings: settings,
-        //   builder: (_)=> widget,
-        // );
-        // return route;
+            // MaterialPageRoute route = MaterialPageRoute(
+            //   settings: settings,
+            //   builder: (_)=> widget,
+            // );
+            // return route;
 
-        return RouteAnimation.buildDefaultRouteTransition(widget, settings);
+            return RouteAnimation.buildDefaultRouteTransition(widget, settings);
+          },
+          localizationsDelegates: [
+            // AppLocalizations.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: [Locale('vi', ''), Locale('en', '')],
+          localeListResolutionCallback: (locales, supportedLocales) {
+            print('device locales=$locales supported locales=$supportedLocales');
+            for (Locale locale in locales!) {
+              // if device language is supported by the app,
+              // just return it to set it as current app language
+              if (supportedLocales.contains(locale)) {
+                return locale;
+              }
+            }
+
+            // if device language is not supported by the app,
+            // the app will set it to english but return this to set to Bahasa instead
+            return Locale('vi', '');
+          },
+          locale: Locale('vi', ''),
+          theme: lightTheme(context,sharePrefs.materialColor),
+          darkTheme: lightTheme(context,sharePrefs.materialColor),
+        );
       },
-      localizationsDelegates: [
-        // AppLocalizations.delegate,
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
-      supportedLocales: [Locale('vi', ''), Locale('en', '')],
-      localeListResolutionCallback: (locales, supportedLocales) {
-        print('device locales=$locales supported locales=$supportedLocales');
-        for (Locale locale in locales!) {
-          // if device language is supported by the app,
-          // just return it to set it as current app language
-          if (supportedLocales.contains(locale)) {
-            return locale;
-          }
-        }
-
-        // if device language is not supported by the app,
-        // the app will set it to english but return this to set to Bahasa instead
-        return Locale('vi', '');
-      },
-      locale: Locale('vi', ''),
-      theme: lightTheme(context),
-      darkTheme: lightTheme(context),
     );
 
     // Providers cần thiết.
@@ -195,19 +205,12 @@ class _MyAppState extends State<MyApp> {
           return preTaskProvider!;
         },
       ),
+
+    ChangeNotifierProvider<SharePref>(
+    create: (BuildContext context) => this.sharePref!)
+
     ], child: app);
 
-    Future.microtask(() {
-      FirebaseAuth.instance
-          .authStateChanges()
-          .listen((firebase_auth.User? user) {
-        if (user == null) {
-          print('User is currently signed out!');
-        } else {
-          print('User is signed in!');
-        }
-      });
-    });
     return multiProvider;
   }
 }

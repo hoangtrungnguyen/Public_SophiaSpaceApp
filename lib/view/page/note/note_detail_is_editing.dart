@@ -10,6 +10,7 @@ import 'package:sophia_hub/model/activity.dart';
 import 'package:sophia_hub/model/note.dart';
 import 'package:sophia_hub/model/result_container.dart';
 import 'package:sophia_hub/provider/notes_provider.dart';
+import 'package:sophia_hub/view/widget/animated_loading_icon.dart';
 import 'package:sophia_hub/view/widget/error_dialog.dart';
 
 class EditingNote extends ChangeNotifier {
@@ -118,7 +119,7 @@ class _EditingNoteDetailsState extends State<EditingNoteDetails> {
               shape: ContinuousRectangleBorder(
                 borderRadius: BorderRadius.circular(28.0),
               ),
-              child: Icon(value.isLoading ? Icons.refresh_rounded : Icons.done),
+              child: value.isLoading ? AnimatedLoadingIcon(): Icon(Icons.done),
               onPressed: value.isLoading
                   ? null
                   : () async {

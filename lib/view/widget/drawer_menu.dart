@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:sophia_hub/constant/sophia_hub_app.dart';
 import 'package:sophia_hub/model/result_container.dart';
 import 'package:sophia_hub/provider/user_provider.dart';
+import 'package:sophia_hub/view/page/account/account_page.dart';
 import 'package:sophia_hub/view/page/auth/auth_page.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:share_plus/share_plus.dart';
 
 class DrawerMenu extends StatefulWidget {
   @override
@@ -34,6 +38,7 @@ class _DrawerMenuState extends State<DrawerMenu>
 
   @override
   Widget build(BuildContext context) {
+TextStyle textStyle = TextStyle(color: Colors.white);
     return Material(
       child: SafeArea(
         child: AnimatedBuilder(
@@ -45,6 +50,7 @@ class _DrawerMenuState extends State<DrawerMenu>
           },
           animation: animation,
           child: Container(
+              padding: EdgeInsets.symmetric(horizontal: 10),
               child: Column(
                 children: <Widget>[
                   Container(
@@ -67,20 +73,50 @@ class _DrawerMenuState extends State<DrawerMenu>
                   image: AssetImage('media/logo/astronaut_logo.png'),
                 ),
                   ),
-                  ListTile(leading: Icon(Icons.person), title: Text("Cá nhân")),
+                  ListTile(
+                      title: Text("Sophia Hub",style:Theme.of(context).textTheme.headline5,textAlign: TextAlign.center,),
+                    subtitle: Text("Tiềm thức là một vũ trụ rộng lớn",textAlign: TextAlign.center,),
+                  ),
+                  SizedBox(height: 30,),
+                  Card(
+                  child: ListTile(
+                    onTap: (){
+                      Navigator.of(context).pushNamed(AccountPage.nameRoute);
+                    },
+                      leading: Icon(Icons.person), title: Text("Tài khoản"))),
+                  Card(
+                      child: ListTile(
+                        onTap: ()async{
+                          if (!await launch(googleFormFeedback)) throw 'Could not launch $googleFormFeedback';
+                        },
+                          leading: Icon(Icons.message_rounded), title: Text("Liên hệ"))),
+                  Card(
+                      child: ListTile(
+                        onTap: ()async{
+                          Share.share('Ứng dụng "Nhật ký thói quen" ${sophiaHubPlayStoreLink}');
+                        },
+                          leading: Icon(Icons.share), title: Text("Chia sẻ"))),
+                  Card(
+                      child: ListTile(
+                        onTap: ()async{
+                          if (!await launch(sophiaHubPlayStoreLink)) throw 'Could not launch $sophiaHubPlayStoreLink';
+                        },
+                          leading: Icon(Icons.star_rate_rounded), title: Text("Đánh giá ứng dụng"))),
                   Spacer(flex: 9,),
-                  ListTile(leading: Icon(Icons.logout),
-                    title: Text("Đăng xuất"),
-                    onTap: () async {
-                      Result result =
-                      await Provider.of<Auth>(context, listen: false).logOut();
-                      print(result.error);
-                      print(result.data);
-                      if (result.isHasData) {
-                        Navigator.of(context).pushReplacementNamed(
-                            AuthPage.nameRoute);
-                      }
-                    },),
+                  Card(
+                    child: ListTile(leading: Icon(Icons.logout),
+                      title: Text("Đăng xuất"),
+                      onTap: () async {
+                        Result result =
+                        await Provider.of<Auth>(context, listen: false).logOut();
+                        print(result.error);
+                        print(result.data);
+                        if (result.isHasData) {
+                          Navigator.of(context).pushReplacementNamed(
+                              AuthPage.nameRoute);
+                        }
+                      },),
+                  ),
                   Spacer(flex: 1,),
                 ],
               )),

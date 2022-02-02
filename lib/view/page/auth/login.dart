@@ -9,6 +9,8 @@ import 'package:sophia_hub/model/result_container.dart';
 import 'package:sophia_hub/provider/user_provider.dart';
 import 'package:sophia_hub/view/base_container.dart';
 import 'package:sophia_hub/view/page/auth/forgot/forgot_pwd.dart';
+import 'package:sophia_hub/view/widget/animated_loading_icon.dart';
+import 'package:sophia_hub/view/widget/sophia_hub_close_button.dart';
 
 class LoginView extends StatefulWidget {
   static const String routeName = "/";
@@ -59,19 +61,7 @@ class _LoginViewState extends State<LoginView> {
             Align(
               alignment: Alignment.topRight,
               child: SafeArea(
-                child: Container(
-                    alignment: Alignment.center,
-                    margin: EdgeInsets.only(top: 12, right: 0),
-                    height: 50,
-                    width: 50,
-                    decoration: ShapeDecoration(
-                        color: Colors.grey.shade200.withOpacity(0.5),
-                        shape: ContinuousRectangleBorder(
-                            borderRadius: BorderRadius.circular(32))),
-                    child: TextButton(
-                      onPressed: () => Navigator.pop(context),
-                      child: Icon(Icons.close_rounded),
-                    )),
+                child: SophiaHubCloseButton()
               ),
             ),
             Form(
@@ -174,7 +164,7 @@ class _LoginViewState extends State<LoginView> {
                             child: Padding(
                               padding:
                               EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                              child: snapshot.data! ? Icon(Icons.refresh_rounded,color: primary,size: 30,): Text(
+                              child: snapshot.data! ? AnimatedLoadingIcon(): Text(
                                 "Đăng nhập",
                                 style: Theme.of(context)
                                     .textTheme

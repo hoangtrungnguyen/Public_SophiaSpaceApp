@@ -52,6 +52,7 @@ dependencies:
 
   cached_network_image: ^3.2.0
 
+  #TODO config iOS
   url_launcher:
 
   flutter_slidable:
@@ -62,6 +63,10 @@ dependencies:
 
   #config environment
   flutter_dotenv: ^5.0.2
+
+  share_plus: ^3.0.4
+
+  shared_preferences:
 
 dev_dependencies:
   integration_test:
