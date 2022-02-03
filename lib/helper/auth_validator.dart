@@ -16,9 +16,10 @@ String? checkFormatPwd(String? _pwd) {
   RegExp regExp = RegExp(pattern);
   if (_pwd.length < 8) {
     return "Mật khẩu phải dài hơn 8 ký tự";
-  } else if (!regExp.hasMatch(_pwd)) {
-    return "Mật khẩu phải có một chữ cái hoa và một chữ số";
   }
+  // else if (!regExp.hasMatch(_pwd)) {
+  //   return "Mật khẩu phải có một chữ cái hoa và một chữ số";
+  // }
 
   return null;
 }

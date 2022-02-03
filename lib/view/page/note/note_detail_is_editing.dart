@@ -119,7 +119,7 @@ class _EditingNoteDetailsState extends State<EditingNoteDetails> {
               shape: ContinuousRectangleBorder(
                 borderRadius: BorderRadius.circular(28.0),
               ),
-              child: value.isLoading ? AnimatedLoadingIcon(): Icon(Icons.done),
+              child: value.isLoading ? AnimatedLoadingIcon(color: Colors.white,): Icon(Icons.done),
               onPressed: value.isLoading
                   ? null
                   : () async {
@@ -350,7 +350,7 @@ class _ListActivitiesState extends State<ListActivities> {
                 List<Activity>? activities = await showDialog<List<Activity>?>(
                     context: context,
                     builder: (ctx) => _buildActivitiesDialog(ctx, note));
-                print("updated activity:\n${activities}");
+                // print("updated activity:\n${activities}");
                 if (activities != null)
                   note.activities = activities;
                 setState(() {
@@ -403,7 +403,7 @@ class _ListActivitiesState extends State<ListActivities> {
   }
 
   Widget _buildActivitiesDialog(BuildContext context, EditingNote note) {
-    print("build dialog ${List.of(note.activities)}");
+    // print("build dialog ${List.of(note.activities)}");
     return Provider<List<Activity>>(
       create: (context) => List.of(note.activities),
       builder: (context, child) =>
@@ -525,9 +525,9 @@ class _EmotionGridState extends State<EmotionGrid> {
                       : Colors.grey)),
               onPressed: () {
                 setState(() {
-                  print("chosenActivities ${Provider
-                      .of<List<Activity>>(context, listen: false)
-                      .length}");
+                  // print("chosenActivities ${Provider
+                  //     .of<List<Activity>>(context, listen: false)
+                  //     .length}");
                   if (isChosen) {
                     if(Provider.of<List<Activity>>(context, listen: false).length == 1) return;
                     Provider.of<List<Activity>>(context, listen: false).remove(activity);

@@ -3,7 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:sophia_hub/helper/note_helper_func.dart';
 import 'package:sophia_hub/model/note.dart';
-import 'package:sophia_hub/provider/user_provider.dart';
+import 'package:sophia_hub/provider/auth.dart';
 import 'package:sophia_hub/view/page/note/note_detail.dart';
 
 class StatHeader extends StatelessWidget {
@@ -130,7 +130,7 @@ class _DailyNotesState extends State<DailyNotes>
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    print("Single Item called didChangeDependencies()");
+    // print("Single Item called didChangeDependencies()");
   }
 
   @override

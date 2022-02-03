@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sophia_hub/constant/sophia_hub_app.dart';
 import 'package:sophia_hub/model/result_container.dart';
-import 'package:sophia_hub/provider/user_provider.dart';
+import 'package:sophia_hub/provider/auth.dart';
 import 'package:sophia_hub/view/page/account/account_page.dart';
 import 'package:sophia_hub/view/page/auth/auth_page.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -103,20 +103,7 @@ TextStyle textStyle = TextStyle(color: Colors.white);
                         },
                           leading: Icon(Icons.star_rate_rounded), title: Text("Đánh giá ứng dụng"))),
                   Spacer(flex: 9,),
-                  Card(
-                    child: ListTile(leading: Icon(Icons.logout),
-                      title: Text("Đăng xuất"),
-                      onTap: () async {
-                        Result result =
-                        await Provider.of<Auth>(context, listen: false).logOut();
-                        print(result.error);
-                        print(result.data);
-                        if (result.isHasData) {
-                          Navigator.of(context).pushReplacementNamed(
-                              AuthPage.nameRoute);
-                        }
-                      },),
-                  ),
+
                   Spacer(flex: 1,),
                 ],
               )),

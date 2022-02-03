@@ -3,8 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:sophia_hub/constant/theme.dart';
+import 'package:sophia_hub/model/result_container.dart';
 import 'package:sophia_hub/provider/share_pref.dart';
-import 'package:sophia_hub/provider/user_provider.dart';
+import 'package:sophia_hub/provider/auth.dart';
+import 'package:sophia_hub/view/page/auth/auth_page.dart';
 import 'package:sophia_hub/view/widget/animated_loading_icon.dart';
 import 'package:sophia_hub/view/widget/sophia_hub_close_button.dart';
 import 'dart:math' as math;
@@ -53,37 +55,57 @@ class _AccountPageState extends State<AccountPage> {
                         )),
                   ),
                   Spacer(),
-                  CachedNetworkImage(
-                    imageUrl: auth.firebaseAuth.currentUser?.photoURL ?? '',
-                    fit: BoxFit.cover,
-                    imageBuilder: (context, imageProvider) {
-                      return Container(
-                        decoration: ShapeDecoration(
-                          shape: continuousRectangleBorder,
-                          image: DecorationImage(
-                              image: imageProvider, fit: BoxFit.cover),
-                          color: Colors.white,
-                          shadows: [
-                            BoxShadow(
-                              color: Colors.grey,
-                              offset: Offset(0.0, 1.0), //(x,y)
-                              blurRadius: 4.0,
-                            ),
-                          ],
+                  (auth.firebaseAuth.currentUser?.photoURL ?? "").isEmpty
+                      ? Card(
+                          child: SizedBox(
+                              height: 150,
+                              width: 150,
+                              child: TextButton(
+                                onPressed: () {  },
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(Icons.camera_alt_rounded),
+                                    Text("Ảnh đại diện",textAlign: TextAlign.center,)
+                                  ],
+                                ),
+                              )))
+                      : CachedNetworkImage(
+                          imageUrl:
+                              auth.firebaseAuth.currentUser?.photoURL ?? '',
+                          fit: BoxFit.cover,
+                          imageBuilder: (context, imageProvider) {
+                            return Container(
+                              decoration: ShapeDecoration(
+                                shape: continuousRectangleBorder,
+                                image: DecorationImage(
+                                    image: imageProvider, fit: BoxFit.cover),
+                                color: Colors.white,
+                                shadows: [
+                                  BoxShadow(
+                                    color: Colors.grey,
+                                    offset: Offset(0.0, 1.0), //(x,y)
+                                    blurRadius: 4.0,
+                                  ),
+                                ],
+                              ),
+                              height: 150,
+                              width: 150,
+                            );
+                          },
+                          fadeOutDuration: Duration(milliseconds: 500),
+                          useOldImageOnUrlChange: true,
+                          errorWidget: (_, err, stackTrace) {
+                            return Card(
+                                child: SizedBox(
+                                    height: 150,
+                                    width: 150,
+                                    child: Icon(Icons.error)));
+                          },
+                          placeholder: (context, url) {
+                            return Center(child: AnimatedLoadingIcon());
+                          },
                         ),
-                        height: 150,
-                        width: 150,
-                      );
-                    },
-                    fadeOutDuration: Duration(milliseconds: 500),
-                    useOldImageOnUrlChange: true,
-                    errorWidget: (_, err, stackTrace) {
-                      return Icon(Icons.error);
-                    },
-                    placeholder: (context, url) {
-                      return Center(child: AnimatedLoadingIcon());
-                    },
-                  ),
                 ],
               ),
               SizedBox(
@@ -114,7 +136,24 @@ class _AccountPageState extends State<AccountPage> {
                       ),
                     ],
                   )),
-              ColorThemePicker()
+              ColorThemePicker(),
+              Card(
+                child: ListTile(
+                  leading: Icon(Icons.logout),
+                  title: Text("Đăng xuất"),
+                  onTap: () async {
+                    Result result =
+                        await Provider.of<Auth>(context, listen: false)
+                            .logOut();
+                    print(result.error);
+                    print(result.data);
+                    if (result.isHasData) {
+                      Navigator.of(context)
+                          .pushReplacementNamed(AuthPage.nameRoute);
+                    }
+                  },
+                ),
+              ),
             ],
           ),
         ),
@@ -142,13 +181,13 @@ class _ColorThemePickerState extends State<ColorThemePicker> {
     super.initState();
     _controller = PageController(viewportFraction: viewPortFraction)
       ..addListener(_scrollListener);
-    pickedColor = Provider.of<SharePref>(context,listen: false).materialColor;
+    pickedColor = Provider.of<SharedPref>(context, listen: false).materialColor;
   }
 
   @override
   Widget build(BuildContext context) {
-    return
-    AnimatedContainer(duration: Duration(milliseconds: 500),
+    return AnimatedContainer(
+      duration: Duration(milliseconds: 500),
       height: 250,
       margin: EdgeInsets.symmetric(vertical: 16),
       decoration: ShapeDecoration(
@@ -205,7 +244,7 @@ class _ColorThemePickerState extends State<ColorThemePicker> {
         onTap: () {
           setState(() {
             pickedColor = color;
-            Provider.of<SharePref>(context,listen: false).setColor(color);
+            Provider.of<SharedPref>(context, listen: false).setColor(color);
           });
         },
         child: AnimatedContainer(
@@ -237,7 +276,8 @@ class _ColorThemePickerState extends State<ColorThemePicker> {
                 blurRadius: 2.0,
               ),
             ],
-          ), duration: Duration(milliseconds: 300),
+          ),
+          duration: Duration(milliseconds: 300),
         ));
 
     return container;

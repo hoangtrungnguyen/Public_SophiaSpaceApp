@@ -36,9 +36,7 @@ class _AuthPageState extends State<AuthPage> {
             data: Theme.of(context).copyWith(
                 inputDecorationTheme:
                     Theme.of(context).inputDecorationTheme.copyWith(
-                          hintStyle: TextStyle(
-                            color: Colors.grey.shade500,
-                          ),
+
                           labelStyle: TextStyle(color: Colors.white),
                         )),
             child: Navigator(

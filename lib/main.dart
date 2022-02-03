@@ -16,7 +16,7 @@ import 'package:sophia_hub/provider/quote_provider.dart';
 import 'package:sophia_hub/provider/share_pref.dart';
 import 'package:sophia_hub/provider/task_provider.dart';
 import 'package:sophia_hub/provider/ui_logic.dart';
-import 'package:sophia_hub/provider/user_provider.dart';
+import 'package:sophia_hub/provider/auth.dart';
 import 'package:sophia_hub/view/animation/route_change_anim.dart';
 import 'package:sophia_hub/view/base_container.dart';
 import 'package:sophia_hub/view/page/account/account_page.dart';
@@ -34,43 +34,38 @@ Future<void> main() async {
   runZonedGuarded(() async {
     WidgetsFlutterBinding.ensureInitialized();
     await Firebase.initializeApp(
-      options: DefaultFirebaseOptions.currentPlatform
-    ).then((value) =>
-        print("$value"));
-
+            options: DefaultFirebaseOptions.currentPlatform)
+        .then((value) => print("$value"));
 
     await FirebaseConfig.config();
-     SharePref sharePref = SharePref();
-     await sharePref.init();
+    SharedPref sharePref = SharedPref();
+    await sharePref.init();
 
-    runApp(MyApp(sharePref));
+    runApp(SophiaHubApp(sharedPref: sharePref));
   }, (Object error, StackTrace stack) {
     // myBackend.sendError(error, stack);
     print("Send error's info to server: ${error} with stack $stack");
   });
 }
 
+class SophiaHubApp extends StatelessWidget {
+  final SharedPref? sharedPref;
 
-class MyApp extends StatelessWidget {
-
-  SharePref? sharePref;
-
-  MyApp(SharePref sharePref){
-    this.sharePref = sharePref;
-  }
+  SophiaHubApp({required this.sharedPref}) {}
 
   @override
   Widget build(BuildContext context) {
     //Configure App Small Habits
-    Widget app = Consumer<SharePref>(
-      builder: (context,sharePrefs,child){
+    Widget app = Consumer<SharedPref>(
+      builder: (context, sharePrefs, child) {
         return MaterialApp(
           title: 'Small Habits',
           initialRoute: FirebaseAuth.instance.currentUser == null
               ? AuthPage.nameRoute
               : BaseContainer.nameRoute,
           onUnknownRoute: (setting) => MaterialPageRoute(
-              builder: (_) => Center(child: Text("Không thể tìm thấy trang này"))),
+              builder: (_) =>
+                  Center(child: Text("Không thể tìm thấy trang này"))),
           onGenerateRoute: (settings) {
             //Read more in the link below
             // https://docs.flutter.dev/cookbook/navigation/navigate-with-arguments
@@ -83,13 +78,13 @@ class MyApp extends StatelessWidget {
                 widget = BaseContainer();
                 break;
               case CreateNotePage.nameRoute:
-              // Cast the arguments to the correct
-              // type: Note.
+                // Cast the arguments to the correct
+                // type: Note.
                 widget = CreateNotePage();
                 break;
               case NoteDetails.nameRoute:
-              // Cast the arguments to the correct
-              // type: Note.
+                // Cast the arguments to the correct
+                // type: Note.
                 try {
                   Note note = settings.arguments as Note;
                   widget = NoteDetails.view(note.copy());
@@ -107,10 +102,10 @@ class MyApp extends StatelessWidget {
                 widget = AccountPage();
                 break;
               default:
-              // The assertion here will help remind
-              // us of that higher up in the call stack, since
-              // this assertion would otherwise fire somewhere
-              // in the framework.
+                // The assertion here will help remind
+                // us of that higher up in the call stack, since
+                // this assertion would otherwise fire somewhere
+                // in the framework.
                 assert(false, 'Need to implement ${settings.name}');
             }
 
@@ -130,7 +125,8 @@ class MyApp extends StatelessWidget {
           ],
           supportedLocales: [Locale('vi', ''), Locale('en', '')],
           localeListResolutionCallback: (locales, supportedLocales) {
-            print('device locales=$locales supported locales=$supportedLocales');
+            print(
+                'device locales=$locales supported locales=$supportedLocales');
             for (Locale locale in locales!) {
               // if device language is supported by the app,
               // just return it to set it as current app language
@@ -144,8 +140,8 @@ class MyApp extends StatelessWidget {
             return Locale('vi', '');
           },
           locale: Locale('vi', ''),
-          theme: lightTheme(context,sharePrefs.materialColor),
-          darkTheme: lightTheme(context,sharePrefs.materialColor),
+          theme: lightTheme(context, sharePrefs.materialColor),
+          darkTheme: lightTheme(context, sharePrefs.materialColor),
         );
       },
     );
@@ -177,7 +173,6 @@ class MyApp extends StatelessWidget {
         lazy: true,
         update: (_, auth, preNotesProvider) {
           //TODO logic thay doi du lieu moi khi thay doi tai khoan nguoi dung
-          print("updating notes Data ${auth.firebaseAuth.currentUser?.uid}");
           if (auth.firebaseAuth.currentUser == null)
             preNotesProvider?.clear();
           else {
@@ -206,9 +201,8 @@ class MyApp extends StatelessWidget {
         },
       ),
 
-    ChangeNotifierProvider<SharePref>(
-    create: (BuildContext context) => this.sharePref!)
-
+      ChangeNotifierProvider<SharedPref>(
+          create: (BuildContext context) => this.sharedPref!)
     ], child: app);
 
     return multiProvider;

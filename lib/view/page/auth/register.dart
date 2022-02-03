@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sophia_hub/helper/auth_validator.dart';
 import 'package:sophia_hub/model/result_container.dart';
-import 'package:sophia_hub/provider/user_provider.dart';
+import 'package:sophia_hub/provider/auth.dart';
 import 'package:sophia_hub/view/base_container.dart';
 import 'package:sophia_hub/view/page/auth/register/step_1.dart';
 import 'package:sophia_hub/view/page/auth/register/step_three.dart';

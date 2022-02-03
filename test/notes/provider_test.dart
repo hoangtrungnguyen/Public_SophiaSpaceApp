@@ -10,10 +10,12 @@ import 'package:sophia_hub/model/note.dart';
 import 'package:sophia_hub/model/result_container.dart';
 import 'package:sophia_hub/provider/notes_provider.dart';
 
+import '../helper/test_helper.dart';
+
 main() async {
   late MockFirebaseAuth mockFirebaseAuth;
   late FakeFirebaseFirestore fireStore;
-  late NotesPublisher provider;
+  late NotesPublisher publisher;
 
   setUpAll(() {
     mockFirebaseAuth = MockFirebaseAuth(signedIn: true);
@@ -22,15 +24,11 @@ main() async {
 
   group("Các hàm logic", () {
     setUp(() {
-      provider = NotesPublisher(
-          auth: mockFirebaseAuth, fireStore: fireStore, isTesting: true);
+      publisher = NotesPublisher(auth: mockFirebaseAuth, fireStore: fireStore, isTesting: true);
     });
 
     tearDown(() async {
-      QuerySnapshot snapshots = await provider.notesRef.get();
-      await Future.forEach<QueryDocumentSnapshot>(snapshots.docs, (doc) async {
-        await doc.reference.delete();
-      });
+      TestHelper.clearUserData(publisher);
     });
 
     test("Hàm group", () {});
@@ -45,7 +43,7 @@ main() async {
               activities[0],
             ]));
         note..timeCreated = DateTime.now().subtract(Duration(days: e));
-        provider.notes.add(note);
+        publisher.notes.add(note);
       });
 
       Note note = Note(
@@ -57,9 +55,9 @@ main() async {
           ]))
         ..timeCreated = DateTime.now().subtract(Duration(days: 3));
 
-      int i = provider.insertSorted(note);
-      print(provider.notes);
-      expect(provider.notes[3].title, "TEST NOTE");
+      int i = publisher.insertSorted(note);
+      print(publisher.notes);
+      expect(publisher.notes[3].title, "TEST NOTE");
       expect(i, 3);
 
       note = Note(
@@ -71,21 +69,21 @@ main() async {
           ]))
         ..timeCreated = DateTime.now();
 
-      int y = provider.insertSorted(note);
-      print(provider.notes);
-      expect(provider.notes[0].title, "TEST NOTE 2");
+      int y = publisher.insertSorted(note);
+      print(publisher.notes);
+      expect(publisher.notes[0].title, "TEST NOTE 2");
       expect(y, 0);
     });
   });
 
   group("Kiểm tra dữ trước khi tải lên liệu", () {
     setUp(() {
-      provider = NotesPublisher(
+      publisher = NotesPublisher(
           auth: mockFirebaseAuth, fireStore: fireStore, isTesting: true);
     });
 
     tearDown(() async {
-      QuerySnapshot snapshots = await provider.notesRef.get();
+      QuerySnapshot snapshots = await publisher.notesRef.get();
       await Future.forEach<QueryDocumentSnapshot>(snapshots.docs, (doc) async {
         await doc.reference.delete();
       });
@@ -102,7 +100,7 @@ main() async {
             activities[1],
             activities[2],
           ]));
-      Result result = await provider.addNote(note: note);
+      Result result = await publisher.addNote(note: note);
       print(result.data);
       expectLater(result.data != null, true);
     });
@@ -117,7 +115,7 @@ main() async {
             activities[1],
             activities[2],
           ]));
-      Result result = await provider.addNote(note: note);
+      Result result = await publisher.addNote(note: note);
       expectLater(result.data == null, true);
     });
 
@@ -127,7 +125,7 @@ main() async {
           description: "Nội dung test 1",
           emotionPoint: 0,
           activities: List.from([]));
-      Result result = await provider.addNote(note: note);
+      Result result = await publisher.addNote(note: note);
       expectLater(result.data == null, true);
     });
   });
@@ -135,13 +133,13 @@ main() async {
   //Dùng chung Provider ban đầu
   group("Đọc dữ liệu", () {
     setUp(() async {
-      provider = NotesPublisher(
+      publisher = NotesPublisher(
           auth: mockFirebaseAuth, fireStore: fireStore, isTesting: true);
     });
 
     tearDown(() async {
       QuerySnapshot snapshots =
-          await fireStore.collection(mockFirebaseAuth.currentUser!.uid).get();
+      await fireStore.collection(mockFirebaseAuth.currentUser!.uid).get();
       await Future.forEach<QueryDocumentSnapshot>(snapshots.docs, (doc) async {
         await doc.reference.delete();
       });
@@ -157,12 +155,12 @@ main() async {
               activities[1],
               activities[2],
             ]));
-        Result result = await provider.addNote(note: note..title = 'title$e');
+        Result result = await publisher.addNote(note: note..title = 'title$e');
         expect(result.data != null, true);
       });
-      await provider.loadMoreNotes();
-      print(provider.notes);
-      expect(provider.notes.length, 10);
+      await publisher.loadMoreNotes();
+      print(publisher.notes);
+      expect(publisher.notes.length, 10);
     });
 
     test("2/ Dữ liệu có sắp xếp theo ngày tạo sớm nhất", () async {
@@ -179,23 +177,23 @@ main() async {
         note
           ..timeCreated =
               DateTime.now().subtract(Duration(days: Random().nextInt(15)));
-        await provider.addNote(note: note);
+        await publisher.addNote(note: note);
       });
 
       //kiểm tra số lượng
-      expect(provider.notes.length, 10);
+      expect(publisher.notes.length, 10);
 
       // kiểm tra ngẫu nghiên
       for (int _ in [1, 2]) {
-        int length = provider.notes.length;
+        int length = publisher.notes.length;
         int randomIndex = Random().nextInt(length - 1);
         if (randomIndex == 0) randomIndex += 1;
         // print(
         //     "Data from index ${randomIndex - 1}: ${provider.notes[randomIndex - 1]}"
         //     "\nData from index ${randomIndex}: ${provider.notes[randomIndex]}");
         expect(
-            provider.notes[randomIndex - 1].timeCreated
-                .isAfter(provider.notes[randomIndex].timeCreated),
+            publisher.notes[randomIndex - 1].timeCreated
+                .isAfter(publisher.notes[randomIndex].timeCreated),
             true);
         // print("-----------------------------");
       }
@@ -219,38 +217,38 @@ main() async {
               DateTime.now().subtract(Duration(days: Random().nextInt(15)));
         //Chọn note để cập nhật
         if (i == 2) testNote = note;
-        await provider.addNote(note: note);
+        await publisher.addNote(note: note);
       });
 
       //kiểm tra số lượng
-      expect(provider.notes.length, 10);
+      expect(publisher.notes.length, 10);
 
       testNote.title = "Updated title";
       //Để thời gian xa hơn 15 ngày
       testNote.timeCreated = DateTime.now().subtract(Duration(days: 50));
 
-      provider.updateNote(testNote);
+      publisher.updateNote(testNote);
 
       // kiểm tra ngẫu nghiên
       for (int _ in [1, 2]) {
-        int length = provider.notes.length;
+        int length = publisher.notes.length;
         int randomIndex = Random().nextInt(length - 1);
         if (randomIndex == 0) randomIndex += 1;
         expect(
-            provider.notes[randomIndex - 1].timeCreated
-                .isAfter(provider.notes[randomIndex].timeCreated),
+            publisher.notes[randomIndex - 1].timeCreated
+                .isAfter(publisher.notes[randomIndex].timeCreated),
             true);
       }
 
-      print(provider.notes);
+      print(publisher.notes);
       //Kiểm tra phần từ cuối cùng
-      expect(provider.notes[provider.notes.length - 1] == testNote, true);
+      expect(publisher.notes[publisher.notes.length - 1] == testNote, true);
     });
   });
 
   group("Sửa dữ liệu", () {
     setUp(() async {
-      provider = NotesPublisher(
+      publisher = NotesPublisher(
           auth: mockFirebaseAuth, fireStore: fireStore, isTesting: true);
       await Future.forEach(List<int>.generate(10, (i) => i), (int i) async {
         //Data mẫu
@@ -270,7 +268,7 @@ main() async {
               //Random thời gina trong 15 ngày
               DateTime.now().subtract(Duration(days: Random().nextInt(15)));
 
-        await provider.addNote(note: note);
+        await publisher.addNote(note: note);
       });
     });
 
@@ -284,20 +282,20 @@ main() async {
 
     test("Sửa các trường: Title, Point, Title, Description, TimeCreated",
         () async {
-      Note note = provider.notes[2]
+      Note note = publisher.notes[2]
         ..title = "New Title 2"
         ..description = "New Description 2";
-      provider.loadMoreNotes();
-      provider.updateNote(note);
-      final doc = await provider.notesRef.doc(note.id).get();
+      publisher.loadMoreNotes();
+      publisher.updateNote(note);
+      final doc = await publisher.notesRef.doc(note.id).get();
       expect(doc.get('title'), 'New Title 2');
       expect(doc.get('description'), 'New Description 2');
     });
     test("Sửa activities", () async {
-      Note note = provider.notes[2]
+      Note note = publisher.notes[2]
         ..activities = List.from([activities[2], activities[5], activities[1]]);
-      await provider.updateNote(note);
-      Result res = await provider.getById(note.id);
+      await publisher.updateNote(note);
+      Result res = await publisher.getById(note.id);
       expect((res.data['note'] as Note).activities.contains(activities[5]), true);
       expect((res.data['note'] as Note).activities.contains(activities[2]), true);
       expect((res.data['note'] as Note).activities.contains(activities[1]), true);

@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sophia_hub/helper/auth_validator.dart';
 import 'package:sophia_hub/model/result_container.dart';
-import 'package:sophia_hub/provider/user_provider.dart';
+import 'package:sophia_hub/provider/auth.dart';
 import 'package:sophia_hub/view/base_container.dart';
 
 class StepThree extends StatefulWidget {
@@ -68,6 +68,7 @@ class _StepThreeState extends State<StepThree> {
                     flex: 5,
                   ),
                   TextFormField(
+                    initialValue: auth.user.password ?? '',
                     style: Theme.of(context)
                         .textTheme
                         .headline6
@@ -92,6 +93,7 @@ class _StepThreeState extends State<StepThree> {
                     flex: 1,
                   ),
                   TextFormField(
+                    initialValue: auth.user.password ?? '',
                     obscureText: _isObscure,
                     style: Theme.of(context)
                         .textTheme
@@ -131,8 +133,18 @@ class _StepThreeState extends State<StepThree> {
                           auth.user.password = pwd2;
 
                           Result<UserCredential> result = await auth.register(
-                              auth.user.email!, auth.user.password!);
+                              auth.user.email!, auth.user.password!, displayName: auth.user.displayName);
+
                           if (result.data != null) {
+                            await Future.delayed(Duration(milliseconds: 500));
+                            Flushbar(
+                              backgroundColor: Colors.green,
+                              message: "Đăng nhập thành công",
+                              flushbarPosition: FlushbarPosition.TOP,
+                              borderRadius: BorderRadius.circular(16),
+                              margin: EdgeInsets.all(8),
+                              duration: Duration(seconds: 3),
+                            )..show(context);
                             Navigator.of(context, rootNavigator: true)
                                 .pushReplacementNamed(BaseContainer.nameRoute);
                           } else {

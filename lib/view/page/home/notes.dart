@@ -130,7 +130,7 @@ class _NotesViewState extends State<NotesView> {
     NotesPublisher publisher =
         Provider.of<NotesPublisher>(context, listen: false);
     Note note = publisher.notes[index];
-    print(note.activities);
+    // print(note.activities);
     Widget item = ChangeNotifierProvider<Note>.value(
       key: ValueKey(note.id),
       value: note,

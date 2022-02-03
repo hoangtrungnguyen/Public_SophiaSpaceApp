@@ -7,4 +7,10 @@ class UserData extends ChangeNotifier {
   String? id;
 
   String? displayName;
+
+  void clear() {
+    name = '';
+    email = '';
+    password = '';
+  }
 }

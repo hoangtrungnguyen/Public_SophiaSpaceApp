@@ -14,9 +14,9 @@ class FirebaseConfig {
     if (kDebugMode) {
       //Thay host thành ip của máy tính và kết nối wifi cả điện thoại và máy tính
       //TODO [Firestore | <pc_ip>:8080]
-      FirebaseFirestore.instance.useFirestoreEmulator("172.16.0.206", 8080);
+      FirebaseFirestore.instance.useFirestoreEmulator("172.16.0.211", 8080);
       //TODO [Authentication | <pc_ip>:9099]
-      await FirebaseAuth.instance.useAuthEmulator('172.16.0.206', 9099);
+      await FirebaseAuth.instance.useAuthEmulator('172.16.0.211', 9099);
 
       //TODO: Thêm dữ liệu quote cho Firestore Emulators ở đây
 

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sophia_hub/helper/auth_validator.dart';
-import 'package:sophia_hub/provider/user_provider.dart';
+import 'package:sophia_hub/provider/auth.dart';
 
 class StepTwo extends StatefulWidget {
   const StepTwo({Key? key}) : super(key: key);
@@ -15,6 +15,12 @@ class _StepTwoState extends State<StepTwo> {
   String email2 = '';
   final _formKey = GlobalKey<FormState>();
 
+  @override
+  void initState() {
+    super.initState();
+    this.email1 = Provider.of<Auth>(context,listen: false).user.email ?? '';
+    this.email2 = Provider.of<Auth>(context,listen: false).user.email ?? '';
+  }
   @override
   Widget build(BuildContext context) {
     Auth auth = Provider.of<Auth>(context);
@@ -61,18 +67,23 @@ class _StepTwoState extends State<StepTwo> {
                     flex: 5,
                   ),
                   TextFormField(
+                    initialValue: auth.user.email ?? '',
                     style: Theme.of(context)
                         .textTheme
                         .headline6
                         ?.copyWith(color: Colors.white),
                     validator: checkFormatEmail,
                     decoration: InputDecoration(hintText: "Email"),
-                    onChanged: (e) => this.email1 = e,
+                    onChanged: (e) {
+                      this.email1 = e;
+                      auth.user.email = this.email1;
+                    },
                   ),
                   Spacer(
                     flex: 1,
                   ),
                   TextFormField(
+                    initialValue: auth.user.email ?? '',
                     style: Theme.of(context)
                         .textTheme
                         .headline6

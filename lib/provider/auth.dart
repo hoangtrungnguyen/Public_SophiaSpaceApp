@@ -22,6 +22,7 @@ class Auth extends App {
       UserCredential userCredential = await firebaseAuth
           .createUserWithEmailAndPassword(email: email, password: pwd);
 
+      await userCredential.user?.updateDisplayName(displayName);
       // Create a CollectionReference called users that references the firestore collection
       CollectionReference users = fireStore.collection('users');
       // Call the user's CollectionReference to add a new user
@@ -33,7 +34,7 @@ class Auth extends App {
       if (userCredential.user != null && !userCredential.user!.emailVerified) {
         await userCredential.user!.sendEmailVerification();
       }
-
+      this.user.clear();
       return Result<UserCredential>(data: userCredential, err: null);
     } on FirebaseAuthException catch (e) {
       if (e.code == 'weak-password') {
@@ -41,7 +42,7 @@ class Auth extends App {
       } else if (e.code == 'email-already-in-use') {
         print('The account already exists for that email.');
       }
-      return Result(err: e, data: null);
+      return Result(err: Exception("Mật khẩu quá yếu, hãy thử lại"), data: null);
     } on Exception catch (e) {
       return Result(err: e, data: null);
     } catch (e) {

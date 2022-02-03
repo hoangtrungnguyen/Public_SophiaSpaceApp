@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 
 class AnimatedLoadingIcon extends StatefulWidget {
-  const AnimatedLoadingIcon({Key? key}) : super(key: key);
+  final Color? color;
+  const AnimatedLoadingIcon({Key? key,this.color}) : super(key: key);
 
   @override
   _AnimatedLoadingIconState createState() => _AnimatedLoadingIconState();
@@ -33,7 +34,7 @@ class _AnimatedLoadingIconState extends State<AnimatedLoadingIcon>
         turns: _controller,
         child: Icon(
           Icons.refresh_rounded,
-          color: primary,
+          color: widget.color ?? primary,
           size: 30,
         ));
   }
