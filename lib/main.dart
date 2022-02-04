@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart' show FirebaseAuth;
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
@@ -11,12 +12,11 @@ import 'package:sophia_hub/configure/firebase_config.dart';
 import 'package:sophia_hub/constant/theme.dart';
 import 'package:sophia_hub/firebase_options.dart';
 import 'package:sophia_hub/model/note.dart';
+import 'package:sophia_hub/provider/auth.dart';
 import 'package:sophia_hub/provider/notes_provider.dart';
 import 'package:sophia_hub/provider/quote_provider.dart';
 import 'package:sophia_hub/provider/share_pref.dart';
 import 'package:sophia_hub/provider/task_provider.dart';
-import 'package:sophia_hub/provider/ui_logic.dart';
-import 'package:sophia_hub/provider/auth.dart';
 import 'package:sophia_hub/view/animation/route_change_anim.dart';
 import 'package:sophia_hub/view/base_container.dart';
 import 'package:sophia_hub/view/page/account/account_page.dart';
@@ -125,8 +125,6 @@ class SophiaHubApp extends StatelessWidget {
           ],
           supportedLocales: [Locale('vi', ''), Locale('en', '')],
           localeListResolutionCallback: (locales, supportedLocales) {
-            print(
-                'device locales=$locales supported locales=$supportedLocales');
             for (Locale locale in locales!) {
               // if device language is supported by the app,
               // just return it to set it as current app language
@@ -134,7 +132,6 @@ class SophiaHubApp extends StatelessWidget {
                 return locale;
               }
             }
-
             // if device language is not supported by the app,
             // the app will set it to english but return this to set to Bahasa instead
             return Locale('vi', '');
@@ -158,6 +155,7 @@ class SophiaHubApp extends StatelessWidget {
       // ProxyPrivider sẽ được thay đổi lại mỗi khi firbase_auth.User thay đổi.
       ChangeNotifierProxyProvider<firebase_auth.User?, Auth>(
         create: (_) => Auth(
+            firebaseStorage: firebase_storage.FirebaseStorage.instance,
             firebaseAuth: FirebaseAuth.instance,
             fireStore: FirebaseFirestore.instance),
         update: (BuildContext context, firebaseUser, Auth? previous) {

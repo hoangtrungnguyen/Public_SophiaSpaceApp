@@ -6,6 +6,7 @@ import 'package:sophia_hub/helper/auth_validator.dart';
 import 'package:sophia_hub/model/result_container.dart';
 import 'package:sophia_hub/provider/auth.dart';
 import 'package:sophia_hub/view/base_container.dart';
+import 'package:sophia_hub/view/widget/animated_loading_icon.dart';
 
 class StepThree extends StatefulWidget {
   StepThree({Key? key}) : super(key: key);
@@ -163,17 +164,30 @@ class _StepThreeState extends State<StepThree> {
                         style: ElevatedButtonTheme.of(context).style?.copyWith(
                             backgroundColor: MaterialStateProperty.all<Color?>(
                                 Colors.white)),
-                        child: Padding(
+                        child: Container(
+                          height: 50,
+                          width: 180,
                           padding:
                               EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                          child: Text("Tiếp tục",
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .headline5
-                                  ?.copyWith(
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .primary)),
+                          child: StreamBuilder<bool>(
+                            initialData: false,
+                            stream: auth.isLoadingPublisher,
+                            builder: (context, snapshot) {
+                              if (snapshot.data!) {
+                                return AnimatedLoadingIcon();
+                              } else {
+                                return Text("Tiếp tục",
+                                    textAlign: TextAlign.center,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .headline5
+                                        ?.copyWith(
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .primary));
+                              }
+                            },
+                          ),
                         )),
                   ),
                 ],

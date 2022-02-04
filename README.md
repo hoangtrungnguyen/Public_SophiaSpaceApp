@@ -14,6 +14,7 @@
 
 
 ## Chạy debug
+
 Kết nối điện thoại và máy tính vào cùng một wifi
 Chạy debug cần khởi động Firebase emulators trước:
 
@@ -46,6 +47,12 @@ flutter run
 [link](https://stackoverflow.com/questions/45940861/android-8-cleartext-http-traffic-not-permitted)
 
 
+## Chạy profile
+Bản build dùng để đo hiệu suất của ứng dụng
+```
+flutter run --profile
+```
+
 ## Chạy release
 Key cho App Store lấy từ máy của chủ sở hữu: Hoàng Trung Nguyên
 
@@ -57,6 +64,15 @@ Thông tin liên hệ
 flutter run --release
 ```
 
+## Build app bundle
+Checklist
+- []: Kiểm tra TODO
+- []: Clean code
+- []: Tạo mã phiển bản mới
+
+```
+flutter build appbundle --release
+```
 
 
 
@@ -67,3 +83,6 @@ flutter run --release
 
 **Lab Github action**
 - [link](https://lab.github.com/githubtraining/github-actions:-hello-world)
+
+**Kill using port**
+- [link](https://stackoverflow.com/questions/60996172/unable-to-connect-to-firebase-emulator-suite-with-exec)

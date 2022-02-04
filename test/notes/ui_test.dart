@@ -1,22 +1,18 @@
-import 'dart:collection';
 import 'dart:math';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
+import 'package:firebase_storage_mocks/firebase_storage_mocks.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:sophia_hub/model/activity.dart';
 import 'package:sophia_hub/model/note.dart';
-import 'package:sophia_hub/provider/notes_provider.dart';
 import 'package:sophia_hub/provider/auth.dart';
+import 'package:sophia_hub/provider/notes_provider.dart';
 import 'package:sophia_hub/view/page/home/notes.dart';
 import 'package:sophia_hub/view/page/home/notes/single_item_note.dart';
-import 'package:sophia_hub/view/page/home_container.dart';
-import 'package:sophia_hub/view/page/note/create_note_page.dart';
-import 'package:sophia_hub/view/page/note/note_detail.dart';
 
 import '../helper/test_helper.dart';
 
@@ -28,6 +24,7 @@ import '../helper/test_helper.dart';
 main() {
   late MockFirebaseAuth mockFirebaseAuth;
   late FakeFirebaseFirestore fireStore;
+  late MockFirebaseStorage firebaseStorage;
   late NotesPublisher publisher;
   late Note note;
   late Widget testView;
@@ -35,6 +32,7 @@ main() {
   setUpAll(() async {
     mockFirebaseAuth = MockFirebaseAuth(signedIn: true);
     fireStore = FakeFirebaseFirestore();
+    firebaseStorage = MockFirebaseStorage();
     publisher = NotesPublisher(
         auth: mockFirebaseAuth, fireStore: fireStore, isTesting: true);
 
@@ -58,8 +56,10 @@ main() {
           providers: [
             ChangeNotifierProvider(create: (_) => publisher),
             ChangeNotifierProvider(
-                create: (_) =>
-                    Auth(fireStore: fireStore, firebaseAuth: mockFirebaseAuth)),
+                create: (_) => Auth(
+                    fireStore: fireStore,
+                    firebaseAuth: mockFirebaseAuth,
+                    firebaseStorage: firebaseStorage)),
           ],
           child: Material(
             child: NotesView(),

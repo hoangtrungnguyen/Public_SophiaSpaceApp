@@ -38,7 +38,9 @@ class _StepOneState extends State<StepOne> {
                 ),
                 Form(
                   key: _formKey,
-                  child: TextFormField(initialValue: auth.user.displayName ?? '',
+                  child: TextFormField(
+                    initialValue: auth.user.displayName ?? '',
+                    maxLength: 20,
                     style: Theme.of(context)
                         .textTheme
                         .headline6

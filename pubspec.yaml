@@ -15,7 +15,10 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # In iOS, build-name is used as CFBundleShortVersionString while build-number used as CFBundleVersion.
 # Read more about iOS versioning at
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
-version: 1.0.0+1
+
+#Version name: 1.0.0
+#Version code: +1
+version: 1.0.0+2
 
 environment:
   sdk: ">=2.12.0 <3.0.0"
@@ -32,9 +35,12 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.4
   provider: ^6.0.2
+
+  #https://firebase.flutter.dev/docs/
   firebase_core: ^1.11.0
   firebase_auth: ^3.3.5
   cloud_firestore: ^3.1.6
+  firebase_storage: ^10.2.6
 
   fake_cloud_firestore: ^1.2.0
   firebase_storage_mocks: ^0.5.0
@@ -67,6 +73,10 @@ dependencies:
   share_plus: ^3.0.4
 
   shared_preferences:
+
+  #https://pub:dev/packages/image_picker: TODO:Setup for iOS
+  image_picker: ^0.8.4+6
+
 
 dev_dependencies:
   integration_test:

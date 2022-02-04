@@ -22,12 +22,12 @@ class LoginView extends StatefulWidget {
 }
 
 class _LoginViewState extends State<LoginView> {
-  // String email = '';
-  // String pwd = '';
+  String email = '';
+  String pwd = '';
 
-  // Testing purpose only
-  String email = "c@gmail.com";
-  String pwd = "12345678";
+  // TODO Testing purpose only
+  // String email = "c@gmail.com";
+  // String pwd = "12345678";
 
   final _formKey = GlobalKey<FormState>();
   bool _isObscure = true;

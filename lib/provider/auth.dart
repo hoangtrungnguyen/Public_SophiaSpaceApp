@@ -1,19 +1,29 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:sophia_hub/model/result_container.dart';
 import 'package:sophia_hub/model/user.dart';
 import 'package:sophia_hub/provider/app_data.dart';
 
 class Auth extends App {
-  UserData user = UserData();
+  late UserData user;
   FirebaseFirestore fireStore;
   FirebaseAuth firebaseAuth;
+  FirebaseStorage firebaseStorage;
 
-  Auth({required this.fireStore, required this.firebaseAuth}) {
+  Auth(
+      {required this.fireStore,
+      required this.firebaseAuth,
+      required this.firebaseStorage}) {
     Future.microtask(() async {
 //    FirebaseAuth auth = await FirebaseAuth.instance.currentUser;
     });
+
+    user = UserData(firebaseAuth);
   }
+
+  ///Provide this method to help this class testable
+  Stream<User?> userChanges() => firebaseAuth.userChanges();
 
   Future<Result<UserCredential>> register(String email, String pwd,
       {String? displayName}) async {
@@ -42,13 +52,14 @@ class Auth extends App {
       } else if (e.code == 'email-already-in-use') {
         print('The account already exists for that email.');
       }
-      return Result(err: Exception("Mật khẩu quá yếu, hãy thử lại"), data: null);
+      return Result(
+          err: Exception("Mật khẩu quá yếu, hãy thử lại"), data: null);
     } on Exception catch (e) {
       return Result(err: e, data: null);
     } catch (e) {
       print("unkown");
       return Result(err: Exception("Unknown Exception"), data: null);
-    } finally{
+    } finally {
       isLoadingPublisher.add(false);
     }
   }
@@ -73,7 +84,7 @@ class Auth extends App {
     } catch (e) {
       print("unkown");
       return Result(err: Exception("Unknown Exception"), data: null);
-    } finally{
+    } finally {
       isLoadingPublisher.add(false);
     }
   }

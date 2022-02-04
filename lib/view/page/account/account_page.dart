@@ -1,15 +1,14 @@
-import 'package:cached_network_image/cached_network_image.dart';
+import 'dart:math' as math;
+
+import 'package:another_flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:sophia_hub/constant/theme.dart';
 import 'package:sophia_hub/model/result_container.dart';
-import 'package:sophia_hub/provider/share_pref.dart';
 import 'package:sophia_hub/provider/auth.dart';
+import 'package:sophia_hub/provider/share_pref.dart';
+import 'package:sophia_hub/view/page/account/user_avatar.dart';
 import 'package:sophia_hub/view/page/auth/auth_page.dart';
-import 'package:sophia_hub/view/widget/animated_loading_icon.dart';
-import 'package:sophia_hub/view/widget/sophia_hub_close_button.dart';
-import 'dart:math' as math;
 
 class AccountPage extends StatefulWidget {
   static const String nameRoute = "/AccountPage";
@@ -25,140 +24,116 @@ class AccountPage extends StatefulWidget {
 }
 
 class _AccountPageState extends State<AccountPage> {
+  String name = '';
+
   @override
   Widget build(BuildContext context) {
     Auth auth = Provider.of<Auth>(context);
     ColorScheme scheme = Theme.of(context).colorScheme;
     return Scaffold(
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+        floatingActionButton: FloatingActionButton.extended(
+            onPressed: () async {
+              if (name.isNotEmpty) {
+                await auth.user.updateName(name);
+                Flushbar(
+                  backgroundColor: Colors.green,
+                  message: "Lưu thành công",
+                  flushbarPosition: FlushbarPosition.TOP,
+                  borderRadius: BorderRadius.circular(16),
+                  margin: EdgeInsets.all(8),
+                  duration: Duration(seconds: 2),
+                )..show(context);
+              }
+            },
+            label: Text("Lưu thay đổi")),
         body: Container(
-      margin: EdgeInsets.symmetric(horizontal: 15, vertical: 15),
-      child: SingleChildScrollView(
-        child: SafeArea(
-          child: Column(
-            children: [
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
+          margin: EdgeInsets.symmetric(horizontal: 15, vertical: 15),
+          child: SingleChildScrollView(
+            child: SafeArea(
+              child: Column(
                 children: [
-                  SizedBox(
-                    height: 50,
-                    width: 50,
-                    child: ElevatedButton(
-                        style: ElevatedButtonTheme.of(context).style?.copyWith(
-                            backgroundColor: MaterialStateProperty.all<Color?>(
-                                Colors.white)),
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                        },
-                        child: Icon(
-                          Icons.arrow_back_rounded,
-                          color: scheme.primary,
-                        )),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SizedBox(
+                        height: 50,
+                        width: 50,
+                        child: ElevatedButton(
+                            style: ElevatedButtonTheme.of(context)
+                                .style
+                                ?.copyWith(
+                                    backgroundColor:
+                                        MaterialStateProperty.all<Color?>(
+                                            Colors.white)),
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                            child: Icon(
+                              Icons.arrow_back_rounded,
+                              color: scheme.primary,
+                            )),
+                      ),
+                      Spacer(),
+                      UserAvatar(),
+                    ],
                   ),
-                  Spacer(),
-                  (auth.firebaseAuth.currentUser?.photoURL ?? "").isEmpty
-                      ? Card(
-                          child: SizedBox(
-                              height: 150,
-                              width: 150,
-                              child: TextButton(
-                                onPressed: () {  },
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Icon(Icons.camera_alt_rounded),
-                                    Text("Ảnh đại diện",textAlign: TextAlign.center,)
-                                  ],
-                                ),
-                              )))
-                      : CachedNetworkImage(
-                          imageUrl:
-                              auth.firebaseAuth.currentUser?.photoURL ?? '',
-                          fit: BoxFit.cover,
-                          imageBuilder: (context, imageProvider) {
-                            return Container(
-                              decoration: ShapeDecoration(
-                                shape: continuousRectangleBorder,
-                                image: DecorationImage(
-                                    image: imageProvider, fit: BoxFit.cover),
-                                color: Colors.white,
-                                shadows: [
-                                  BoxShadow(
-                                    color: Colors.grey,
-                                    offset: Offset(0.0, 1.0), //(x,y)
-                                    blurRadius: 4.0,
-                                  ),
-                                ],
-                              ),
-                              height: 150,
-                              width: 150,
-                            );
-                          },
-                          fadeOutDuration: Duration(milliseconds: 500),
-                          useOldImageOnUrlChange: true,
-                          errorWidget: (_, err, stackTrace) {
-                            return Card(
-                                child: SizedBox(
-                                    height: 150,
-                                    width: 150,
-                                    child: Icon(Icons.error)));
-                          },
-                          placeholder: (context, url) {
-                            return Center(child: AnimatedLoadingIcon());
-                          },
-                        ),
+                  SizedBox(
+                    height: 32,
+                  ),
+                  Container(
+                      margin: EdgeInsets.symmetric(vertical: 16),
+                      decoration: commonDecorationShadow,
+                      padding:
+                          EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+                      child: Column(
+                        children: [
+                          TextFormField(
+                            onChanged: (value) => name = value,
+                            initialValue:
+                                auth.firebaseAuth.currentUser?.displayName,
+                          ),
+                          SizedBox(
+                            height: 8,
+                          ),
+                          TextFormField(
+                            readOnly: true,
+                            style: TextStyle(color: Colors.grey),
+                            decoration: InputDecoration(
+                                suffixIcon: Icon(
+                              Icons.lock,
+                              color: Colors.grey,
+                            )),
+                            initialValue: auth.firebaseAuth.currentUser?.email,
+                          ),
+                        ],
+                      )),
+                  ColorThemePicker(),
+                  Card(
+                    child: ListTile(
+                      leading: Icon(Icons.logout),
+                      title: Text("Đăng xuất"),
+                      onTap: () async {
+                        Result result =
+                            await Provider.of<Auth>(context, listen: false)
+                                .logOut();
+                        print(result.error);
+                        print(result.data);
+                        if (result.isHasData) {
+                          Navigator.of(context)
+                              .pushReplacementNamed(AuthPage.nameRoute);
+                        }
+                      },
+                    ),
+                  ),
+                  SizedBox(
+                    height: 64,
+                  ),
                 ],
               ),
-              SizedBox(
-                height: 32,
-              ),
-              Container(
-                  margin: EdgeInsets.symmetric(vertical: 16),
-                  decoration: commonDecorationShadow,
-                  padding: EdgeInsets.symmetric(vertical: 16, horizontal: 16),
-                  child: Column(
-                    children: [
-                      TextFormField(
-                        initialValue:
-                            auth.firebaseAuth.currentUser?.displayName,
-                      ),
-                      SizedBox(
-                        height: 8,
-                      ),
-                      TextFormField(
-                        readOnly: true,
-                        style: TextStyle(color: Colors.grey),
-                        decoration: InputDecoration(
-                            suffixIcon: Icon(
-                          Icons.lock,
-                          color: Colors.grey,
-                        )),
-                        initialValue: auth.firebaseAuth.currentUser?.email,
-                      ),
-                    ],
-                  )),
-              ColorThemePicker(),
-              Card(
-                child: ListTile(
-                  leading: Icon(Icons.logout),
-                  title: Text("Đăng xuất"),
-                  onTap: () async {
-                    Result result =
-                        await Provider.of<Auth>(context, listen: false)
-                            .logOut();
-                    print(result.error);
-                    print(result.data);
-                    if (result.isHasData) {
-                      Navigator.of(context)
-                          .pushReplacementNamed(AuthPage.nameRoute);
-                    }
-                  },
-                ),
-              ),
-            ],
+            ),
           ),
-        ),
-      ),
-    ));
+        ));
   }
 }
 
@@ -236,7 +211,7 @@ class _ColorThemePickerState extends State<ColorThemePicker> {
 
   Widget _colorBuilder(BuildContext context, int index) {
     MaterialColor color = Colors.primaries[index];
-    bool isPicked = color == pickedColor;
+    // bool isPicked = color == pickedColor;
     double scale = math.max(
         viewPortFraction, (1 - (curPage - index).abs()) + viewPortFraction);
 
