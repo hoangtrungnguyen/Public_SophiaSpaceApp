@@ -2,7 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
-import 'package:sophia_hub/provider/quote_provider.dart';
+import 'package:sophia_hub/provider/quote_state_manager.dart';
 
 class QuoteView extends StatefulWidget {
   @override
@@ -18,7 +18,7 @@ class _QuoteViewState extends State<QuoteView> {
     super.initState();
     _pageController = PageController()..addListener(_scrollListener);
     Future.microtask(() {
-      Provider.of<QuotesProvider>(context, listen: false).loadMore();
+      Provider.of<QuoteStateManager>(context, listen: false).loadQuotes();
     });
   }
 
@@ -35,14 +35,13 @@ class _QuoteViewState extends State<QuoteView> {
       });
     }
     if (_pageController?.position.extentAfter == 0) {
-      print("loadmore");
-      Provider.of<QuotesProvider>(context, listen: false).loadMore();
+      Provider.of<QuoteStateManager>(context, listen: false).loadQuotes();
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    QuotesProvider provider = Provider.of<QuotesProvider>(context);
+    QuoteStateManager quoteState = Provider.of<QuoteStateManager>(context);
     Size size = MediaQuery.of(context).size;
     Color primary = Theme.of(context).colorScheme.primary;
     return Container(
@@ -68,9 +67,9 @@ class _QuoteViewState extends State<QuoteView> {
                 }()),
                 child: Builder(
                   builder: (BuildContext context) {
-                    if(provider.quotes.length == 0){ return Container();}
+                    if(quoteState.quotes.length == 0){ return Container();}
                     return CachedNetworkImage(
-                      imageUrl: provider.quotes[curIndex].imageUrl ??
+                      imageUrl: quoteState.quotes[curIndex].imageUrl ??
                           "https://firebasestorage.googleapis.com/v0/b/small-habits-0812.appspot.com/o/astronaut%20(1).jpg?alt=media&token=92ff8444-d939-48f8-975c-cc2a67b25a9a",
                       fit: BoxFit.cover,
                       fadeOutDuration: Duration(milliseconds: 500),
@@ -94,7 +93,7 @@ class _QuoteViewState extends State<QuoteView> {
             Positioned.fill(
                   child: PageView.builder(
             scrollDirection: Axis.vertical,
-                  itemCount: provider.quotes.length,
+                  itemCount: quoteState.quotes.length,
                   controller: _pageController,
                   itemBuilder: (_, index) {
                     return Container(
@@ -118,7 +117,7 @@ class _QuoteViewState extends State<QuoteView> {
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
                                     Text(
-                                      "${provider.quotes[index].content}",
+                                      "${quoteState.quotes[index].content}",
                                       textAlign: TextAlign.center,
                                       style: Theme.of(context)
                                           .textTheme
@@ -140,7 +139,7 @@ class _QuoteViewState extends State<QuoteView> {
                                           padding:
                                               EdgeInsets.symmetric(horizontal: 10),
                                           child: Text(
-                                            "${provider.quotes[index].authorName ?? "Khuyết danh"}",
+                                            "${quoteState.quotes[index].authorName ?? "Khuyết danh"}",
                                             textAlign: TextAlign.center,
                                             style: Theme.of(context)
                                                 .textTheme

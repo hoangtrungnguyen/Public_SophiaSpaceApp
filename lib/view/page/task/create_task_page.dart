@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:sophia_hub/model/task.dart';
-import 'package:sophia_hub/provider/app_data.dart';
 
 class CreateTaskPage extends StatefulWidget{
     static const String nameRoute = "/CreateTaskPage";

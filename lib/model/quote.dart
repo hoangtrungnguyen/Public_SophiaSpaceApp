@@ -7,22 +7,21 @@ part 'quote.g.dart';
 class Quote with ChangeNotifier {
   @JsonKey(ignore: true)
   late String id;
-  @JsonKey(name: "author_id")
+
   String? authorId;
 
-  @JsonKey(name: "author_name")
   String? authorName;
 
   String? content;
 
   String? src;
 
-  @JsonKey(name: "image_url")
   String? imageUrl;
 
   Quote({
     this.content,
     this.imageUrl,
+    this.authorName,
   });
 
 
@@ -31,5 +30,14 @@ class Quote with ChangeNotifier {
   /// Connect the generated [_$QuoteToJson] function to the `toJson` method.
   Map<String, dynamic> toJson() => _$QuoteToJson(this);
 
+
+  @override
+  String toString() {
+    return """{
+      content: $content,
+      authorName: $authorName,
+      imageUrl: $imageUrl
+    }""";
+  }
 
 }

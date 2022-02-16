@@ -8,15 +8,15 @@ import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
-import 'package:sophia_hub/configure/firebase_config.dart';
+import 'package:sophia_hub/configure/app_config.dart';
 import 'package:sophia_hub/constant/theme.dart';
 import 'package:sophia_hub/firebase_options.dart';
 import 'package:sophia_hub/model/note.dart';
-import 'package:sophia_hub/provider/auth.dart';
-import 'package:sophia_hub/provider/notes_provider.dart';
-import 'package:sophia_hub/provider/quote_provider.dart';
+import 'package:sophia_hub/provider/account_state_manager.dart';
+import 'package:sophia_hub/provider/note_state_manager.dart';
+import 'package:sophia_hub/provider/quote_state_manager.dart';
 import 'package:sophia_hub/provider/share_pref.dart';
-import 'package:sophia_hub/provider/task_provider.dart';
+import 'package:sophia_hub/provider/ui_logic.dart';
 import 'package:sophia_hub/view/animation/route_change_anim.dart';
 import 'package:sophia_hub/view/base_container.dart';
 import 'package:sophia_hub/view/page/account/account_page.dart';
@@ -37,7 +37,7 @@ Future<void> main() async {
             options: DefaultFirebaseOptions.currentPlatform)
         .then((value) => print("$value"));
 
-    await FirebaseConfig.config();
+    await AppConfig.forEnvironment();
     SharedPref sharePref = SharedPref();
     await sharePref.init();
 
@@ -56,10 +56,11 @@ class SophiaHubApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     //Configure App Small Habits
-    Widget app = Consumer<SharedPref>(
-      builder: (context, sharePrefs, child) {
+    Widget app = Consumer2<SharedPref, AccountStateManager>(
+      builder: (context, sharePrefs, auth, child) {
         return MaterialApp(
-          title: 'Small Habits',
+          title: 'Sophia Diary',
+          navigatorObservers: [],
           initialRoute: FirebaseAuth.instance.currentUser == null
               ? AuthPage.nameRoute
               : BaseContainer.nameRoute,
@@ -153,54 +154,46 @@ class SophiaHubApp extends StatelessWidget {
 
       //UserProvider quan hệ phụ thuộc với firebase_auth.User
       // ProxyPrivider sẽ được thay đổi lại mỗi khi firbase_auth.User thay đổi.
-      ChangeNotifierProxyProvider<firebase_auth.User?, Auth>(
-        create: (_) => Auth(
-            firebaseStorage: firebase_storage.FirebaseStorage.instance,
-            firebaseAuth: FirebaseAuth.instance,
-            fireStore: FirebaseFirestore.instance),
-        update: (BuildContext context, firebaseUser, Auth? previous) {
+      ChangeNotifierProxyProvider<firebase_auth.User?, AccountStateManager>(
+        create: (_) => AccountStateManager(),
+        update: (BuildContext context, firebaseUser,
+            AccountStateManager? previous) {
           // print("updating Auth ${firebaseUser?.uid}");
           previous?.refresh();
           return previous!;
         },
       ),
 
-      ChangeNotifierProxyProvider<Auth, NotesPublisher>(
-        create: (_) => NotesPublisher(
-            auth: FirebaseAuth.instance, fireStore: FirebaseFirestore.instance),
+      ChangeNotifierProxyProvider<AccountStateManager, NotesStateManager>(
+        create: (_) => NotesStateManager(),
         lazy: true,
         update: (_, auth, preNotesProvider) {
           //TODO logic thay doi du lieu moi khi thay doi tai khoan nguoi dung
-          if (auth.firebaseAuth.currentUser == null)
+          if (FirebaseAuth.instance.currentUser == null)
             preNotesProvider?.clear();
           else {
-            preNotesProvider?.config();
-            preNotesProvider?.loadMoreNotes();
+            // preNotesProvider?.config();
+            // preNotesProvider?.loadMoreNotes();
           }
 
           return preNotesProvider!;
         },
       ),
-      ChangeNotifierProxyProvider<Auth, TaskProvider>(
-        create: (_) => TaskProvider(),
-        lazy: true,
-        update: (_, userProvider, preTaskProvider) {
-          // print("updating notes task provider");
-          return preTaskProvider!;
-        },
-      ),
 
-      ChangeNotifierProxyProvider<Auth, QuotesProvider>(
-        create: (_) => QuotesProvider(fireStore: FirebaseFirestore.instance),
+      ChangeNotifierProxyProvider<AccountStateManager, QuoteStateManager>(
+        create: (_) => QuoteStateManager(),
         lazy: true,
-        update: (_, userProvider, preTaskProvider) {
+        update: (_, auth, preQuoteStateHolder) {
           // print("updating notes task provider");
-          return preTaskProvider!;
+          return preQuoteStateHolder!;
         },
       ),
 
       ChangeNotifierProvider<SharedPref>(
-          create: (BuildContext context) => this.sharedPref!)
+          create: (BuildContext context) => this.sharedPref!),
+
+      ChangeNotifierProvider<UILogic>(
+          create: (BuildContext context) => UILogic())
     ], child: app);
 
     return multiProvider;

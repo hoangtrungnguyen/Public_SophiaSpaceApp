@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sophia_hub/helper/auth_validator.dart';
 import 'package:sophia_hub/model/result_container.dart';
-import 'package:sophia_hub/provider/auth.dart';
+import 'package:sophia_hub/provider/account_state_manager.dart';
 
 class ForgotPwd extends StatefulWidget {
   static const String routeName = "/forgot";
@@ -20,7 +20,7 @@ class _ForgotPwdState extends State<ForgotPwd> {
 
   @override
   Widget build(BuildContext context) {
-    Auth auth = Provider.of<Auth>(context, listen: false);
+    AccountStateManager auth = Provider.of<AccountStateManager>(context, listen: false);
     Color primary = Theme.of(context).colorScheme.primary;
     return WillPopScope(
       onWillPop: () async {

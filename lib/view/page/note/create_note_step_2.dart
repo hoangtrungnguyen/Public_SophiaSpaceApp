@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sophia_hub/model/activity.dart';
 import 'package:sophia_hub/model/note.dart';
+import 'package:sophia_hub/provider/single_note_state_manager.dart';
 
 class EmotionObjectsView extends StatefulWidget {
   static const String nameRoute = "/EmotionObjectsView";
@@ -23,8 +24,9 @@ class _EmotionObjectsViewState extends State<EmotionObjectsView> {
   Widget build(BuildContext context) {
     return Scaffold(
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      floatingActionButton: Consumer<Note>(
-        builder: (BuildContext context, value, Widget? child) {
+      floatingActionButton: Consumer<SingleNoteManager>(
+        builder: (BuildContext context, manager, Widget? child) {
+          Note value = manager.note;
           Widget button;
           button = FloatingActionButton.extended(
              elevation: value.activities.length <= 0 ? 0 : 6,
@@ -93,7 +95,7 @@ class _EmotionGridState extends State<EmotionGrid> {
 
   @override
   Widget build(BuildContext context) {
-    Note note = Provider.of<Note>(context);
+    SingleNoteManager note = Provider.of<SingleNoteManager>(context);
     return GridView.builder(
       shrinkWrap: true,
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -103,7 +105,7 @@ class _EmotionGridState extends State<EmotionGrid> {
         scrollDirection: Axis.horizontal,
         itemBuilder: (BuildContext context, int index) {
           Activity emotion = _activities[index];
-          bool isChosen = note.activities.contains(emotion);
+          bool isChosen = note.note.activities.contains(emotion);
           return Padding(
             padding: EdgeInsets.all(10),
             child: ElevatedButton(

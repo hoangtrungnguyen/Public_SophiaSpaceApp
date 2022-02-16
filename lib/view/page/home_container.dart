@@ -1,9 +1,7 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:provider/provider.dart';
 import 'package:sophia_hub/constant/theme.dart';
-import 'package:sophia_hub/provider/notes_provider.dart';
 import 'package:sophia_hub/provider/ui_logic.dart';
 import 'package:sophia_hub/view/page/home/notes.dart';
 import 'package:sophia_hub/view/page/home/quote.dart';
@@ -99,6 +97,7 @@ class _HomeContainerState extends State<HomeContainer>
 
   @override
   Widget build(BuildContext context) {
+    UILogic uiLogic = Provider.of<UILogic>(context);
     return NotificationListener(
       onNotification: _handleScrollNotification,
       child: Scaffold(
@@ -115,7 +114,7 @@ class _HomeContainerState extends State<HomeContainer>
                   await Navigator.of(context, rootNavigator: true).pushNamed(
                 CreateNotePage.nameRoute,
               ) as int;
-              Provider.of<NotesPublisher>(context,listen: false).loadMoreNotes();
+              // Provider.of<NotesStateManager>(context,listen: false).loadMore();
             } catch (e) {}
           },
         ),
@@ -139,7 +138,7 @@ class _HomeContainerState extends State<HomeContainer>
                 onTap: (i) {
                   // Thay đổi logic i == ở đây để phù hợp với số lượng màn hình
                   // if (i == _currentIndex || i == 1) return;
-                  Provider.of<UILogic>(context, listen: false).homePageIndex = i;
+                  uiLogic.homePageIndex = i;
                   setState(() {
                     _currentIndex = i;
                   });

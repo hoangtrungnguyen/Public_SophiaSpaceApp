@@ -1,6 +1,8 @@
-/***
- * Class chứa dữ liệu
- ***/
+///
+/// Class chứa kết quả
+///
+/// Main purpose of **assert** is testing conditions during debugging/development.
+
 class Result<T> {
   T? _data;
   Exception? _error;
@@ -11,18 +13,12 @@ class Result<T> {
   }
 
   bool get isHasData {
-    if (_error != null) {
-      throw Exception();
-    }
     return data != null;
   }
 
   set(data) => _data = data;
 
   bool get isHasErr {
-    if(_data != null){
-      throw Exception();
-    }
     return error != null;
   }
 

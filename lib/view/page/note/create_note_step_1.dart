@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:sophia_hub/helper/note_helper_func.dart';
-import 'package:sophia_hub/model/note.dart';
+import 'package:sophia_hub/provider/single_note_state_manager.dart';
 
 class EmotionPointView extends StatefulWidget {
   bool initial = true;
@@ -28,7 +28,7 @@ class _EmotionPointViewState extends State<EmotionPointView> {
 
   @override
   Widget build(BuildContext context) {
-    Note note = Provider.of<Note>(context);
+    SingleNoteManager noteManager = Provider.of<SingleNoteManager>(context);
     return Scaffold(
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       floatingActionButton: Consumer<TabController>(
@@ -70,7 +70,7 @@ class _EmotionPointViewState extends State<EmotionPointView> {
             ),
             Icon(widget.initial
                 ? FontAwesomeIcons.grin
-                : generateMoodIcon(note.emotionPoint),
+                : generateMoodIcon(noteManager.note.emotionPoint),
             color: Colors.white,
             size: 80,),
             Padding(
@@ -82,9 +82,9 @@ class _EmotionPointViewState extends State<EmotionPointView> {
 
                 if (widget.initial) return Text("");
 
-                assert(note.emotionPoint >= 0 || note.emotionPoint < 10,
+                assert(noteManager.note.emotionPoint >= 0 || noteManager.note.emotionPoint < 10,
                     'Out of bound');
-                status = generateMoodStatus(note.emotionPoint.toInt());
+                status = generateMoodStatus(noteManager.note.emotionPoint.toInt());
                 return Text(
                   "$status",
                   style: Theme.of(context).textTheme.headline6,
@@ -96,13 +96,13 @@ class _EmotionPointViewState extends State<EmotionPointView> {
                 return Slider(
                   inactiveColor: Colors.grey.withOpacity(0.5),
                   activeColor: Colors.white,
-                  value: widget.initial ? 5 : note.emotionPoint.toDouble(),
+                  value: widget.initial ? 5 : noteManager.note.emotionPoint.toDouble(),
                   min: 0,
                   max: 10,
                   divisions: 10,
-                  label: "${note.emotionPoint}",
+                  label: "${noteManager.note.emotionPoint}",
                   onChanged: (double value) {
-                    note.emotionPoint = value.toInt();
+                    noteManager.note.emotionPoint = value.toInt();
                     widget.initial = false;
                     setState(() {});
                   },

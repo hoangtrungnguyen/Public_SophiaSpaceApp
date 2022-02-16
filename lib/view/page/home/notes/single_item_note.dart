@@ -1,9 +1,9 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:sophia_hub/helper/note_helper_func.dart';
-import 'package:sophia_hub/model/note.dart';
-import 'package:sophia_hub/provider/auth.dart';
+import 'package:sophia_hub/provider/single_note_state_manager.dart';
 import 'package:sophia_hub/view/page/note/note_detail.dart';
 
 class StatHeader extends StatelessWidget {
@@ -16,7 +16,7 @@ class StatHeader extends StatelessWidget {
         children: [
           Align(
             child: Text(
-              "Nhật ký của ${Provider.of<Auth>(context,listen: false).firebaseAuth.currentUser?.displayName}",
+              "Nhật ký của ${FirebaseAuth.instance.currentUser?.displayName}",
               style: Theme.of(context)
                   .textTheme
                   .headline5
@@ -46,9 +46,8 @@ class StatHeader extends StatelessWidget {
 }
 
 class NoteDayHeader extends StatefulWidget {
-  final Note e;
 
-  const NoteDayHeader({Key? key, required this.e}) : super(key: key);
+  const NoteDayHeader({Key? key}) : super(key: key);
 
   @override
   State<NoteDayHeader> createState() => _NoteDayHeaderState();
@@ -74,6 +73,7 @@ class _NoteDayHeaderState extends State<NoteDayHeader>
 
   @override
   Widget build(BuildContext context) {
+    SingleNoteManager manager = Provider.of<SingleNoteManager>(context);
     return FadeTransition(
       opacity: _controller,
       child: ListTile(
@@ -90,17 +90,17 @@ class _NoteDayHeaderState extends State<NoteDayHeader>
               children: [
                 Text(
                   "${DateFormat.d('vi').format(
-                    widget.e.timeCreated,
+                    manager.note.timeCreated,
                   )}",
                 ),
                 Text(
-                  "${DateFormat.MMM('vi').format(widget.e.timeCreated)}",
+                  "${DateFormat.MMM('vi').format(manager.note.timeCreated)}",
                   style: Theme.of(context).textTheme.caption,
                 ),
               ],
             )),
-        title: Text("${DateFormat.EEEE('vi').format(widget.e.timeCreated)}"),
-        subtitle: Text("${DateFormat.y('vi').format(widget.e.timeCreated)}"),
+        title: Text("${DateFormat.EEEE('vi').format(manager.note.timeCreated)}"),
+        subtitle: Text("${DateFormat.y('vi').format(manager.note.timeCreated)}"),
       ),
     );
   }
@@ -135,7 +135,7 @@ class _DailyNotesState extends State<DailyNotes>
 
   @override
   Widget build(BuildContext context) {
-    Note note = Provider.of<Note>(context);
+    SingleNoteManager manager = Provider.of<SingleNoteManager>(context);
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       child: ElevatedButton(
@@ -150,7 +150,7 @@ class _DailyNotesState extends State<DailyNotes>
             elevation: MaterialStateProperty.all<double?>(8),
             backgroundColor: MaterialStateProperty.all<Color?>(Colors.white)),
         onPressed: () {
-          Navigator.push(context,NoteDetails.route(Provider.of<Note>(context,listen: false)));
+          Navigator.push(context,NoteDetails.route(manager.note));
         },
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -159,17 +159,17 @@ class _DailyNotesState extends State<DailyNotes>
           children: [
             ListTile(
               leading: Icon(
-                generateMoodIcon(note.emotionPoint),
+                generateMoodIcon(manager.note.emotionPoint),
                 size: 36,
               ),
               contentPadding: EdgeInsets.zero,
-              title: Text("${displayTitle(note)}"),
+              title: Text("${displayTitle(manager)}"),
               subtitle:
-                  Text("${DateFormat.jm().format(note.timeCreated)} "),
+                  Text("${DateFormat.jm().format(manager.note.timeCreated)} "),
             ),
             Wrap(
               children: [
-                ...note.activities.map((e) {
+                ...manager.note.activities.map((e) {
                   return Padding(
                     padding: EdgeInsets.symmetric(horizontal: 2),
                     child: Chip(
@@ -195,9 +195,9 @@ class _DailyNotesState extends State<DailyNotes>
     );
   }
 
-  String displayTitle(Note note) {
-    String? title = note.title;
-    int emotionPoint = note.emotionPoint;
+  String displayTitle(SingleNoteManager manager) {
+    String? title = manager.note.title;
+    int emotionPoint = manager.note.emotionPoint;
     String status;
     if (title != null) if (title.isNotEmpty) return title;
 

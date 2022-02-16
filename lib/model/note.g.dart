@@ -9,13 +9,12 @@ part of 'note.dart';
 Note _$NoteFromJson(Map<String, dynamic> json) => Note(
       title: json['title'] as String?,
       description: json['description'] as String?,
-      emotionPoint: json['emotion_point'] as int,
-    )..timeCreated =
-        Note.timeCreatedFromJson(json['time_created'] as Timestamp);
+      emotionPoint: json['emotionPoint'] as int? ?? 0,
+    )..timeCreated = Note.timeCreatedFromJson(json['timeCreated'] as Timestamp);
 
 Map<String, dynamic> _$NoteToJson(Note instance) => <String, dynamic>{
-      'emotion_point': instance.emotionPoint,
       'title': instance.title,
+      'emotionPoint': instance.emotionPoint,
       'description': instance.description,
-      'time_created': Note.timeCreatedToJson(instance.timeCreated),
+      'timeCreated': Note.timeCreatedToJson(instance.timeCreated),
     };

@@ -1,25 +1,22 @@
-import 'dart:convert';
 
-import 'package:flutter/services.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:sophia_hub/configure/firebase_config.dart';
 
 class AppConfig {
-  final String apiUrl;
+  // final String apiUrl;
+  //
+  // AppConfig({required this.apiUrl});
 
-  AppConfig({required this.apiUrl});
+  static Future<AppConfig> forEnvironment() async {
 
-  static Future<AppConfig> forEnvironment(String? env) async {
-    // set default to dev if nothing was passed
-    env = (env ?? 'dev').toLowerCase();
-
-    // load the json file
-    final contents = await rootBundle.loadString(
-      'assets/config/$env.json',
-    );
-
-    // decode our json
-    final json = jsonDecode(contents);
+    if(kDebugMode){
+      await dotenv.load(fileName: "env/dev.env");
+      await FirebaseConfig.config();
+    }
 
     // convert our JSON into an instance of our AppConfig class
-    return AppConfig(apiUrl: json['apiUrl']);
+    // return AppConfig(apiUrl: json['apiUrl']);
+    return AppConfig();
   }
 }

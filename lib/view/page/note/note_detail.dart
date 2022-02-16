@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:sophia_hub/helper/note_helper_func.dart';
 import 'package:sophia_hub/model/note.dart';
+import 'package:sophia_hub/provider/single_note_state_manager.dart';
 import 'package:sophia_hub/view/page/note/note_detail_is_editing.dart';
 
 class NoteDetails extends StatefulWidget {
@@ -16,7 +17,7 @@ class NoteDetails extends StatefulWidget {
 
   static Widget view(Note note, {Key? key}) {
     return ChangeNotifierProvider(
-      create: (_) => note.copy(),
+      create: (_) => SingleNoteManager(note),
       child: NoteDetails(),
     );
   }
@@ -36,7 +37,7 @@ class _NoteDetailsState extends State<NoteDetails> {
 
   @override
   Widget build(BuildContext context) {
-    Note note = Provider.of<Note>(context);
+    SingleNoteManager note = Provider.of<SingleNoteManager>(context);
     Color primary = Theme.of(context).colorScheme.primary;
     final head4 = Theme.of(context).textTheme.headline4?.copyWith(
         color: primary.withOpacity(0.3), fontWeight: FontWeight.bold);
@@ -50,9 +51,10 @@ class _NoteDetailsState extends State<NoteDetails> {
           ),
           child: Icon(Icons.edit_outlined),
           onPressed: () async{
-            Note? note = await Navigator.push(context, EditingNoteDetails.route(Provider.of<Note>(context,listen: false)));
+            Note? note = await Navigator.push(context,
+                EditingNoteDetails.route(Provider.of<SingleNoteManager>(context,listen: false).note));
             if(note != null)
-              Provider.of<Note>(context, listen: false).refresh(note: note);
+              Provider.of<SingleNoteManager>(context, listen: false).refresh(note: note);
           },
         ),
         appBar: AppBar(
@@ -84,7 +86,7 @@ class _NoteDetailsState extends State<NoteDetails> {
           title: Hero(
             tag: "appBarTitle",
             child: Text(
-              "${DateFormat.yMd().add_jm().format(note.timeCreated)}",
+              "${DateFormat.yMd().add_jm().format(note.note.timeCreated)}",
               style: Theme.of(context)
                   .textTheme
                   .bodyText1
@@ -117,7 +119,7 @@ class _NoteDetailsState extends State<NoteDetails> {
                     child: Hero(
                       tag: "mood icon",
                       child: Icon(
-                        generateMoodIcon(note.emotionPoint),
+                        generateMoodIcon(note.note.emotionPoint),
                         color: primary.withOpacity(0.1),
                         size: 130,
                       ),
@@ -135,7 +137,7 @@ class _NoteDetailsState extends State<NoteDetails> {
                           child: Hero(
                             tag: "mood text",
                             child: Text(
-                              "${generateMoodStatus(note.emotionPoint)}",
+                              "${generateMoodStatus(note.note.emotionPoint)}",
                               style: head6?.copyWith(color: primary),
                             ),
                           ),
@@ -151,7 +153,7 @@ class _NoteDetailsState extends State<NoteDetails> {
                         SizedBox(
                           width: size.width / 4,
                         ),
-                        ...note.activities.map((e) {
+                        ...note.note.activities.map((e) {
                           return Hero(
                             tag: "emotions ${e.id}",
                             child: Padding(
@@ -200,7 +202,7 @@ class _NoteDetailsState extends State<NoteDetails> {
                                 child: Material(
                                   child: TextFormField(
                                       readOnly: true,
-                                      initialValue: note.title,
+                                      initialValue: note.note.title,
                                       decoration:
                                           InputDecoration(hintText: "Tiêu đề",hintStyle: TextStyle(color: Colors.grey.withOpacity(0.8))),
                                       onChanged: null),
@@ -220,7 +222,7 @@ class _NoteDetailsState extends State<NoteDetails> {
                                       maxLines: 10,
                                       minLines: 3,
                                       readOnly: true,
-                                      initialValue: note.description,
+                                      initialValue: note.note.description,
                                       onChanged: null),
                                 ),
                               ),

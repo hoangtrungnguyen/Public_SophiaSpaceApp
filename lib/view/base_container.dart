@@ -1,6 +1,8 @@
+import 'dart:io';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:sophia_hub/constant/sophia_hub_app.dart';
@@ -11,7 +13,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'widget/drawer_menu.dart';
 
 class BaseContainer extends StatefulWidget {
-  static const String nameRoute = "/homeBase";
+  static const String nameRoute = "/";
 
   static Route<dynamic> route() {
     return MaterialPageRoute(builder: (BuildContext context) {
@@ -54,8 +56,14 @@ class _BaseContainerState extends State<BaseContainer>
     Size size = MediaQuery.of(context).size;
     double maxSlide = size.width * 2.5 / 3;
     Color primary = Theme.of(context).colorScheme.primary;
-    return ChangeNotifierProvider(
-      create: (BuildContext context) { return UILogic(); },
+    return WillPopScope(
+      onWillPop: () async {
+        // if(Provider.of<UILogic>(context,listen: false).homePageIndex == 0){
+        //   return true;
+        // }
+        // return false;
+        return true;
+      },
       child: GestureDetector(
         onHorizontalDragStart: (details) {
           bool isDragFromLeft = animController.isDismissed &&

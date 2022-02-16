@@ -1,10 +1,9 @@
 import 'package:another_flushbar/flushbar.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sophia_hub/helper/auth_validator.dart';
-import 'package:sophia_hub/model/result_container.dart';
-import 'package:sophia_hub/provider/auth.dart';
+import 'package:sophia_hub/helper/show_flush_bar.dart';
+import 'package:sophia_hub/provider/account_state_manager.dart';
 import 'package:sophia_hub/view/base_container.dart';
 import 'package:sophia_hub/view/widget/animated_loading_icon.dart';
 
@@ -26,9 +25,10 @@ class _StepThreeState extends State<StepThree> {
 
   @override
   Widget build(BuildContext context) {
-    Auth auth = Provider.of<Auth>(context);
+    AccountStateManager auth = Provider.of<AccountStateManager>(context);
     return SafeArea(
         child: Container(
+          margin: EdgeInsets.symmetric(horizontal: 16),
       child: Stack(
         children: [
           Align(
@@ -69,7 +69,7 @@ class _StepThreeState extends State<StepThree> {
                     flex: 5,
                   ),
                   TextFormField(
-                    initialValue: auth.user.password ?? '',
+                    initialValue: auth.account.loginPwd ?? '',
                     style: Theme.of(context)
                         .textTheme
                         .headline6
@@ -94,7 +94,7 @@ class _StepThreeState extends State<StepThree> {
                     flex: 1,
                   ),
                   TextFormField(
-                    initialValue: auth.user.password ?? '',
+                    initialValue: auth.account.loginPwd ?? '',
                     obscureText: _isObscure,
                     style: Theme.of(context)
                         .textTheme
@@ -131,21 +131,14 @@ class _StepThreeState extends State<StepThree> {
                         onPressed: () async {
                           if (!(_formKey.currentState?.validate() ?? false))
                             return;
-                          auth.user.password = pwd2;
+                          auth.account.loginPwd = pwd2;
 
-                          Result<UserCredential> result = await auth.register(
-                              auth.user.email!, auth.user.password!, displayName: auth.user.displayName);
+                          bool isOk = await auth.register(
+                              auth.account.loginEmail!, auth.account.loginPwd!, auth.account.registerName);
 
-                          if (result.data != null) {
+                          if (isOk) {
                             await Future.delayed(Duration(milliseconds: 500));
-                            Flushbar(
-                              backgroundColor: Colors.green,
-                              message: "Đăng nhập thành công",
-                              flushbarPosition: FlushbarPosition.TOP,
-                              borderRadius: BorderRadius.circular(16),
-                              margin: EdgeInsets.all(8),
-                              duration: Duration(seconds: 3),
-                            )..show(context);
+                            showSuccessMessage(context, "Đăng nhập thành công");
                             Navigator.of(context, rootNavigator: true)
                                 .pushReplacementNamed(BaseContainer.nameRoute);
                           } else {
@@ -169,11 +162,10 @@ class _StepThreeState extends State<StepThree> {
                           width: 180,
                           padding:
                               EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                          child: StreamBuilder<bool>(
-                            initialData: false,
-                            stream: auth.isLoadingPublisher,
+                          child: StreamBuilder<ConnectionState>(
+                            stream: auth.appConnectionState,
                             builder: (context, snapshot) {
-                              if (snapshot.data!) {
+                              if (snapshot.data == ConnectionState.waiting) {
                                 return AnimatedLoadingIcon();
                               } else {
                                 return Text("Tiếp tục",

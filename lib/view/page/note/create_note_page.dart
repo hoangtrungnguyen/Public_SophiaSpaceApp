@@ -1,9 +1,8 @@
-import 'dart:collection';
 
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:sophia_hub/model/note.dart';
+import 'package:sophia_hub/provider/single_note_state_manager.dart';
 import 'package:sophia_hub/view/page/note/create_note_step_1.dart';
 import 'package:sophia_hub/view/page/note/create_note_step_2.dart';
 import 'package:sophia_hub/view/page/note/create_note_step_3.dart';
@@ -13,7 +12,7 @@ class CreateNotePage extends StatefulWidget {
 
   static Route<dynamic> route(Note note) {
     return MaterialPageRoute(builder: (BuildContext context) {
-      return ChangeNotifierProvider.value(value: note, child: CreateNotePage());
+      return CreateNotePage();
     });
   }
 
@@ -23,7 +22,6 @@ class CreateNotePage extends StatefulWidget {
 
 class _CreateNotePageState extends State<CreateNotePage>
     with SingleTickerProviderStateMixin {
-
   late TabController tabController;
 
   @override
@@ -37,12 +35,12 @@ class _CreateNotePageState extends State<CreateNotePage>
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(
-          create: (BuildContext context) => Note(
+          create: (BuildContext context) => SingleNoteManager(Note(
             title: "",
             description: "",
             emotionPoint: 0,
             activities: [],
-          ),
+          )),
         ),
         //This provider is to check if this screen is first screen
         Provider<bool>(
@@ -53,7 +51,7 @@ class _CreateNotePageState extends State<CreateNotePage>
         )
       ],
       child: Scaffold(
-        extendBodyBehindAppBar: true,
+          extendBodyBehindAppBar: true,
           appBar: AppBar(
             backgroundColor: Colors.transparent,
             elevation: 0,
@@ -74,9 +72,10 @@ class _CreateNotePageState extends State<CreateNotePage>
                     if (tabController.index == 0)
                       Navigator.of(context).pop(false);
                     else {
-                      bool ok = await showDialog(context: context, builder: _buildCancelDialog);
+                      bool ok = await showDialog(
+                          context: context, builder: _buildCancelDialog);
                       await Future.delayed(Duration(milliseconds: 500));
-                      if(ok) Navigator.of(context).pop(false);
+                      if (ok) Navigator.of(context).pop(false);
                     }
                   },
                   icon: Icon(
@@ -98,17 +97,15 @@ class _CreateNotePageState extends State<CreateNotePage>
               colors: [
                 Theme.of(context).colorScheme.secondary,
                 Theme.of(context).colorScheme.primary,
-
               ],
             )),
             child: Theme(
               data: Theme.of(context).copyWith(
-                scaffoldBackgroundColor: Colors.transparent,
-                textTheme: Theme.of(context).textTheme.apply(
-                  bodyColor: Colors.white,
-                  displayColor: Colors.white,
-                )
-              ),
+                  scaffoldBackgroundColor: Colors.transparent,
+                  textTheme: Theme.of(context).textTheme.apply(
+                        bodyColor: Colors.white,
+                        displayColor: Colors.white,
+                      )),
               child: Padding(
                 padding: EdgeInsets.only(top: 100),
                 child: TabBarView(
@@ -127,24 +124,23 @@ class _CreateNotePageState extends State<CreateNotePage>
   }
 
   Widget _buildCancelDialog(BuildContext context) {
-      return AlertDialog(
-        title: Text("Bạn có chắc chắc không?",
-            style: TextStyle(color: Colors.red)),
-        content: Text(
-            "Các thay đổi của bạn sẽ không được lưu"),
-        actionsAlignment: MainAxisAlignment.spaceEvenly,
-        actions: [
-          TextButton(
-              child: Icon(Icons.cancel_rounded),
-              onPressed: () => Navigator.of(context).pop(false)),
-          TextButton(
-            child: Icon(Icons.done, color: Colors.red),
-            onPressed: () async {
-              Navigator.of(context).pop(true);
-            },
-          ),
-        ],
-      );
+    return AlertDialog(
+      title:
+          Text("Bạn có chắc chắc không?", style: TextStyle(color: Colors.red)),
+      content: Text("Các thay đổi của bạn sẽ không được lưu"),
+      actionsAlignment: MainAxisAlignment.spaceEvenly,
+      actions: [
+        TextButton(
+            child: Icon(Icons.cancel_rounded),
+            onPressed: () => Navigator.of(context).pop(false)),
+        TextButton(
+          child: Icon(Icons.done, color: Colors.red),
+          onPressed: () async {
+            Navigator.of(context).pop(true);
+          },
+        ),
+      ],
+    );
   }
 }
 //Theme(

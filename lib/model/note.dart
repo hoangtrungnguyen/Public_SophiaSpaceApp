@@ -1,25 +1,22 @@
-import 'dart:collection';
 import 'dart:core';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/foundation.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:sophia_hub/model/activity.dart';
+import 'package:sophia_hub/model/note/note.dart';
 
 part 'note.g.dart';
 
 @JsonSerializable(explicitToJson: true)
-class Note with ChangeNotifier implements Comparable<Note> {
+class Note extends GenericNote implements Comparable<Note> {
   @JsonKey(ignore: true)
   String? _id;
-  @JsonKey(name: 'emotion_point')
   int emotionPoint = 0;
   @JsonKey(ignore: true)
   late List<Activity> activities;
-  String? title;
+
   String? description;
   @JsonKey(
-    name: 'time_created',
     fromJson: timeCreatedFromJson,
     toJson: timeCreatedToJson,
   )
@@ -43,28 +40,28 @@ class Note with ChangeNotifier implements Comparable<Note> {
 
   set point(int point) {
     this.emotionPoint = point;
-    notifyListeners();
   }
 
   Note({
-    this.title,
-    this.description,
+    String? title,
+    String? description,
     List<Activity>? activities,
-    required this.emotionPoint,
+    int emotionPoint = 0, String id = "NaN",
   }) {
+    this.title = title;
+    this.description = description;
+    this.emotionPoint = 0;
     this.activities = activities ?? [];
     this.timeCreated = DateTime.now();
   }
 
-  addActivity(Activity emotion) {
-    if (activities.contains(emotion)) return;
-    this.activities.add(emotion);
-    notifyListeners();
+  void addActivity(Activity activity) {
+    if (activities.contains(activity)) return;
+    this.activities.add(activity);
   }
 
-  void removeActivity(Activity emotion) {
-    this.activities.remove(emotion);
-    notifyListeners();
+  void removeActivity(Activity activity) {
+    this.activities.remove(activity);
   }
 
   bool isValid() =>
@@ -120,21 +117,12 @@ class Note with ChangeNotifier implements Comparable<Note> {
       "emotionPoint": $emotionPoint,
       "title": $title,
       "description": $description,
-      "time_created": ${timeCreated},
+      "timeCreated": ${timeCreated},
       "activities": $activities,
     }""";
   }
 
-  refresh({Note? note}) {
-    if(note != null) {
-    this.emotionPoint = note.emotionPoint;
-    this.title = note.title;
-    this.description = note.description;
-    this.timeCreated = note.timeCreated;
-    this.activities = note.activities;
-    }
-    notifyListeners();
-  }
+   Note.empty() {}
 }
 
 // class TimestampConverter implements JsonConverter<DateTime, Timestamp> {

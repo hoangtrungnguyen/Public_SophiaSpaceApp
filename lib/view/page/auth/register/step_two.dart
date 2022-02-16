@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sophia_hub/helper/auth_validator.dart';
-import 'package:sophia_hub/provider/auth.dart';
+import 'package:sophia_hub/provider/account_state_manager.dart';
 
 class StepTwo extends StatefulWidget {
   const StepTwo({Key? key}) : super(key: key);
@@ -18,15 +18,16 @@ class _StepTwoState extends State<StepTwo> {
   @override
   void initState() {
     super.initState();
-    this.email1 = Provider.of<Auth>(context,listen: false).user.email ?? '';
-    this.email2 = Provider.of<Auth>(context,listen: false).user.email ?? '';
+    this.email1 = Provider.of<AccountStateManager>(context,listen: false).account.loginEmail ?? '';
+    this.email2 = Provider.of<AccountStateManager>(context,listen: false).account.loginEmail ?? '';
   }
   @override
   Widget build(BuildContext context) {
-    Auth auth = Provider.of<Auth>(context);
+    AccountStateManager auth = Provider.of<AccountStateManager>(context);
 
     return SafeArea(
         child: Container(
+          margin: EdgeInsets.symmetric(horizontal: 16),
       child: Stack(
         children: [
           Align(
@@ -67,7 +68,7 @@ class _StepTwoState extends State<StepTwo> {
                     flex: 5,
                   ),
                   TextFormField(
-                    initialValue: auth.user.email ?? '',
+                    initialValue: auth.account.loginEmail ?? '',
                     style: Theme.of(context)
                         .textTheme
                         .headline6
@@ -76,14 +77,14 @@ class _StepTwoState extends State<StepTwo> {
                     decoration: InputDecoration(hintText: "Email"),
                     onChanged: (e) {
                       this.email1 = e;
-                      auth.user.email = this.email1;
+                      auth.account.loginEmail = this.email1;
                     },
                   ),
                   Spacer(
                     flex: 1,
                   ),
                   TextFormField(
-                    initialValue: auth.user.email ?? '',
+                    initialValue: auth.account.loginEmail ?? '',
                     style: Theme.of(context)
                         .textTheme
                         .headline6
@@ -110,7 +111,7 @@ class _StepTwoState extends State<StepTwo> {
                         onPressed: () {
                           if (!(_formKey.currentState?.validate() ?? false))
                             return;
-                          auth.user.email = email1;
+                          auth.account.loginEmail = email1;
                           Provider.of<TabController>(context, listen: false)
                               .animateTo(2);
                         },

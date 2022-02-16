@@ -1,12 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:sophia_hub/constant/sophia_hub_app.dart';
-import 'package:sophia_hub/model/result_container.dart';
-import 'package:sophia_hub/provider/auth.dart';
-import 'package:sophia_hub/view/page/account/account_page.dart';
-import 'package:sophia_hub/view/page/auth/auth_page.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:sophia_hub/constant/sophia_hub_app.dart';
+import 'package:sophia_hub/view/page/account/account_page.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class DrawerMenu extends StatefulWidget {
   @override
@@ -38,7 +35,6 @@ class _DrawerMenuState extends State<DrawerMenu>
 
   @override
   Widget build(BuildContext context) {
-TextStyle textStyle = TextStyle(color: Colors.white);
     return Material(
       child: SafeArea(
         child: AnimatedBuilder(
@@ -93,7 +89,7 @@ TextStyle textStyle = TextStyle(color: Colors.white);
                   Card(
                       child: ListTile(
                         onTap: ()async{
-                          Share.share('Ứng dụng "Nhật ký thói quen" ${sophiaHubPlayStoreLink}');
+                          Share.share('Ứng dụng "Nhật ký thói quen" $sophiaHubPlayStoreLink');
                         },
                           leading: Icon(Icons.share), title: Text("Chia sẻ"))),
                   Card(
@@ -103,7 +99,14 @@ TextStyle textStyle = TextStyle(color: Colors.white);
                         },
                           leading: Icon(Icons.star_rate_rounded), title: Text("Đánh giá ứng dụng"))),
                   Spacer(flex: 9,),
-
+                  Text(''),
+                  FutureBuilder<PackageInfo>(
+                    initialData: null,
+                    future: PackageInfo.fromPlatform(),
+                      builder: (context,snapshot){
+                    if(snapshot.data == null) return Text('___');
+                    else return Text("Phiên bản ${snapshot.data?.version ?? 'NaN  '}");
+                  }),
                   Spacer(flex: 1,),
                 ],
               )),

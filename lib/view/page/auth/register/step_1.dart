@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:sophia_hub/provider/auth.dart';
+import 'package:sophia_hub/helper/text_field_helper.dart';
+import 'package:sophia_hub/provider/account_state_manager.dart';
 
 class StepOne extends StatefulWidget {
   const StepOne({Key? key}) : super(key: key);
@@ -15,9 +16,10 @@ class _StepOneState extends State<StepOne> {
 
   @override
   Widget build(BuildContext context) {
-    Auth auth = Provider.of<Auth>(context);
+    AccountStateManager auth = Provider.of<AccountStateManager>(context);
     return SafeArea(
       child: Container(
+        margin: EdgeInsets.symmetric(horizontal: 16),
         child: Stack(
           children: [
             Column(
@@ -37,10 +39,13 @@ class _StepOneState extends State<StepOne> {
                   flex: 5,
                 ),
                 Form(
+
                   key: _formKey,
                   child: TextFormField(
-                    initialValue: auth.user.displayName ?? '',
+
+                    initialValue: auth.account.registerName ?? '',
                     maxLength: 20,
+                    buildCounter: TextFieldHelper.buildCounter,
                     style: Theme.of(context)
                         .textTheme
                         .headline6
@@ -50,7 +55,7 @@ class _StepOneState extends State<StepOne> {
                         : null,
                     onChanged: (e) {
                       _displayName = e;
-                      auth.user.displayName = _displayName;
+                      auth.account.registerName = _displayName;
                     },
                     decoration: InputDecoration(
                       hintText: "Tên của bạn",
@@ -74,7 +79,7 @@ class _StepOneState extends State<StepOne> {
                               MaterialStateProperty.all<Color?>(Colors.white)),
                       child: Padding(
                         padding:
-                            EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                            EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                         child: Text("Tiếp tục",
                             style: Theme.of(context)
                                 .textTheme

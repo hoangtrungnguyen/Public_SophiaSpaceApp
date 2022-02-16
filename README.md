@@ -12,12 +12,17 @@
 - [] Dart: **2.15.1**
 
 
+### Quy tắc đặt tên
+[link](https://dart.dev/guides/language/effective-dart/style)
+
 
 ## Chạy debug
 
 Kết nối điện thoại và máy tính vào cùng một wifi
 Chạy debug cần khởi động Firebase emulators trước:
 
+
+### Chạy Server trước tiên
 #### Cấu hình lần đầu
 ```sh
 firebase init emulator
@@ -39,6 +44,7 @@ ipconfig
 
 ### Chạy debug:
 ```
+flutter pub run build_runner build
 flutter run
 ```
 
@@ -86,3 +92,6 @@ flutter build appbundle --release
 
 **Kill using port**
 - [link](https://stackoverflow.com/questions/60996172/unable-to-connect-to-firebase-emulator-suite-with-exec)
+
+**Export data từ firebase**
+- [link](https://stackoverflow.com/questions/57838764/how-to-import-data-from-cloud-firestore-to-the-local-emulator)

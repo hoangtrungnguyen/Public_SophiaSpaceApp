@@ -8,16 +8,16 @@ part of 'quote.dart';
 
 Quote _$QuoteFromJson(Map<String, dynamic> json) => Quote(
       content: json['content'] as String?,
-      imageUrl: json['image_url'] as String?,
+      imageUrl: json['imageUrl'] as String?,
+      authorName: json['authorName'] as String?,
     )
-      ..authorId = json['author_id'] as String?
-      ..authorName = json['author_name'] as String?
+      ..authorId = json['authorId'] as String?
       ..src = json['src'] as String?;
 
 Map<String, dynamic> _$QuoteToJson(Quote instance) => <String, dynamic>{
-      'author_id': instance.authorId,
-      'author_name': instance.authorName,
+      'authorId': instance.authorId,
+      'authorName': instance.authorName,
       'content': instance.content,
       'src': instance.src,
-      'image_url': instance.imageUrl,
+      'imageUrl': instance.imageUrl,
     };

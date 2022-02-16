@@ -1,14 +1,18 @@
 import 'dart:math' as math;
 
 import 'package:another_flushbar/flushbar.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sophia_hub/constant/theme.dart';
+import 'package:sophia_hub/helper/show_flush_bar.dart';
+import 'package:sophia_hub/helper/text_field_helper.dart';
 import 'package:sophia_hub/model/result_container.dart';
-import 'package:sophia_hub/provider/auth.dart';
+import 'package:sophia_hub/provider/account_state_manager.dart';
 import 'package:sophia_hub/provider/share_pref.dart';
 import 'package:sophia_hub/view/page/account/user_avatar.dart';
 import 'package:sophia_hub/view/page/auth/auth_page.dart';
+import 'package:sophia_hub/view/widget/animated_loading_icon.dart';
 
 class AccountPage extends StatefulWidget {
   static const String nameRoute = "/AccountPage";
@@ -28,14 +32,14 @@ class _AccountPageState extends State<AccountPage> {
 
   @override
   Widget build(BuildContext context) {
-    Auth auth = Provider.of<Auth>(context);
+    AccountStateManager auth = Provider.of<AccountStateManager>(context);
+    Size size = MediaQuery.of(context).size;
     ColorScheme scheme = Theme.of(context).colorScheme;
     return Scaffold(
-        floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-        floatingActionButton: FloatingActionButton.extended(
+        floatingActionButton: name.isNotEmpty ? FloatingActionButton(
             onPressed: () async {
               if (name.isNotEmpty) {
-                await auth.user.updateName(name);
+                await auth.updateName(name);
                 Flushbar(
                   backgroundColor: Colors.green,
                   message: "Lưu thành công",
@@ -46,11 +50,22 @@ class _AccountPageState extends State<AccountPage> {
                 )..show(context);
               }
             },
-            label: Text("Lưu thay đổi")),
+            child: StreamBuilder<ConnectionState>(
+                stream: auth.appConnectionState,
+                builder: (context, snapshot) {
+                  if (snapshot.data == ConnectionState.done) {
+                    return Icon(Icons.done);
+                  } else {
+                    return AnimatedLoadingIcon(
+                      color: Colors.white,
+                    );
+                  }
+                })) : null,
         body: Container(
-          margin: EdgeInsets.symmetric(horizontal: 15, vertical: 15),
-          child: SingleChildScrollView(
-            child: SafeArea(
+          margin: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+          height: size.height,
+          child: SafeArea(
+            child: SingleChildScrollView(
               child: Column(
                 children: [
                   Row(
@@ -81,32 +96,37 @@ class _AccountPageState extends State<AccountPage> {
                   SizedBox(
                     height: 32,
                   ),
-                  Container(
-                      margin: EdgeInsets.symmetric(vertical: 16),
-                      decoration: commonDecorationShadow,
-                      padding:
-                          EdgeInsets.symmetric(vertical: 16, horizontal: 16),
-                      child: Column(
-                        children: [
-                          TextFormField(
-                            onChanged: (value) => name = value,
-                            initialValue:
-                                auth.firebaseAuth.currentUser?.displayName,
-                          ),
-                          SizedBox(
-                            height: 8,
-                          ),
-                          TextFormField(
-                            readOnly: true,
-                            style: TextStyle(color: Colors.grey),
-                            decoration: InputDecoration(
-                                suffixIcon: Icon(
-                              Icons.lock,
-                              color: Colors.grey,
-                            )),
-                            initialValue: auth.firebaseAuth.currentUser?.email,
-                          ),
-                        ],
+                  Material(
+                      elevation: 4,
+                      shape: continuousRectangleBorder,
+                      child: Padding(
+                        padding:
+                            EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+                        child: Column(
+                          children: [
+                            TextFormField(
+                              maxLength: 20,
+                              onChanged: (value) => name = value,
+                              buildCounter: TextFieldHelper.buildCounter,
+                              initialValue:
+                                  FirebaseAuth.instance.currentUser?.displayName ?? "",
+                            ),
+                            SizedBox(
+                              height: 8,
+                            ),
+                            TextFormField(
+                              readOnly: true,
+                              style: TextStyle(color: Colors.grey),
+                              decoration: InputDecoration(
+                                  suffixIcon: Icon(
+                                Icons.lock,
+                                color: Colors.grey,
+                              )),
+                              initialValue:
+                              FirebaseAuth.instance.currentUser?.email ?? "",
+                            ),
+                          ],
+                        ),
                       )),
                   ColorThemePicker(),
                   Card(
@@ -114,21 +134,18 @@ class _AccountPageState extends State<AccountPage> {
                       leading: Icon(Icons.logout),
                       title: Text("Đăng xuất"),
                       onTap: () async {
-                        Result result =
-                            await Provider.of<Auth>(context, listen: false)
-                                .logOut();
-                        print(result.error);
-                        print(result.data);
-                        if (result.isHasData) {
+                        bool isOk =
+                            (await Provider.of<AccountStateManager>(context, listen: false).logOut());
+                        if (isOk) {
                           Navigator.of(context)
                               .pushReplacementNamed(AuthPage.nameRoute);
+                        } else {
+                          showErrMessage(context, Provider.of<AccountStateManager>(context, listen: false).error!);
                         }
                       },
                     ),
                   ),
-                  SizedBox(
-                    height: 64,
-                  ),
+                  // Spacer(),
                 ],
               ),
             ),

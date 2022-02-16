@@ -1,19 +1,21 @@
 import 'package:another_flushbar/flushbar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:sophia_hub/helper/auth_validator.dart';
+import 'package:sophia_hub/helper/show_flush_bar.dart';
 import 'package:sophia_hub/model/result_container.dart';
-import 'package:sophia_hub/provider/auth.dart';
+import 'package:sophia_hub/provider/account_state_manager.dart';
 import 'package:sophia_hub/view/base_container.dart';
 import 'package:sophia_hub/view/page/auth/forgot/forgot_pwd.dart';
 import 'package:sophia_hub/view/widget/animated_loading_icon.dart';
 import 'package:sophia_hub/view/widget/sophia_hub_close_button.dart';
 
 class LoginView extends StatefulWidget {
-  static const String routeName = "/";
+  static const String routeName = "/LoginView";
 
   const LoginView({Key? key}) : super(key: key);
 
@@ -25,16 +27,21 @@ class _LoginViewState extends State<LoginView> {
   String email = '';
   String pwd = '';
 
-  // TODO Testing purpose only
-  // String email = "c@gmail.com";
-  // String pwd = "12345678";
 
   final _formKey = GlobalKey<FormState>();
   bool _isObscure = true;
+  @override
+  void initState() {
+    super.initState();
+    if(kDebugMode){
+      this.email = "c@gmail.com";
+      this.pwd = "12345678";
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    Auth auth = Provider.of<Auth>(context, listen: false);
+    AccountStateManager auth = Provider.of<AccountStateManager>(context, listen: false);
     Color primary = Theme.of(context).colorScheme.primary;
     return WillPopScope(
       onWillPop: () async {
@@ -129,10 +136,10 @@ class _LoginViewState extends State<LoginView> {
                   Spacer(
                     flex: 5,
                   ),
-                  StreamBuilder<bool>(
-                    initialData: false,
-                    stream: auth.isLoadingPublisher,
-                    builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
+                  StreamBuilder<ConnectionState>(
+                    stream: auth.appConnectionState,
+                    builder: (BuildContext context, AsyncSnapshot<ConnectionState> snapshot) {
+                      bool isWaiting = snapshot.data == ConnectionState.waiting;
                       return Container(
                         width: 250,
                         height: 50,
@@ -140,31 +147,23 @@ class _LoginViewState extends State<LoginView> {
                             style: ElevatedButtonTheme.of(context).style?.copyWith(
                                 backgroundColor:
                                 MaterialStateProperty.all<Color?>(Colors.white)),
-                            onPressed: snapshot.data! ? null: () async {
+                            onPressed:isWaiting  ? null: () async {
                               bool isValidForm =
                                   _formKey.currentState?.validate() ?? false;
                               if (!isValidForm) return;
 
-                              Result<UserCredential> result = await auth.login(email, pwd);
-                              if (result.data != null) {
+                              bool isOk = await auth.login(email, pwd);
+                              if (isOk) {
                                 Navigator.of(context, rootNavigator: true)
                                     .pushReplacementNamed(BaseContainer.nameRoute);
                               } else {
-                                Flushbar(
-                                  backgroundColor:
-                                  Theme.of(context).colorScheme.error,
-                                  message: "Lỗi đã xảy ra, xin vui lòng thử lại sau",
-                                  flushbarPosition: FlushbarPosition.TOP,
-                                  borderRadius: BorderRadius.circular(16),
-                                  margin: EdgeInsets.all(8),
-                                  duration: Duration(seconds: 3),
-                                )..show(context);
+                                showErrMessage(context, auth.error!);
                               }
                             },
                             child: Padding(
                               padding:
                               EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                              child: snapshot.data! ? AnimatedLoadingIcon(): Text(
+                              child: isWaiting ? AnimatedLoadingIcon(): Text(
                                 "Đăng nhập",
                                 style: Theme.of(context)
                                     .textTheme

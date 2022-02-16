@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:sophia_hub/constant/theme.dart';
-import 'package:sophia_hub/provider/auth.dart';
+import 'package:sophia_hub/provider/account_state_manager.dart';
 import 'package:sophia_hub/view/widget/animated_loading_icon.dart';
 
 class UserAvatar extends StatefulWidget {
@@ -28,17 +28,17 @@ class _UserAvatarState extends State<UserAvatar> {
 
   @override
   Widget build(BuildContext context) {
-    Auth auth = Provider.of<Auth>(context);
+    AccountStateManager auth = Provider.of<AccountStateManager>(context);
 
     return StreamBuilder<User?>(
         initialData: null,
         stream: auth.userChanges(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return SizedBox(
-              height: 150,
-              width: 150,
-              child: Card(
+            return Card(
+              child: SizedBox(
+                height: 150,
+                width: 150,
                 child: AnimatedLoadingIcon(),
               ),
             );
@@ -49,22 +49,15 @@ class _UserAvatarState extends State<UserAvatar> {
                   imageUrl: snapshot.data?.photoURL ?? "",
                   fit: BoxFit.cover,
                   imageBuilder: (context, imageProvider) {
-                    return Container(
-                      decoration: ShapeDecoration(
-                        shape: continuousRectangleBorder,
-                        image: DecorationImage(
-                            image: imageProvider, fit: BoxFit.cover),
-                        color: Colors.white,
-                        shadows: [
-                          BoxShadow(
-                            color: Colors.grey,
-                            offset: Offset(0.0, 1.0), //(x,y)
-                            blurRadius: 4.0,
-                          ),
-                        ],
+                    return Card(
+                      child: Container(
+                        height: 150,
+                        width: 150,
+                        decoration: ShapeDecoration(
+                            shape: continuousRectangleBorder,
+                            image: DecorationImage(
+                                image: imageProvider, fit: BoxFit.cover)),
                       ),
-                      height: 150,
-                      width: 150,
                     );
                   },
                   fadeOutDuration: Duration(milliseconds: 500),
@@ -73,27 +66,25 @@ class _UserAvatarState extends State<UserAvatar> {
                     return Error();
                   },
                   placeholder: (context, url) {
-                    return Center(child: AnimatedLoadingIcon());
+                    return Card(
+                        child: SizedBox(
+                            height: 150,
+                            width: 150,
+                            child: AnimatedLoadingIcon()));
                   },
                 );
               } else {
                 if (_image != null) {
-                  return Container(
-                    decoration: ShapeDecoration(
-                      shape: continuousRectangleBorder,
-                      image: DecorationImage(
-                          image: FileImage(_image!), fit: BoxFit.cover),
-                      color: Colors.white,
-                      shadows: [
-                        BoxShadow(
-                          color: Colors.grey,
-                          offset: Offset(0.0, 1.0), //(x,y)
-                          blurRadius: 4.0,
-                        ),
-                      ],
+                  return Card(
+                    child: Container(
+                      decoration: ShapeDecoration(
+                        shape: continuousRectangleBorder,
+                        image: DecorationImage(
+                            image: FileImage(_image!), fit: BoxFit.cover),
+                      ),
+                      height: 150,
+                      width: 150,
                     ),
-                    height: 150,
-                    width: 150,
                   );
                 }
                 return Semantics(
@@ -111,8 +102,7 @@ class _UserAvatarState extends State<UserAvatar> {
                           _image = File(image.path);
                         });
 
-                        await auth.user.updateAvatar(
-                            image.path, auth.firebaseAuth.currentUser!.uid);
+                        bool isOk = await auth.updateAvatar(image.path, snapshot.data!.uid);
                       },
                       heroTag: 'image0',
                       tooltip: 'Pick Image from gallery',

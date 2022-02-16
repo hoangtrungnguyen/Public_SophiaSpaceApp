@@ -1,66 +1,16 @@
-import 'dart:collection';
 
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:sophia_hub/constant/theme.dart';
 import 'package:sophia_hub/helper/note_helper_func.dart';
+import 'package:sophia_hub/helper/show_flush_bar.dart';
 import 'package:sophia_hub/model/activity.dart';
 import 'package:sophia_hub/model/note.dart';
-import 'package:sophia_hub/model/result_container.dart';
-import 'package:sophia_hub/provider/notes_provider.dart';
+import 'package:sophia_hub/provider/note_state_manager.dart';
+import 'package:sophia_hub/provider/single_note_state_manager.dart';
 import 'package:sophia_hub/view/widget/animated_loading_icon.dart';
-import 'package:sophia_hub/view/widget/error_dialog.dart';
 
-class EditingNote extends ChangeNotifier {
-  String id;
-  int _emotionPoint = 0;
-  List<Activity> activities;
-  String title;
-  String description;
-  DateTime timeCreated;
-
-  EditingNote({
-    required this.id,
-    int emotionPoint = 0,
-    required this.activities,
-    required this.timeCreated,
-    required this.title,
-    required this.description,
-  }) {
-    _emotionPoint = emotionPoint;
-  }
-
-  set emotionPoint(int value) {
-    _emotionPoint = value;
-    notifyListeners();
-  }
-
-  int get emotionPoint => _emotionPoint;
-
-  Note toNote() {
-    return Note(
-      emotionPoint: this.emotionPoint,
-      description: this.description,
-      title: this.title,
-      activities: this.activities,
-    )
-      ..timeCreated = this.timeCreated
-      ..id = id;
-  }
-
-  addActivity(Activity emotion) {
-    if (activities.contains(emotion)) return;
-    this.activities.add(emotion);
-    notifyListeners();
-  }
-
-  void removeActivity(Activity emotion) {
-    this.activities.remove(emotion);
-    notifyListeners();
-  }
-}
 
 class EditingNoteDetails extends StatefulWidget {
   static const String nameRoute = "/NoteDetails";
@@ -72,17 +22,9 @@ class EditingNoteDetails extends StatefulWidget {
   }
 
   static Widget view(Note note) {
-    return ChangeNotifierProvider<EditingNote>(
+    return ChangeNotifierProvider<SingleNoteManager>(
       // value: note,
-      create: (_) =>
-          EditingNote(
-            id: note.id,
-            emotionPoint: note.emotionPoint,
-            activities: List.of(note.activities),
-            timeCreated: note.timeCreated,
-            title: note.title ?? '',
-            description: note.description ?? '',
-          ),
+      create: (_) =>SingleNoteManager(note),
       // child: EditingNoteDetails(),
       builder: (context, child) {
         return EditingNoteDetails();
@@ -111,31 +53,30 @@ class _EditingNoteDetailsState extends State<EditingNoteDetails> {
         .of(context)
         .colorScheme
         .primary;
-    EditingNote note = Provider.of<EditingNote>(context);
+    SingleNoteManager singleNoteManager = Provider.of<SingleNoteManager>(context);
+    NotesStateManager manager = Provider.of<NotesStateManager>(context);
     return Scaffold(
-        floatingActionButton: Consumer<NotesPublisher>(
-          builder: (_, value, child) {
+        floatingActionButton: StreamBuilder<ConnectionState>(
+          stream: manager.appConnectionState,
+          builder: (context,snapshot){
+            bool isWaiting = snapshot.data == ConnectionState.waiting;
             return FloatingActionButton(
-              shape: ContinuousRectangleBorder(
-                borderRadius: BorderRadius.circular(28.0),
-              ),
-              child: value.isLoading ? AnimatedLoadingIcon(color: Colors.white,): Icon(Icons.done),
-              onPressed: value.isLoading
-                  ? null
-                  : () async {
-                Result result = await value.updateNote(note.toNote());
-                if (result.isHasData) {
-                  Navigator.of(context).pop<Note?>(result.data['note']);
-                } else {
-                  showDialog(
-                      context: context,
-                      useRootNavigator: false,
-                      builder: (_) {
-                        return ErrorDialog(exception: result.error);
-                      });
-                }
-              },
-            );
+                  shape: ContinuousRectangleBorder(
+                    borderRadius: BorderRadius.circular(28.0),
+                  ),
+                  child: isWaiting ? AnimatedLoadingIcon(color: Colors.white,): Icon(Icons.done),
+                  onPressed: isWaiting
+                      ? null
+                      : () async {
+                    bool isOk = await manager.update(note:singleNoteManager.note);
+                    if (isOk) {
+                      Navigator.of(context).pop<Note?>(singleNoteManager.note);
+                    } else {
+                      showErrMessage(context, manager.error!);
+                    }
+                  },
+                );
+
           },
         ),
         appBar: AppBar(
@@ -167,7 +108,7 @@ class _EditingNoteDetailsState extends State<EditingNoteDetails> {
           title: Hero(
             tag: "appBarTitle",
             child: Text(
-              "${DateFormat.yMd().add_jm().format(note.timeCreated)}",
+              "${DateFormat.yMd().add_jm().format(singleNoteManager.note.timeCreated)}",
               style: Theme
                   .of(context)
                   .textTheme
@@ -190,7 +131,7 @@ class _EditingNoteDetailsState extends State<EditingNoteDetails> {
                           child: Hero(
                             tag: "mood icon",
                             child: Icon(
-                              generateMoodIcon(note.emotionPoint),
+                              generateMoodIcon(singleNoteManager.note.emotionPoint),
                               color: primary.withOpacity(0.1),
                               size: 80,
                             ),
@@ -202,7 +143,7 @@ class _EditingNoteDetailsState extends State<EditingNoteDetails> {
                             tag: "mood text",
                             child: Text(
                               "${generateMoodStatus(
-                                  note.emotionPoint.toInt())}",
+                                  singleNoteManager.note.emotionPoint.toInt())}",
                               style: Theme
                                   .of(context)
                                   .textTheme
@@ -232,13 +173,13 @@ class _EditingNoteDetailsState extends State<EditingNoteDetails> {
                             tag: "title",
                             child: Material(
                               child: TextFormField(
-                                initialValue: note.title,
+                                initialValue: singleNoteManager.note.title,
                                 decoration: InputDecoration(
                                   hintStyle: TextStyle(color: Colors.grey.withOpacity(0.8)),
                                   hintText: "Tiêu đề",
                                 ),
                                 onChanged: (input) {
-                                  note.title = input;
+                                  singleNoteManager.note.title = input;
                                 },
                               ),
                             ),
@@ -250,7 +191,7 @@ class _EditingNoteDetailsState extends State<EditingNoteDetails> {
                             tag: "content",
                             child: Material(
                               child: TextFormField(
-                                initialValue: note.description,
+                                initialValue: singleNoteManager.note.description,
                                 decoration: InputDecoration(
                                     hintStyle: TextStyle(color: Colors.grey.withOpacity(0.8)),
                                   // label: Text("Nội dung",style: TextStyle(color: textColor),),
@@ -258,7 +199,7 @@ class _EditingNoteDetailsState extends State<EditingNoteDetails> {
                                 maxLines: 10,
                                 minLines: 3,
                                 onChanged: (input) {
-                                  note.description = input;
+                                  singleNoteManager.note.description = input;
                                 },
                               ),
                             ),
@@ -286,20 +227,20 @@ class _SliderEmotionPointState extends State<SliderEmotionPoint> {
 
   @override
   Widget build(BuildContext context) {
-    EditingNote note = Provider.of<EditingNote>(context);
+    SingleNoteManager manager = Provider.of<SingleNoteManager>(context);
     return Slider(
       inactiveColor: Colors.grey.withOpacity(0.5),
       activeColor: Theme
           .of(context)
           .colorScheme
           .primary,
-      value: note.emotionPoint.toDouble(),
+      value: manager.note.emotionPoint.toDouble(),
       min: 0,
       max: 10,
       divisions: 10,
-      label: "${note.emotionPoint}",
+      label: "${manager.note.emotionPoint}",
       onChanged: (double value) {
-        note.emotionPoint = value.toInt();
+        manager.note.emotionPoint = value.toInt();
         setState(() {});
       },
     );
@@ -321,7 +262,7 @@ class _ListActivitiesState extends State<ListActivities> {
 
   @override
   Widget build(BuildContext context) {
-    EditingNote note = Provider.of<EditingNote>(context);
+    SingleNoteManager manager = Provider.of<SingleNoteManager>(context);
 
     Color primary = Theme
         .of(context)
@@ -349,10 +290,10 @@ class _ListActivitiesState extends State<ListActivities> {
               onPressed: () async {
                 List<Activity>? activities = await showDialog<List<Activity>?>(
                     context: context,
-                    builder: (ctx) => _buildActivitiesDialog(ctx, note));
+                    builder: (ctx) => _buildActivitiesDialog(ctx, manager));
                 // print("updated activity:\n${activities}");
                 if (activities != null)
-                  note.activities = activities;
+                  manager.note.activities = activities;
                 setState(() {
 
                 });
@@ -366,7 +307,7 @@ class _ListActivitiesState extends State<ListActivities> {
           SizedBox(
             width: 16,
           ),
-          ...note.activities.map((e) {
+          ...manager.note.activities.map((e) {
             return Hero(
                 tag: "emotions ${e.id}",
                 child: Padding(
@@ -379,8 +320,8 @@ class _ListActivitiesState extends State<ListActivities> {
                       ),
                       onDeleted: () {
                         print('deleted');
-                        if(note.activities.length == 1) return;
-                        note.removeActivity(e);
+                        if(manager.note.activities.length == 1) return;
+                        manager.removeActivity(e);
                       },
                       backgroundColor: Colors.white,
                       avatar: Icon(
@@ -402,10 +343,10 @@ class _ListActivitiesState extends State<ListActivities> {
     );
   }
 
-  Widget _buildActivitiesDialog(BuildContext context, EditingNote note) {
+  Widget _buildActivitiesDialog(BuildContext context, SingleNoteManager manager) {
     // print("build dialog ${List.of(note.activities)}");
     return Provider<List<Activity>>(
-      create: (context) => List.of(note.activities),
+      create: (context) => List.of(manager.note.activities),
       builder: (context, child) =>
           SimpleDialog(
             title: Text(

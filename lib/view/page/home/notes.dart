@@ -1,15 +1,13 @@
-import 'package:another_flushbar/flushbar.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
+import 'package:sophia_hub/helper/show_flush_bar.dart';
 import 'package:sophia_hub/model/note.dart';
-import 'package:sophia_hub/model/result_container.dart';
-import 'package:sophia_hub/provider/notes_provider.dart';
-import 'package:sophia_hub/provider/ui_logic.dart';
+import 'package:sophia_hub/provider/note_state_manager.dart';
+import 'package:sophia_hub/provider/single_note_state_manager.dart';
 import 'package:sophia_hub/view/page/home/notes/single_item_note.dart';
+import 'package:sophia_hub/view/widget/animated_loading_icon.dart';
 
 class NotesView extends StatefulWidget {
   @override
@@ -25,16 +23,15 @@ class _NotesViewState extends State<NotesView> {
   void initState() {
     super.initState();
     _listNoteController = ScrollController()..addListener(_scrollListener);
-    Provider.of<NotesPublisher>(context,listen: false).listKey = notesListKey;
-    Provider.of<NotesPublisher>(context,listen: false).removedItemBuilder = _removalItemBuilder;
+    Provider.of<NotesStateManager>(context, listen: false).listKey =
+        notesListKey;
+    Provider.of<NotesStateManager>(context, listen: false).removedItemBuilder =
+        _removalItemBuilder;
     // SchedulerBinding.instance?.addPostFrameCallback((_) {
-    //   Provider.of<NotesPublisher>(context,listen: false).listKey = notesListKey;
+    //   Provider.of<NotesStateManager>(context,listen: false).listKey = notesListKey;
     // });
     Future.microtask(() {
-      print("initial loading notes");
-      Provider.of<NotesPublisher>(context, listen: false)
-          .loadMoreNotes();
-
+      Provider.of<NotesStateManager>(context, listen: false).loadMore();
     });
   }
 
@@ -47,14 +44,13 @@ class _NotesViewState extends State<NotesView> {
   void _scrollListener() {
     if (_listNoteController?.position.extentAfter == 0) {
       print("loadmore");
-      Provider.of<NotesPublisher>(context, listen: false)
-          .loadMoreNotes();
+      Provider.of<NotesStateManager>(context, listen: false).loadMore();
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    ColorScheme colorScheme = Theme.of(context).colorScheme;
+    NotesStateManager manager = Provider.of<NotesStateManager>(context);
     return Container(
       width: double.infinity,
       height: double.infinity,
@@ -63,19 +59,14 @@ class _NotesViewState extends State<NotesView> {
         children: [
           Align(
             alignment: Alignment.center,
-            child: Consumer<NotesPublisher>(builder: (ctx, data, child) {
-              if (data.isLoading && data.notes.length == 0) {
-                return Column(mainAxisSize: MainAxisSize.min, children: [
-                  Icon(
-                    Icons.cloud_download_outlined,
-                    size: 100,
-                    color: colorScheme.primary,
-                  ),
-                  Text("Loading...")
-                ]);
-              }
+            child: StreamBuilder<ConnectionState>(builder: (ctx, snapshot) {
+              bool isLoading = snapshot.data == ConnectionState.waiting;
+              if (isLoading)
+                return AnimatedLoadingIcon(
+                  size: 50,
+                );
 
-              if (data.notes.length == 0) {
+              if (manager.notes.length == 0)
                 return Center(
                   child: Text(
                     "Hãy thêm ghi chú \nvề ngày của bạn tại đây",
@@ -83,7 +74,6 @@ class _NotesViewState extends State<NotesView> {
                     textAlign: TextAlign.center,
                   ),
                 );
-              }
 
               return Container();
             }),
@@ -100,14 +90,12 @@ class _NotesViewState extends State<NotesView> {
   }
 
   Widget _buildListNote(BuildContext context) {
-    // TextStyle? head5 = Theme.of(context).textTheme.headline5;
     Widget groupListView = AnimatedList(
       key: notesListKey,
-      initialItemCount:
-          Provider.of<NotesPublisher>(context,listen: false).notes.length,
+      initialItemCount: Provider.of<NotesStateManager>(context, listen: false).notes.length,
       shrinkWrap: true,
       physics: BouncingScrollPhysics(),
-      itemBuilder: _buildItem,
+      itemBuilder: _buildSingleItem,
       controller: _listNoteController,
     );
 
@@ -124,75 +112,69 @@ class _NotesViewState extends State<NotesView> {
     );
   }
 
-  Widget _buildItem(
+  Widget _buildSingleItem(
       BuildContext context, int index, Animation<double> animation) {
     // TextStyle? head5 = Theme.of(context).textTheme.headline5;
-    NotesPublisher publisher =
-        Provider.of<NotesPublisher>(context, listen: false);
-    Note note = publisher.notes[index];
+    NotesStateManager manager =
+        Provider.of<NotesStateManager>(context, listen: false);
+    SingleNoteManager singleNoteManager = manager.notes[index];
     // print(note.activities);
-    Widget item = ChangeNotifierProvider<Note>.value(
-      key: ValueKey(note.id),
-      value: note,
+    Widget item = ChangeNotifierProvider<SingleNoteManager>.value(
+      key: ValueKey(singleNoteManager.note.id),
+      value: singleNoteManager,
       builder: (context, child) {
         return Slidable(
-            endActionPane: ActionPane(
-              motion: ScrollMotion(),
-              children: [
-                Card(
-                    color: Colors.red,
-                    // margin: EdgeInsets.all(8),
-                    // decoration: commonDecoration(Colors.red),
-                    child: Padding(
-                        padding:
-                            EdgeInsets.symmetric(horizontal: 0, vertical: 6),
-                        child: TextButton(
-                            onPressed: () {
-                              showDialog(
-                                  context: context,
-                                  barrierDismissible: false,
-                                  builder: (context) {
-                                    return _buildDialog(context, note);
-                                  });
-                            },
-                            child: Icon(
-                              Icons.delete,
-                              color: Colors.white,
-                              size: 30,
-                            )))),
-              ],
-            ),
-            child: ChangeNotifierProvider.value(
-              value: note,
-              builder: (context,child) => DailyNotes(),
-            ));
+          endActionPane: ActionPane(
+            motion: ScrollMotion(),
+            children: [
+              Card(
+                  color: Colors.red,
+                  child: Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 0, vertical: 6),
+                      child: TextButton(
+                          onPressed: () {
+                            showDialog(
+                                context: context,
+                                barrierDismissible: false,
+                                builder: (context) {
+                                  return _buildDialog(
+                                      context, singleNoteManager);
+                                });
+                          },
+                          child: Icon(
+                            Icons.delete,
+                            color: Colors.white,
+                            size: 30,
+                          )))),
+            ],
+          ),
+          child: DailyNotes(),
+        );
       },
     );
 
     Widget header = Container();
 
     DateTime indexDay = DateTime(
-      note.timeCreated.year,
-      note.timeCreated.month,
-      note.timeCreated.day,
+      singleNoteManager.note.timeCreated.year,
+      singleNoteManager.note.timeCreated.month,
+      singleNoteManager.note.timeCreated.day,
     );
     if (index == 0) {
-      header = NoteDayHeader(
-        e: note,
-      );
-    } else if (index > 0) {
-      Note prev = publisher.notes[index - 1];
+      header = ChangeNotifierProvider.value(
+          value: singleNoteManager, child: NoteDayHeader());
+    } else {
+      Note prev = manager.notes[index - 1].note;
       bool isSameDay = indexDay.isAtSameMomentAs(DateTime(
         prev.timeCreated.year,
         prev.timeCreated.month,
         prev.timeCreated.day,
       ));
       if (!isSameDay) {
-        header = NoteDayHeader(e: note);
+        header = ChangeNotifierProvider.value(
+            value: singleNoteManager, child: NoteDayHeader());
       }
     }
-
-    // if()
 
     Widget main = Column(
       children: [header, item],
@@ -201,8 +183,8 @@ class _NotesViewState extends State<NotesView> {
         opacity: animation.drive(Tween<double>(begin: 0, end: 1)), child: main);
   }
 
-  Widget _buildDialog(BuildContext context, Note note) {
-    return ChangeNotifierProvider<Note>.value(
+  Widget _buildDialog(BuildContext context, SingleNoteManager note) {
+    return ChangeNotifierProvider<SingleNoteManager>.value(
       value: note,
       builder: (context, child) {
         return AlertDialog(
@@ -218,25 +200,19 @@ class _NotesViewState extends State<NotesView> {
             TextButton(
               child: Icon(FontAwesomeIcons.trash, color: Colors.red),
               onPressed: () async {
-                NotesPublisher publisher =
-                    Provider.of<NotesPublisher>(context, listen: false);
-                try {
-                  await publisher.delete(Provider.of<Note>(context, listen: false));
+                NotesStateManager publisher =
+                    Provider.of<NotesStateManager>(context, listen: false);
+                bool isOk = await publisher.delete(
+                    Provider.of<SingleNoteManager>(context, listen: false));
+                if(isOk)
+                  showSuccessMessage(context,"Xóa thành công");
+                else
+                  showErrMessage(context, publisher.error ?? Exception("Lỗi không xác định"));
 
-                } catch (e) {
-                  print(e);
-                  Flushbar(
-                    backgroundColor:
-                    Theme.of(context).colorScheme.error,
-                    message: "Lỗi đã xảy ra, xin vui lòng thử lại sau",
-                    flushbarPosition: FlushbarPosition.TOP,
-                    borderRadius: BorderRadius.circular(16),
-                    margin: EdgeInsets.all(8),
-                    duration: Duration(seconds: 3),
-                  )..show(context);
-                } finally{
-                  Navigator.pop(context);
-                }
+                Navigator.pop(context);
+
+
+
               },
             ),
           ],
@@ -245,12 +221,15 @@ class _NotesViewState extends State<NotesView> {
     );
   }
 
-  Widget _removalItemBuilder(Note removedItem, context,Animation animation,) {
-    var tween = Tween<Offset>(begin: Offset(-1.50,0), end: Offset.zero);
-  return
-      SlideTransition(position: animation.drive(tween),
-          child: ChangeNotifierProvider<Note>.value(
-            value: removedItem,
-              child: DailyNotes()));
+  Widget _removalItemBuilder(
+    SingleNoteManager removedItem,
+    context,
+    Animation animation,
+  ) {
+    var tween = Tween<Offset>(begin: Offset(-1.50, 0), end: Offset.zero);
+    return SlideTransition(
+        position: animation.drive(tween),
+        child: ChangeNotifierProvider<SingleNoteManager>.value(
+            value: removedItem, child: DailyNotes()));
   }
 }
