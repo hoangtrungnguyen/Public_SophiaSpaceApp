@@ -3,8 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:sophia_hub/helper/note_helper_func.dart';
-import 'package:sophia_hub/provider/single_note_state_manager.dart';
 import 'package:sophia_hub/view/page/note/note_detail.dart';
+import 'package:sophia_hub/view_model/single_note_view_model.dart';
+import 'package:sophia_hub/view_model/single_note_view_model.dart';
 
 class StatHeader extends StatelessWidget {
   const StatHeader({Key? key}) : super(key: key);
@@ -73,7 +74,7 @@ class _NoteDayHeaderState extends State<NoteDayHeader>
 
   @override
   Widget build(BuildContext context) {
-    SingleNoteManager manager = Provider.of<SingleNoteManager>(context);
+    SingleNoteViewModel manager = Provider.of<SingleNoteViewModel>(context);
     return FadeTransition(
       opacity: _controller,
       child: ListTile(
@@ -135,7 +136,7 @@ class _DailyNotesState extends State<DailyNotes>
 
   @override
   Widget build(BuildContext context) {
-    SingleNoteManager manager = Provider.of<SingleNoteManager>(context);
+    SingleNoteViewModel manager = Provider.of<SingleNoteViewModel>(context);
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       child: ElevatedButton(
@@ -195,7 +196,7 @@ class _DailyNotesState extends State<DailyNotes>
     );
   }
 
-  String displayTitle(SingleNoteManager manager) {
+  String displayTitle(SingleNoteViewModel manager) {
     String? title = manager.note.title;
     int emotionPoint = manager.note.emotionPoint;
     String status;

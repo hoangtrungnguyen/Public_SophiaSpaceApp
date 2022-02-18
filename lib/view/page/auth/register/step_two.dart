@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sophia_hub/helper/auth_validator.dart';
-import 'package:sophia_hub/provider/account_state_manager.dart';
+import 'package:sophia_hub/view_model/account_view_model.dart';
 
 class StepTwo extends StatefulWidget {
   const StepTwo({Key? key}) : super(key: key);
@@ -18,12 +18,12 @@ class _StepTwoState extends State<StepTwo> {
   @override
   void initState() {
     super.initState();
-    this.email1 = Provider.of<AccountStateManager>(context,listen: false).account.loginEmail ?? '';
-    this.email2 = Provider.of<AccountStateManager>(context,listen: false).account.loginEmail ?? '';
+    this.email1 = Provider.of<AccountViewModel>(context,listen: false).account.loginEmail ?? '';
+    this.email2 = Provider.of<AccountViewModel>(context,listen: false).account.loginEmail ?? '';
   }
   @override
   Widget build(BuildContext context) {
-    AccountStateManager auth = Provider.of<AccountStateManager>(context);
+    AccountViewModel auth = Provider.of<AccountViewModel>(context);
 
     return SafeArea(
         child: Container(

@@ -2,9 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:sophia_hub/helper/show_flush_bar.dart';
-import 'package:sophia_hub/provider/note_state_manager.dart';
-import 'package:sophia_hub/provider/single_note_state_manager.dart';
+import 'package:sophia_hub/model/note/note_regular.dart';
 import 'package:sophia_hub/view/widget/animated_loading_icon.dart';
+import 'package:sophia_hub/view_model/note_view_model.dart';
+import 'package:sophia_hub/view_model/note_view_model.dart';
+import 'package:sophia_hub/view_model/single_note_view_model.dart';
+import 'package:sophia_hub/view_model/single_note_view_model.dart';
 
 class NoteDetailsView extends StatefulWidget {
   static const String nameRoute = "/NoteDetailsView";
@@ -23,8 +26,9 @@ class _NoteDetailsViewState extends State<NoteDetailsView> {
   @override
   Widget build(BuildContext context) {
     Color textColor = Colors.white;
-    SingleNoteManager singleNoteManager =
-        Provider.of<SingleNoteManager>(context);
+    SingleNoteViewModel viewModel =
+        Provider.of<SingleNoteViewModel>(context);
+    Note note = (viewModel.note as Note);
     return Scaffold(
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       floatingActionButton: AddButton(),
@@ -36,7 +40,7 @@ class _NoteDetailsViewState extends State<NoteDetailsView> {
             children: [
               Container(
                 child: Text(
-                    "${DateFormat.yMd().add_jm().format(singleNoteManager.note.timeCreated)} "),
+                    "${DateFormat.yMd().add_jm().format(note.timeCreated)} "),
               ),
               SizedBox(
                 height: 20,
@@ -45,8 +49,8 @@ class _NoteDetailsViewState extends State<NoteDetailsView> {
                 alignment: WrapAlignment.start,
                 crossAxisAlignment: WrapCrossAlignment.start,
                 runAlignment: WrapAlignment.start,
-                children: singleNoteManager.note.activities.length > 0
-                    ? singleNoteManager.note.activities.map((e) {
+                children: note.activities.length > 0
+                    ? note.activities.map((e) {
                         return Padding(
                           padding: EdgeInsets.symmetric(horizontal: 2),
                           child: Chip(
@@ -78,7 +82,7 @@ class _NoteDetailsViewState extends State<NoteDetailsView> {
                   hintText: "Tiêu đề",
                 ),
                 onChanged: (input) {
-                  singleNoteManager.note.title = input;
+                  note.title = input;
                 },
               ),
               SizedBox(
@@ -92,7 +96,7 @@ class _NoteDetailsViewState extends State<NoteDetailsView> {
                 minLines: 3,
                 style: TextStyle(color: textColor),
                 onChanged: (input) {
-                  singleNoteManager.note.description = input;
+                  note.description = input;
                 },
               ),
               Spacer(),
@@ -114,24 +118,23 @@ class AddButton extends StatefulWidget {
 class _AddButtonState extends State<AddButton> {
   @override
   Widget build(BuildContext context) {
-    NotesStateManager manager = Provider.of<NotesStateManager>(context,listen: false);
-    SingleNoteManager singleNoteManager = Provider.of<SingleNoteManager>(context);
-    return StreamBuilder<ConnectionState>(
-      initialData: ConnectionState.done,
-      stream: manager.appConnectionState,
-      builder: (context, snapshot) {
-        bool isWaiting = snapshot.connectionState == ConnectionState.waiting;
+    NotesViewModel notes = Provider.of<NotesViewModel>(context,listen: false);
+    SingleNoteViewModel single = Provider.of<SingleNoteViewModel>(context);
+    return Selector<NotesViewModel, ConnectionState>(
+      selector: (_, viewModel) => viewModel.appConnectionState,
+      builder: (context, data, child) {
+        bool isWaiting = data == ConnectionState.waiting;
         return FloatingActionButton.extended(
           backgroundColor: Colors.white,
           onPressed: () async {
             if (isWaiting) return;
             bool isOk =
-            await Provider.of<NotesStateManager>(context, listen: false)
-                .add(note: singleNoteManager.note);
+            await Provider.of<NotesViewModel>(context, listen: false)
+                .add(note: single.note);
             if (isOk)
               Navigator.of(context, rootNavigator: true).pop();
             else
-              showErrMessage(context, manager.error!);
+              showErrMessage(context, notes.error!);
           },
           label: Container(
             width: 350,

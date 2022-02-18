@@ -2,7 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
-import 'package:sophia_hub/provider/quote_state_manager.dart';
+import 'package:sophia_hub/view_model/quote_view_model.dart';
 
 class QuoteView extends StatefulWidget {
   @override
@@ -18,7 +18,7 @@ class _QuoteViewState extends State<QuoteView> {
     super.initState();
     _pageController = PageController()..addListener(_scrollListener);
     Future.microtask(() {
-      Provider.of<QuoteStateManager>(context, listen: false).loadQuotes();
+      Provider.of<QuoteViewModel>(context, listen: false).loadQuotes();
     });
   }
 
@@ -35,13 +35,13 @@ class _QuoteViewState extends State<QuoteView> {
       });
     }
     if (_pageController?.position.extentAfter == 0) {
-      Provider.of<QuoteStateManager>(context, listen: false).loadQuotes();
+      Provider.of<QuoteViewModel>(context, listen: false).loadQuotes();
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    QuoteStateManager quoteState = Provider.of<QuoteStateManager>(context);
+    QuoteViewModel quoteState = Provider.of<QuoteViewModel>(context);
     Size size = MediaQuery.of(context).size;
     Color primary = Theme.of(context).colorScheme.primary;
     return Container(

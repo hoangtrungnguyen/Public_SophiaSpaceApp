@@ -4,50 +4,26 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:sophia_hub/model/activity.dart';
 import 'package:sophia_hub/model/note/note.dart';
+import 'package:sophia_hub/model/note/note_type.dart';
 
-part 'note.g.dart';
+part 'note_regular.g.dart';
 
 @JsonSerializable(explicitToJson: true)
 class Note extends GenericNote implements Comparable<Note> {
-  @JsonKey(ignore: true)
-  String? _id;
+
+
   int emotionPoint = 0;
+
   @JsonKey(ignore: true)
   late List<Activity> activities;
-
   String? description;
-  @JsonKey(
-    fromJson: timeCreatedFromJson,
-    toJson: timeCreatedToJson,
-  )
-  late DateTime timeCreated;
-
-  static DateTime timeCreatedFromJson(Timestamp timestamp) =>
-      timestamp.toDate();
-
-  static Timestamp timeCreatedToJson(DateTime date) => Timestamp.fromDate(date);
-
-  @JsonKey(ignore: true)
-  String get id => _id ?? "NaN";
-
-  //Chỉ cho phép đặt Id một lần
-  set id(String id) {
-    if (_id != null)
-      assert(false, "Note đã có id nên không thể thay đổi");
-    else
-      _id = id;
-  }
-
-  set point(int point) {
-    this.emotionPoint = point;
-  }
 
   Note({
     String? title,
     String? description,
     List<Activity>? activities,
-    int emotionPoint = 0, String id = "NaN",
-  }) {
+    int emotionPoint = 0,
+  }) : super(NoteType.REGULAR) {
     this.title = title;
     this.description = description;
     this.emotionPoint = 0;
@@ -75,7 +51,7 @@ class Note extends GenericNote implements Comparable<Note> {
       activities: List.of(this.activities),
     )
       ..timeCreated = this.timeCreated
-      ..id = _id ?? 'NaN';
+      ..id = this.id;
   }
 
   factory Note.fromJson(Map<String, dynamic> json) => _$NoteFromJson(json);
@@ -117,12 +93,11 @@ class Note extends GenericNote implements Comparable<Note> {
       "emotionPoint": $emotionPoint,
       "title": $title,
       "description": $description,
-      "timeCreated": ${timeCreated},
+      "timeCreated": $timeCreated,
       "activities": $activities,
     }""";
   }
 
-   Note.empty() {}
 }
 
 // class TimestampConverter implements JsonConverter<DateTime, Timestamp> {

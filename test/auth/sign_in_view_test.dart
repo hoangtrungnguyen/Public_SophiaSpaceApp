@@ -5,9 +5,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:sophia_hub/provider/auth.dart';
-import 'package:sophia_hub/provider/share_pref.dart';
+import 'package:sophia_hub/repository/auth_repository.dart';
 import 'package:sophia_hub/view/page/auth/login.dart';
+import 'package:sophia_hub/view_model/account_view_model.dart';
+import 'package:sophia_hub/view_model/share_pref.dart';
 
 //TODO adding mock firestore
 main() async {
@@ -32,10 +33,10 @@ main() async {
 
     testView = MaterialApp(
       home: ChangeNotifierProvider(
-        create: (_) => Auth(
-            firebaseAuth: mockFirebaseAuth,
-            fireStore: fakeFirebaseFirestore,
-            firebaseStorage: firebaseStorage),
+        create: (_) => AccountViewModel(
+           repository: AuthRepository(
+             auth: mockFirebaseAuth
+           )),
         child: Material(child: LoginView()),
       ),
     );

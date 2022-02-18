@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sophia_hub/helper/auth_validator.dart';
 import 'package:sophia_hub/helper/show_flush_bar.dart';
-import 'package:sophia_hub/provider/account_state_manager.dart';
 import 'package:sophia_hub/view/base_container.dart';
 import 'package:sophia_hub/view/widget/animated_loading_icon.dart';
+import 'package:sophia_hub/view_model/account_view_model.dart';
 
 class StepThree extends StatefulWidget {
   StepThree({Key? key}) : super(key: key);
@@ -25,7 +25,7 @@ class _StepThreeState extends State<StepThree> {
 
   @override
   Widget build(BuildContext context) {
-    AccountStateManager auth = Provider.of<AccountStateManager>(context);
+    AccountViewModel auth = Provider.of<AccountViewModel>(context, listen: false);
     return SafeArea(
         child: Container(
           margin: EdgeInsets.symmetric(horizontal: 16),
@@ -134,7 +134,7 @@ class _StepThreeState extends State<StepThree> {
                           auth.account.loginPwd = pwd2;
 
                           bool isOk = await auth.register(
-                              auth.account.loginEmail!, auth.account.loginPwd!, auth.account.registerName);
+                              auth.account.loginEmail!, auth.account.loginPwd!, auth.account.registerName ?? "NaN");
 
                           if (isOk) {
                             await Future.delayed(Duration(milliseconds: 500));
@@ -162,10 +162,10 @@ class _StepThreeState extends State<StepThree> {
                           width: 180,
                           padding:
                               EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                          child: StreamBuilder<ConnectionState>(
-                            stream: auth.appConnectionState,
-                            builder: (context, snapshot) {
-                              if (snapshot.data == ConnectionState.waiting) {
+                          child: Selector<AccountViewModel, ConnectionState>(
+                            selector: (_, account) => account.appConnectionState,
+                            builder: (context, data, child) {
+                              if (data == ConnectionState.waiting) {
                                 return AnimatedLoadingIcon();
                               } else {
                                 return Text("Tiếp tục",

@@ -1,22 +1,15 @@
 import 'dart:async';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart' show FirebaseAuth;
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:sophia_hub/configure/app_config.dart';
 import 'package:sophia_hub/constant/theme.dart';
 import 'package:sophia_hub/firebase_options.dart';
-import 'package:sophia_hub/model/note.dart';
-import 'package:sophia_hub/provider/account_state_manager.dart';
-import 'package:sophia_hub/provider/note_state_manager.dart';
-import 'package:sophia_hub/provider/quote_state_manager.dart';
-import 'package:sophia_hub/provider/share_pref.dart';
-import 'package:sophia_hub/provider/ui_logic.dart';
+import 'package:sophia_hub/model/note/note_regular.dart';
 import 'package:sophia_hub/view/animation/route_change_anim.dart';
 import 'package:sophia_hub/view/base_container.dart';
 import 'package:sophia_hub/view/page/account/account_page.dart';
@@ -25,6 +18,11 @@ import 'package:sophia_hub/view/page/note/create_note_page.dart';
 import 'package:sophia_hub/view/page/note/note_detail.dart';
 import 'package:sophia_hub/view/page/task/create_task_page.dart';
 import 'package:sophia_hub/view/page/task/list_task_page.dart';
+import 'package:sophia_hub/view_model/account_view_model.dart';
+import 'package:sophia_hub/view_model/note_view_model.dart';
+import 'package:sophia_hub/view_model/quote_view_model.dart';
+import 'package:sophia_hub/view_model/share_pref.dart';
+import 'package:sophia_hub/view_model/ui_logic.dart';
 
 /// Requires that a Firestore emulator is running locally.
 /// See https://firebase.flutter.dev/docs/firestore/usage#emulator-usage
@@ -38,6 +36,7 @@ Future<void> main() async {
         .then((value) => print("$value"));
 
     await AppConfig.forEnvironment();
+
     SharedPref sharePref = SharedPref();
     await sharePref.init();
 
@@ -56,7 +55,7 @@ class SophiaHubApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     //Configure App Small Habits
-    Widget app = Consumer2<SharedPref, AccountStateManager>(
+    Widget app = Consumer2<SharedPref, AccountViewModel>(
       builder: (context, sharePrefs, auth, child) {
         return MaterialApp(
           title: 'Sophia Diary',
@@ -154,18 +153,18 @@ class SophiaHubApp extends StatelessWidget {
 
       //UserProvider quan hệ phụ thuộc với firebase_auth.User
       // ProxyPrivider sẽ được thay đổi lại mỗi khi firbase_auth.User thay đổi.
-      ChangeNotifierProxyProvider<firebase_auth.User?, AccountStateManager>(
-        create: (_) => AccountStateManager(),
+      ChangeNotifierProxyProvider<firebase_auth.User?, AccountViewModel>(
+        create: (_) => AccountViewModel(),
         update: (BuildContext context, firebaseUser,
-            AccountStateManager? previous) {
+            AccountViewModel? previous) {
           // print("updating Auth ${firebaseUser?.uid}");
           previous?.refresh();
           return previous!;
         },
       ),
 
-      ChangeNotifierProxyProvider<AccountStateManager, NotesStateManager>(
-        create: (_) => NotesStateManager(),
+      ChangeNotifierProxyProvider<AccountViewModel, NotesViewModel>(
+        create: (_) => NotesViewModel(),
         lazy: true,
         update: (_, auth, preNotesProvider) {
           //TODO logic thay doi du lieu moi khi thay doi tai khoan nguoi dung
@@ -180,8 +179,8 @@ class SophiaHubApp extends StatelessWidget {
         },
       ),
 
-      ChangeNotifierProxyProvider<AccountStateManager, QuoteStateManager>(
-        create: (_) => QuoteStateManager(),
+      ChangeNotifierProxyProvider<AccountViewModel, QuoteViewModel>(
+        create: (_) => QuoteViewModel(),
         lazy: true,
         update: (_, auth, preQuoteStateHolder) {
           // print("updating notes task provider");

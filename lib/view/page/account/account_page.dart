@@ -7,12 +7,11 @@ import 'package:provider/provider.dart';
 import 'package:sophia_hub/constant/theme.dart';
 import 'package:sophia_hub/helper/show_flush_bar.dart';
 import 'package:sophia_hub/helper/text_field_helper.dart';
-import 'package:sophia_hub/model/result_container.dart';
-import 'package:sophia_hub/provider/account_state_manager.dart';
-import 'package:sophia_hub/provider/share_pref.dart';
 import 'package:sophia_hub/view/page/account/user_avatar.dart';
 import 'package:sophia_hub/view/page/auth/auth_page.dart';
 import 'package:sophia_hub/view/widget/animated_loading_icon.dart';
+import 'package:sophia_hub/view_model/account_view_model.dart';
+import 'package:sophia_hub/view_model/share_pref.dart';
 
 class AccountPage extends StatefulWidget {
   static const String nameRoute = "/AccountPage";
@@ -32,7 +31,7 @@ class _AccountPageState extends State<AccountPage> {
 
   @override
   Widget build(BuildContext context) {
-    AccountStateManager auth = Provider.of<AccountStateManager>(context);
+    AccountViewModel auth = Provider.of<AccountViewModel>(context);
     Size size = MediaQuery.of(context).size;
     ColorScheme scheme = Theme.of(context).colorScheme;
     return Scaffold(
@@ -50,10 +49,10 @@ class _AccountPageState extends State<AccountPage> {
                 )..show(context);
               }
             },
-            child: StreamBuilder<ConnectionState>(
-                stream: auth.appConnectionState,
-                builder: (context, snapshot) {
-                  if (snapshot.data == ConnectionState.done) {
+            child: Selector<AccountViewModel, ConnectionState>(
+                selector: (_,auth) => auth.appConnectionState,
+                builder: (context, data, child) {
+                  if (data == ConnectionState.done) {
                     return Icon(Icons.done);
                   } else {
                     return AnimatedLoadingIcon(
@@ -135,12 +134,12 @@ class _AccountPageState extends State<AccountPage> {
                       title: Text("Đăng xuất"),
                       onTap: () async {
                         bool isOk =
-                            (await Provider.of<AccountStateManager>(context, listen: false).logOut());
+                            (await Provider.of<AccountViewModel>(context, listen: false).logOut());
                         if (isOk) {
                           Navigator.of(context)
                               .pushReplacementNamed(AuthPage.nameRoute);
                         } else {
-                          showErrMessage(context, Provider.of<AccountStateManager>(context, listen: false).error!);
+                          showErrMessage(context, Provider.of<AccountViewModel>(context, listen: false).error!);
                         }
                       },
                     ),

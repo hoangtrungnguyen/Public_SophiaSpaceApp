@@ -12,11 +12,12 @@ jobs:
       - uses: subosito/flutter-action@v1
         with:
           flutter-version: '2.8.1'
+          channel: "stable"
       - run: flutter pub get
       - run: flutter test
-      - run: flutter build apk --debug --split-per-abi
-      - name: Create a Release APK
+      - run: flutter build apk
+      - name: Create a Debug APK
         uses: ncipollo/release-action@v1
         with:
           artifacts: "build/app/outputs/apk/debug/*.apk"
-          token: ${{ secrets.TOKEN }}
+#          token: ${{ secrets.TOKEN }}

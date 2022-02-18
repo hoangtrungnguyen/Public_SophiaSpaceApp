@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -6,10 +5,10 @@ import 'package:sophia_hub/constant/theme.dart';
 import 'package:sophia_hub/helper/note_helper_func.dart';
 import 'package:sophia_hub/helper/show_flush_bar.dart';
 import 'package:sophia_hub/model/activity.dart';
-import 'package:sophia_hub/model/note.dart';
-import 'package:sophia_hub/provider/note_state_manager.dart';
-import 'package:sophia_hub/provider/single_note_state_manager.dart';
+import 'package:sophia_hub/model/note/note_regular.dart';
 import 'package:sophia_hub/view/widget/animated_loading_icon.dart';
+import 'package:sophia_hub/view_model/note_view_model.dart';
+import 'package:sophia_hub/view_model/single_note_view_model.dart';
 
 
 class EditingNoteDetails extends StatefulWidget {
@@ -22,9 +21,9 @@ class EditingNoteDetails extends StatefulWidget {
   }
 
   static Widget view(Note note) {
-    return ChangeNotifierProvider<SingleNoteManager>(
+    return ChangeNotifierProvider<SingleNoteViewModel>(
       // value: note,
-      create: (_) =>SingleNoteManager(note),
+      create: (_) =>SingleNoteViewModel(note),
       // child: EditingNoteDetails(),
       builder: (context, child) {
         return EditingNoteDetails();
@@ -53,13 +52,13 @@ class _EditingNoteDetailsState extends State<EditingNoteDetails> {
         .of(context)
         .colorScheme
         .primary;
-    SingleNoteManager singleNoteManager = Provider.of<SingleNoteManager>(context);
-    NotesStateManager manager = Provider.of<NotesStateManager>(context);
+    SingleNoteViewModel singleNoteManager = Provider.of<SingleNoteViewModel>(context);
+    NotesViewModel viewModel = Provider.of<NotesViewModel>(context);
     return Scaffold(
-        floatingActionButton: StreamBuilder<ConnectionState>(
-          stream: manager.appConnectionState,
-          builder: (context,snapshot){
-            bool isWaiting = snapshot.data == ConnectionState.waiting;
+        floatingActionButton: Selector<NotesViewModel ,ConnectionState>(
+          selector: (_, viewModel) => viewModel.appConnectionState,
+          builder: (context,data, child){
+            bool isWaiting = data == ConnectionState.waiting;
             return FloatingActionButton(
                   shape: ContinuousRectangleBorder(
                     borderRadius: BorderRadius.circular(28.0),
@@ -68,11 +67,11 @@ class _EditingNoteDetailsState extends State<EditingNoteDetails> {
                   onPressed: isWaiting
                       ? null
                       : () async {
-                    bool isOk = await manager.update(note:singleNoteManager.note);
+                    bool isOk = await viewModel.update(note:singleNoteManager.note);
                     if (isOk) {
                       Navigator.of(context).pop<Note?>(singleNoteManager.note);
                     } else {
-                      showErrMessage(context, manager.error!);
+                      showErrMessage(context, viewModel.error!);
                     }
                   },
                 );
@@ -227,20 +226,20 @@ class _SliderEmotionPointState extends State<SliderEmotionPoint> {
 
   @override
   Widget build(BuildContext context) {
-    SingleNoteManager manager = Provider.of<SingleNoteManager>(context);
+    SingleNoteViewModel viewModel = Provider.of<SingleNoteViewModel>(context);
     return Slider(
       inactiveColor: Colors.grey.withOpacity(0.5),
       activeColor: Theme
           .of(context)
           .colorScheme
           .primary,
-      value: manager.note.emotionPoint.toDouble(),
+      value: viewModel.note.emotionPoint.toDouble(),
       min: 0,
       max: 10,
       divisions: 10,
-      label: "${manager.note.emotionPoint}",
+      label: "${viewModel.note.emotionPoint}",
       onChanged: (double value) {
-        manager.note.emotionPoint = value.toInt();
+        viewModel.note.emotionPoint = value.toInt();
         setState(() {});
       },
     );
@@ -262,7 +261,7 @@ class _ListActivitiesState extends State<ListActivities> {
 
   @override
   Widget build(BuildContext context) {
-    SingleNoteManager manager = Provider.of<SingleNoteManager>(context);
+    SingleNoteViewModel manager = Provider.of<SingleNoteViewModel>(context);
 
     Color primary = Theme
         .of(context)
@@ -343,7 +342,7 @@ class _ListActivitiesState extends State<ListActivities> {
     );
   }
 
-  Widget _buildActivitiesDialog(BuildContext context, SingleNoteManager manager) {
+  Widget _buildActivitiesDialog(BuildContext context, SingleNoteViewModel manager) {
     // print("build dialog ${List.of(note.activities)}");
     return Provider<List<Activity>>(
       create: (context) => List.of(manager.note.activities),

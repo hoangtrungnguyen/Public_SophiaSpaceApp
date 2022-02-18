@@ -3,11 +3,11 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:sophia_hub/helper/show_flush_bar.dart';
-import 'package:sophia_hub/model/note.dart';
-import 'package:sophia_hub/provider/note_state_manager.dart';
-import 'package:sophia_hub/provider/single_note_state_manager.dart';
+import 'package:sophia_hub/model/note/note_regular.dart';
 import 'package:sophia_hub/view/page/home/notes/single_item_note.dart';
 import 'package:sophia_hub/view/widget/animated_loading_icon.dart';
+import 'package:sophia_hub/view_model/note_view_model.dart';
+import 'package:sophia_hub/view_model/single_note_view_model.dart';
 
 class NotesView extends StatefulWidget {
   @override
@@ -23,15 +23,15 @@ class _NotesViewState extends State<NotesView> {
   void initState() {
     super.initState();
     _listNoteController = ScrollController()..addListener(_scrollListener);
-    Provider.of<NotesStateManager>(context, listen: false).listKey =
+    Provider.of<NotesViewModel>(context, listen: false).listKey =
         notesListKey;
-    Provider.of<NotesStateManager>(context, listen: false).removedItemBuilder =
+    Provider.of<NotesViewModel>(context, listen: false).removedItemBuilder =
         _removalItemBuilder;
     // SchedulerBinding.instance?.addPostFrameCallback((_) {
-    //   Provider.of<NotesStateManager>(context,listen: false).listKey = notesListKey;
+    //   Provider.of<NotesViewModel>(context,listen: false).listKey = notesListKey;
     // });
     Future.microtask(() {
-      Provider.of<NotesStateManager>(context, listen: false).loadMore();
+      Provider.of<NotesViewModel>(context, listen: false).loadMore();
     });
   }
 
@@ -44,13 +44,13 @@ class _NotesViewState extends State<NotesView> {
   void _scrollListener() {
     if (_listNoteController?.position.extentAfter == 0) {
       print("loadmore");
-      Provider.of<NotesStateManager>(context, listen: false).loadMore();
+      Provider.of<NotesViewModel>(context, listen: false).loadMore();
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    NotesStateManager manager = Provider.of<NotesStateManager>(context);
+    NotesViewModel manager = Provider.of<NotesViewModel>(context);
     return Container(
       width: double.infinity,
       height: double.infinity,
@@ -92,7 +92,7 @@ class _NotesViewState extends State<NotesView> {
   Widget _buildListNote(BuildContext context) {
     Widget groupListView = AnimatedList(
       key: notesListKey,
-      initialItemCount: Provider.of<NotesStateManager>(context, listen: false).notes.length,
+      initialItemCount: Provider.of<NotesViewModel>(context, listen: false).notes.length,
       shrinkWrap: true,
       physics: BouncingScrollPhysics(),
       itemBuilder: _buildSingleItem,
@@ -115,11 +115,11 @@ class _NotesViewState extends State<NotesView> {
   Widget _buildSingleItem(
       BuildContext context, int index, Animation<double> animation) {
     // TextStyle? head5 = Theme.of(context).textTheme.headline5;
-    NotesStateManager manager =
-        Provider.of<NotesStateManager>(context, listen: false);
-    SingleNoteManager singleNoteManager = manager.notes[index];
+    NotesViewModel manager =
+        Provider.of<NotesViewModel>(context, listen: false);
+    SingleNoteViewModel singleNoteManager = manager.notes[index];
     // print(note.activities);
-    Widget item = ChangeNotifierProvider<SingleNoteManager>.value(
+    Widget item = ChangeNotifierProvider<SingleNoteViewModel>.value(
       key: ValueKey(singleNoteManager.note.id),
       value: singleNoteManager,
       builder: (context, child) {
@@ -183,8 +183,8 @@ class _NotesViewState extends State<NotesView> {
         opacity: animation.drive(Tween<double>(begin: 0, end: 1)), child: main);
   }
 
-  Widget _buildDialog(BuildContext context, SingleNoteManager note) {
-    return ChangeNotifierProvider<SingleNoteManager>.value(
+  Widget _buildDialog(BuildContext context, SingleNoteViewModel note) {
+    return ChangeNotifierProvider<SingleNoteViewModel>.value(
       value: note,
       builder: (context, child) {
         return AlertDialog(
@@ -200,10 +200,10 @@ class _NotesViewState extends State<NotesView> {
             TextButton(
               child: Icon(FontAwesomeIcons.trash, color: Colors.red),
               onPressed: () async {
-                NotesStateManager publisher =
-                    Provider.of<NotesStateManager>(context, listen: false);
+                NotesViewModel publisher =
+                    Provider.of<NotesViewModel>(context, listen: false);
                 bool isOk = await publisher.delete(
-                    Provider.of<SingleNoteManager>(context, listen: false));
+                    Provider.of<SingleNoteViewModel>(context, listen: false));
                 if(isOk)
                   showSuccessMessage(context,"Xóa thành công");
                 else
@@ -222,14 +222,14 @@ class _NotesViewState extends State<NotesView> {
   }
 
   Widget _removalItemBuilder(
-    SingleNoteManager removedItem,
+      SingleNoteViewModel removedItem,
     context,
     Animation animation,
   ) {
     var tween = Tween<Offset>(begin: Offset(-1.50, 0), end: Offset.zero);
     return SlideTransition(
         position: animation.drive(tween),
-        child: ChangeNotifierProvider<SingleNoteManager>.value(
+        child: ChangeNotifierProvider<SingleNoteViewModel>.value(
             value: removedItem, child: DailyNotes()));
   }
 }

@@ -1,16 +1,16 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/widgets.dart';
 import 'package:sophia_hub/model/account.dart';
 import 'package:sophia_hub/model/result_container.dart';
-import 'package:sophia_hub/provider/app_data.dart';
 import 'package:sophia_hub/repository/auth_repository.dart';
 
-class AccountStateManager extends App with ChangeNotifier {
+import 'base_view_model.dart';
+
+class AccountViewModel extends BaseViewModel  {
   Account account = Account();
 
   late AuthRepository _repository;
 
-  AccountStateManager({AuthRepository? repository}) {
+  AccountViewModel({AuthRepository? repository}) {
     _repository = repository ?? AuthRepository();
   }
 
@@ -19,7 +19,7 @@ class AccountStateManager extends App with ChangeNotifier {
         return result;
       });
 
-  Future<bool> register(String email, pwd, displayName) async => setAppState(() async {
+  Future<bool> register(String email,String pwd,String displayName) async => setAppState(() async {
         Result<User> result = await _repository.register(email, pwd,displayName);
         return result;
       });

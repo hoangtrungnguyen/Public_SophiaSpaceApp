@@ -1,42 +1,41 @@
-import 'package:sophia_hub/model/note.dart';
+import 'package:sophia_hub/model/note/note.dart';
 import 'package:sophia_hub/model/result_container.dart';
 import 'package:sophia_hub/repository/note_repository.dart';
 
-class NoteDatabaseRepository extends NoteRepository{
+class NoteDatabaseRepository<GenericNote> extends NoteRepository{
   @override
-  Future<Result> create(Note note) {
+  Future<Result> create(element) {
     // TODO: implement create
     throw UnimplementedError();
   }
 
   @override
-  Future<Result> delete(Note element) {
+  Future<Result> delete(element) {
     // TODO: implement delete
     throw UnimplementedError();
   }
 
   @override
-  Future<Result<Note>> get() {
+  Future<Result> get() {
     // TODO: implement get
     throw UnimplementedError();
   }
 
   @override
-  Future<Result<List<Note>>> getAll() {
+  Future<Result<List>> getAll() {
     // TODO: implement getAll
     throw UnimplementedError();
   }
 
   @override
-  Future<Result> update(Note element) {
-    // TODO: implement update
+  Future<Result<List<GenericNote>>> loadMore() {
+    // TODO: implement loadMore
     throw UnimplementedError();
   }
 
-
   @override
-  loadMore() {
-    // TODO: implement loadMore
+  Future<Result> update(element) {
+    // TODO: implement update
     throw UnimplementedError();
   }
 

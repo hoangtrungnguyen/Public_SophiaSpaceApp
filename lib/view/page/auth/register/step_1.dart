@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sophia_hub/helper/text_field_helper.dart';
-import 'package:sophia_hub/provider/account_state_manager.dart';
+import 'package:sophia_hub/view_model/account_view_model.dart';
 
 class StepOne extends StatefulWidget {
   const StepOne({Key? key}) : super(key: key);
@@ -16,7 +16,7 @@ class _StepOneState extends State<StepOne> {
 
   @override
   Widget build(BuildContext context) {
-    AccountStateManager auth = Provider.of<AccountStateManager>(context);
+    AccountViewModel auth = Provider.of<AccountViewModel>(context, listen: false);
     return SafeArea(
       child: Container(
         margin: EdgeInsets.symmetric(horizontal: 16),

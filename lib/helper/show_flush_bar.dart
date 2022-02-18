@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 extension ShowMessage on Flushbar {}
 
 void showErrMessage(BuildContext context, Exception exception) async {
-  String errMessage = 'Lỗi đã xảy ra';
+  String errMessage = 'Lỗi đã xảy ra, xin vui lòng thử lại sau';
   if (exception is FirebaseAuthException) {
     /// - **invalid-email**:
     ///  - Thrown if the email address is not valid.
@@ -31,7 +31,6 @@ void showErrMessage(BuildContext context, Exception exception) async {
         break;
     }
   } else {
-    // errMessage = exception.toString();
   }
 
   Flushbar(

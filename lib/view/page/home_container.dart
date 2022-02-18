@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:provider/provider.dart';
 import 'package:sophia_hub/constant/theme.dart';
-import 'package:sophia_hub/provider/ui_logic.dart';
 import 'package:sophia_hub/view/page/home/notes.dart';
 import 'package:sophia_hub/view/page/home/quote.dart';
 import 'package:sophia_hub/view/page/note/create_note_page.dart';
+import 'package:sophia_hub/view_model/ui_logic.dart';
 
 class Destination {
   const Destination(this.namedRoute, this.title, this.icon, this.color);

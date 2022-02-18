@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:sophia_hub/provider/share_pref.dart';
+import 'package:sophia_hub/view_model/share_pref.dart';
 
 main() {
   late SharedPref sharePref;

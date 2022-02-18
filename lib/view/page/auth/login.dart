@@ -8,11 +8,11 @@ import 'package:provider/provider.dart';
 import 'package:sophia_hub/helper/auth_validator.dart';
 import 'package:sophia_hub/helper/show_flush_bar.dart';
 import 'package:sophia_hub/model/result_container.dart';
-import 'package:sophia_hub/provider/account_state_manager.dart';
 import 'package:sophia_hub/view/base_container.dart';
 import 'package:sophia_hub/view/page/auth/forgot/forgot_pwd.dart';
 import 'package:sophia_hub/view/widget/animated_loading_icon.dart';
 import 'package:sophia_hub/view/widget/sophia_hub_close_button.dart';
+import 'package:sophia_hub/view_model/account_view_model.dart';
 
 class LoginView extends StatefulWidget {
   static const String routeName = "/LoginView";
@@ -41,7 +41,7 @@ class _LoginViewState extends State<LoginView> {
 
   @override
   Widget build(BuildContext context) {
-    AccountStateManager auth = Provider.of<AccountStateManager>(context, listen: false);
+    AccountViewModel auth = Provider.of<AccountViewModel>(context, listen: false);
     Color primary = Theme.of(context).colorScheme.primary;
     return WillPopScope(
       onWillPop: () async {
@@ -136,10 +136,10 @@ class _LoginViewState extends State<LoginView> {
                   Spacer(
                     flex: 5,
                   ),
-                  StreamBuilder<ConnectionState>(
-                    stream: auth.appConnectionState,
-                    builder: (BuildContext context, AsyncSnapshot<ConnectionState> snapshot) {
-                      bool isWaiting = snapshot.data == ConnectionState.waiting;
+                  Selector<AccountViewModel, ConnectionState>(
+                    selector:(_, viewModel) => viewModel.appConnectionState,
+                    builder: (BuildContext context, data, child) {
+                      bool isWaiting = data == ConnectionState.waiting;
                       return Container(
                         width: 250,
                         height: 50,

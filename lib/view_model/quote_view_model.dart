@@ -1,17 +1,15 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:sophia_hub/constant/app_connection_state.dart';
 import 'package:sophia_hub/model/quote.dart';
 import 'package:sophia_hub/model/result_container.dart';
-import 'package:sophia_hub/provider/app_data.dart';
 import 'package:sophia_hub/repository/quote_fire_store_repository.dart';
+import 'package:sophia_hub/view_model/base_view_model.dart';
 
-class QuoteStateManager extends App with ChangeNotifier{
+class QuoteViewModel extends BaseViewModel {
   List<Quote> quotes = [];
 
   late QuoteFireStoreRepository quoteFirebaseRepository;
 
-  QuoteStateManager({FirebaseFirestore? firestore}){
+  QuoteViewModel({FirebaseFirestore? firestore}){
     quoteFirebaseRepository = QuoteFireStoreRepository(firestore: firestore);
   }
 

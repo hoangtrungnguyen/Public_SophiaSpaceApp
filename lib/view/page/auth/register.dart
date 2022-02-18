@@ -1,10 +1,5 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:sophia_hub/helper/auth_validator.dart';
-import 'package:sophia_hub/model/result_container.dart';
-import 'package:sophia_hub/provider/account_state_manager.dart';
-import 'package:sophia_hub/view/base_container.dart';
 import 'package:sophia_hub/view/page/auth/register/step_1.dart';
 import 'package:sophia_hub/view/page/auth/register/step_three.dart';
 import 'package:sophia_hub/view/page/auth/register/step_two.dart';
@@ -37,7 +32,6 @@ class _RegisterViewState extends State<RegisterView>
 
   @override
   Widget build(BuildContext context) {
-    AccountStateManager userProvider = Provider.of<AccountStateManager>(context, listen: false);
 
     return WillPopScope(
       onWillPop: () async {

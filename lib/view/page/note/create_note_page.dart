@@ -1,11 +1,11 @@
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:sophia_hub/model/note.dart';
-import 'package:sophia_hub/provider/single_note_state_manager.dart';
+import 'package:sophia_hub/model/note/note_regular.dart';
 import 'package:sophia_hub/view/page/note/create_note_step_1.dart';
 import 'package:sophia_hub/view/page/note/create_note_step_2.dart';
 import 'package:sophia_hub/view/page/note/create_note_step_3.dart';
+import 'package:sophia_hub/view_model/single_note_view_model.dart';
 
 class CreateNotePage extends StatefulWidget {
   static const String nameRoute = "/CreateNotePage";
@@ -34,8 +34,9 @@ class _CreateNotePageState extends State<CreateNotePage>
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(
-          create: (BuildContext context) => SingleNoteManager(Note(
+        ChangeNotifierProvider<SingleNoteViewModel>(
+
+          create: (BuildContext context) => SingleNoteViewModel(Note(
             title: "",
             description: "",
             emotionPoint: 0,
@@ -50,76 +51,82 @@ class _CreateNotePageState extends State<CreateNotePage>
           create: (_) => tabController,
         )
       ],
-      child: Scaffold(
-          extendBodyBehindAppBar: true,
-          appBar: AppBar(
-            backgroundColor: Colors.transparent,
-            elevation: 0,
-            leading: BackButton(
-              onPressed: () async {
-                if (tabController.index == 0) {
-                  Navigator.of(context).pop(false);
-                } else {
-                  int curIndex = tabController.index;
-                  tabController.animateTo(curIndex - 1,
-                      duration: Duration(milliseconds: 1000));
-                }
-              },
+      builder: (context,child){
+        return  Scaffold(
+            extendBodyBehindAppBar: true,
+            appBar: AppBar(
+              backgroundColor: Colors.transparent,
+              elevation: 0,
+              leading: BackButton(
+                onPressed: () async {
+                  if (tabController.index == 0) {
+                    Navigator.of(context).pop(false);
+                  } else {
+                    int curIndex = tabController.index;
+                    tabController.animateTo(curIndex - 1,
+                        duration: Duration(milliseconds: 1000));
+                  }
+                },
+              ),
+              actions: [
+                TextButton.icon(
+                    onPressed: () async {
+                      if (tabController.index == 0)
+                        Navigator.of(context).pop(false);
+                      else {
+                        bool ok = await showDialog(
+                            context: context, builder: _buildCancelDialog);
+                        await Future.delayed(Duration(milliseconds: 500));
+                        if (ok) Navigator.of(context).pop(false);
+                      }
+                    },
+                    icon: Icon(
+                      Icons.cancel,
+                      color: Colors.white,
+                    ),
+                    label: Container())
+              ],
             ),
-            actions: [
-              TextButton.icon(
-                  onPressed: () async {
-                    if (tabController.index == 0)
-                      Navigator.of(context).pop(false);
-                    else {
-                      bool ok = await showDialog(
-                          context: context, builder: _buildCancelDialog);
-                      await Future.delayed(Duration(milliseconds: 500));
-                      if (ok) Navigator.of(context).pop(false);
-                    }
-                  },
-                  icon: Icon(
-                    Icons.cancel,
-                    color: Colors.white,
+            body: Container(
+              decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    stops: [
+                      0.1,
+                      1.0,
+                    ],
+                    colors: [
+                      Theme.of(context).colorScheme.secondary,
+                      Theme.of(context).colorScheme.primary,
+                    ],
+                  )),
+              child: Theme(
+                data: Theme.of(context).copyWith(
+                    scaffoldBackgroundColor: Colors.transparent,
+                    textTheme: Theme.of(context).textTheme.apply(
+                      bodyColor: Colors.white,
+                      displayColor: Colors.white,
+                    )),
+                child: Padding(
+                  padding: EdgeInsets.only(top: 100),
+                  child: Builder(
+                    builder: (BuildContext context) =>
+                     TabBarView(
+                      controller: tabController,
+                      physics: NeverScrollableScrollPhysics(),
+                      children: [
+                        EmotionPointView(),
+                        EmotionObjectsView(),
+                        NoteDetailsView()
+                      ],
+                    ),
                   ),
-                  label: Container())
-            ],
-          ),
-          body: Container(
-            decoration: BoxDecoration(
-                gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              stops: [
-                0.1,
-                1.0,
-              ],
-              colors: [
-                Theme.of(context).colorScheme.secondary,
-                Theme.of(context).colorScheme.primary,
-              ],
-            )),
-            child: Theme(
-              data: Theme.of(context).copyWith(
-                  scaffoldBackgroundColor: Colors.transparent,
-                  textTheme: Theme.of(context).textTheme.apply(
-                        bodyColor: Colors.white,
-                        displayColor: Colors.white,
-                      )),
-              child: Padding(
-                padding: EdgeInsets.only(top: 100),
-                child: TabBarView(
-                  controller: tabController,
-                  physics: NeverScrollableScrollPhysics(),
-                  children: [
-                    EmotionPointView(),
-                    EmotionObjectsView(),
-                    NoteDetailsView()
-                  ],
                 ),
               ),
-            ),
-          )),
+            ));
+      },
+      // child:,
     );
   }
 

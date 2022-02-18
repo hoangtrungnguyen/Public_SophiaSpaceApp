@@ -1,9 +1,8 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:sophia_hub/helper/note_helper_func.dart';
-import 'package:sophia_hub/provider/single_note_state_manager.dart';
+import 'package:sophia_hub/view_model/single_note_view_model.dart';
 
 class EmotionPointView extends StatefulWidget {
   bool initial = true;
@@ -28,7 +27,9 @@ class _EmotionPointViewState extends State<EmotionPointView> {
 
   @override
   Widget build(BuildContext context) {
-    SingleNoteManager noteManager = Provider.of<SingleNoteManager>(context);
+    SingleNoteViewModel noteManager = Provider.of<SingleNoteViewModel>(
+      context
+    );
     return Scaffold(
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       floatingActionButton: Consumer<TabController>(

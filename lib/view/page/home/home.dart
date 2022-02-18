@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:sophia_hub/provider/task_provider.dart';
 import 'package:sophia_hub/view/page/task/create_task_page.dart';
 
 class HomeView extends StatefulWidget {
@@ -100,11 +99,11 @@ class _ListTaskState extends State<ListTask> {
             SizedBox(
               height: 10,
             ),
-            Consumer<TaskProvider>(
-              builder: (ctx, data, child) {
-                return Container();
-              },
-            ),
+            // Consumer<TaskProvider>(
+            //   builder: (ctx, data, child) {
+            //     return Container();
+            //   },
+            // ),
             Padding(
               padding: EdgeInsets.only(top: 20),
               child: ListTile(

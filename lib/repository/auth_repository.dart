@@ -7,7 +7,7 @@ import 'package:sophia_hub/model/result_container.dart';
 
 import 'base_repository.dart';
 
-class AuthRepository<Manager> with BaseRepository {
+class AuthRepository with BaseRepository {
   late FirebaseAuth auth;
 
   AuthRepository({FirebaseAuth? auth}) {

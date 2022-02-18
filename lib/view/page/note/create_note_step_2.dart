@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sophia_hub/model/activity.dart';
-import 'package:sophia_hub/model/note.dart';
-import 'package:sophia_hub/provider/single_note_state_manager.dart';
+import 'package:sophia_hub/model/note/note_regular.dart';
+import 'package:sophia_hub/view_model/single_note_view_model.dart';
 
 class EmotionObjectsView extends StatefulWidget {
   static const String nameRoute = "/EmotionObjectsView";
@@ -24,7 +24,7 @@ class _EmotionObjectsViewState extends State<EmotionObjectsView> {
   Widget build(BuildContext context) {
     return Scaffold(
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      floatingActionButton: Consumer<SingleNoteManager>(
+      floatingActionButton: Consumer<SingleNoteViewModel>(
         builder: (BuildContext context, manager, Widget? child) {
           Note value = manager.note;
           Widget button;
@@ -95,7 +95,7 @@ class _EmotionGridState extends State<EmotionGrid> {
 
   @override
   Widget build(BuildContext context) {
-    SingleNoteManager note = Provider.of<SingleNoteManager>(context);
+    SingleNoteViewModel note = Provider.of<SingleNoteViewModel>(context);
     return GridView.builder(
       shrinkWrap: true,
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(

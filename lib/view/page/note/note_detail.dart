@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:sophia_hub/helper/note_helper_func.dart';
-import 'package:sophia_hub/model/note.dart';
-import 'package:sophia_hub/provider/single_note_state_manager.dart';
+import 'package:sophia_hub/model/note/note_regular.dart';
 import 'package:sophia_hub/view/page/note/note_detail_is_editing.dart';
+import 'package:sophia_hub/view_model/single_note_view_model.dart';
 
 class NoteDetails extends StatefulWidget {
   static const String nameRoute = "/NoteDetails";
@@ -16,8 +16,8 @@ class NoteDetails extends StatefulWidget {
   }
 
   static Widget view(Note note, {Key? key}) {
-    return ChangeNotifierProvider(
-      create: (_) => SingleNoteManager(note),
+    return ChangeNotifierProvider<SingleNoteViewModel>(
+      create: (_) => SingleNoteViewModel(note),
       child: NoteDetails(),
     );
   }
@@ -32,12 +32,11 @@ class _NoteDetailsState extends State<NoteDetails> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    print("call didchange in note details page");
   }
 
   @override
   Widget build(BuildContext context) {
-    SingleNoteManager note = Provider.of<SingleNoteManager>(context);
+    SingleNoteViewModel note = Provider.of<SingleNoteViewModel>(context);
     Color primary = Theme.of(context).colorScheme.primary;
     final head4 = Theme.of(context).textTheme.headline4?.copyWith(
         color: primary.withOpacity(0.3), fontWeight: FontWeight.bold);
@@ -52,9 +51,9 @@ class _NoteDetailsState extends State<NoteDetails> {
           child: Icon(Icons.edit_outlined),
           onPressed: () async{
             Note? note = await Navigator.push(context,
-                EditingNoteDetails.route(Provider.of<SingleNoteManager>(context,listen: false).note));
+                EditingNoteDetails.route(Provider.of<SingleNoteViewModel>(context,listen: false).note));
             if(note != null)
-              Provider.of<SingleNoteManager>(context, listen: false).refresh(note: note);
+              Provider.of<SingleNoteViewModel>(context, listen: false).refresh(note: note);
           },
         ),
         appBar: AppBar(
