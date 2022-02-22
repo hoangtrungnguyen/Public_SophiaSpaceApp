@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -11,6 +13,9 @@ import 'package:sophia_hub/view_model/note_view_model.dart';
 import 'package:sophia_hub/view_model/single_note_view_model.dart';
 
 class NotesView extends StatefulWidget {
+
+  NotesView({Key? key}): super(key: key);
+
   @override
   _NotesViewState createState() => _NotesViewState();
 }
@@ -18,13 +23,12 @@ class NotesView extends StatefulWidget {
 class _NotesViewState extends State<NotesView> {
   ScrollController? _listNoteController;
 
-  final notesListKey = GlobalKey<AnimatedListState>();
-
+ final listKey = GlobalObjectKey<AnimatedListState>("key");
   @override
   void initState() {
     super.initState();
     _listNoteController = ScrollController()..addListener(_scrollListener);
-    Provider.of<NotesViewModel>(context, listen: false).listKey = notesListKey;
+    Provider.of<NotesViewModel>(context, listen: false).listKey = listKey;
     Provider.of<NotesViewModel>(context, listen: false).removedItemBuilder =
         _removalItemBuilder;
     // SchedulerBinding.instance?.addPostFrameCallback((_) {
@@ -103,16 +107,9 @@ class _NotesViewState extends State<NotesView> {
               left: 0,
               right: 0,
               bottom: 0,
-              child: Selector<NotesViewModel, bool>(
-                builder: (_,value, child) => child ?? Container(),
-                selector: (_,value) => value.isRefresh,
-                shouldRebuild: (previous,next) {
-                    return true;
-                },
-                child: _buildListNote(
-                  context,
-                ),
-              ))
+              child: _buildListNote(context,),
+
+          )
         ],
       ),
     );
@@ -120,8 +117,8 @@ class _NotesViewState extends State<NotesView> {
 
   Widget _buildListNote(BuildContext context) {
     Widget groupListView = AnimatedList(
-      key: notesListKey,
-      initialItemCount: Provider.of<NotesViewModel>(context).notes.length,
+      key: listKey,
+      initialItemCount: Provider.of<NotesViewModel>(context,listen: false).notes.length,
       shrinkWrap: true,
       physics: BouncingScrollPhysics(),
       itemBuilder: _buildSingleItem,

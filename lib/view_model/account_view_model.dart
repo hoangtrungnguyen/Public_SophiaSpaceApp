@@ -49,4 +49,5 @@ class AccountViewModel extends BaseViewModel  {
   resetPwd(String email) {
     //TODO reset pwd
   }
+
 }

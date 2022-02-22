@@ -168,11 +168,10 @@ class SophiaHubApp extends StatelessWidget {
         lazy: true,
         update: (_, auth, preNoteViewModel) {
           //TODO logic thay doi du lieu moi khi thay doi tai khoan nguoi dung
-          if (FirebaseAuth.instance.currentUser == null)
-            preNoteViewModel?.clear();
-          // else {
-          //   preNoteViewModel?.refresh();
-          // }
+          if (auth.getCurrentUser() == null) {
+          } else {
+            preNoteViewModel?.reload();
+          }
 
           return preNoteViewModel!;
         },

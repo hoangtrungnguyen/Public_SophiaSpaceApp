@@ -59,9 +59,9 @@ class _HomeContainerState extends State<HomeContainer>
         List<Key>.generate(allDestinations.length, (index) => GlobalKey())
             .toList();
 
-
-    _hideBottomBar = AnimationController(
-        vsync: this, duration: Duration(milliseconds: 500))..value = 1;
+    _hideBottomBar =
+        AnimationController(vsync: this, duration: Duration(milliseconds: 500))
+          ..value = 1;
 
     super.initState();
   }
@@ -73,15 +73,15 @@ class _HomeContainerState extends State<HomeContainer>
     super.dispose();
   }
 
-  bool _handleScrollNotification(ScrollNotification notification){
+  bool _handleScrollNotification(ScrollNotification notification) {
     //Kiểm tra có phải màn hình note không
-    if(Provider.of<UILogic>(context,listen: false).homePageIndex != 0){
+    if (Provider.of<UILogic>(context, listen: false).homePageIndex != 0) {
       _hideBottomBar.forward();
     }
-    if(notification.depth == 0){
-      if(notification is UserScrollNotification){
+    if (notification.depth == 0) {
+      if (notification is UserScrollNotification) {
         final UserScrollNotification userScroll = notification;
-        switch(userScroll.direction){
+        switch (userScroll.direction) {
           case ScrollDirection.idle:
             break;
           case ScrollDirection.forward:
@@ -109,11 +109,11 @@ class _HomeContainerState extends State<HomeContainer>
           backgroundColor: allDestinations[_currentIndex].color,
           child: Icon(Icons.add),
           onPressed: () async {
-
-              dynamic isAdd = await Navigator.of(context, rootNavigator: true).pushNamed(CreateNotePage.nameRoute,) ;
-              if(isAdd is bool && isAdd){
-              }
-
+            dynamic isAdd =
+                await Navigator.of(context, rootNavigator: true).pushNamed(
+              CreateNotePage.nameRoute,
+            );
+            if (isAdd is bool && isAdd) {}
           },
         ),
         bottomNavigationBar: SizeTransition(
@@ -130,7 +130,8 @@ class _HomeContainerState extends State<HomeContainer>
               continuousRectangleBorder,
             ),
             child: BottomNavigationBar(
-              backgroundColor: Theme.of(context).colorScheme.primary.withOpacity(0.15),
+                backgroundColor:
+                    Theme.of(context).colorScheme.primary.withOpacity(0.15),
                 // backgroundColor: allDestinations[_currentIndex].color,
                 currentIndex: _currentIndex,
                 onTap: (i) {
@@ -149,42 +150,59 @@ class _HomeContainerState extends State<HomeContainer>
                 }).toList()),
           ),
         ),
-        body: Container(
-            child: IndexedStack(
+        body: _buildContent(),
+      ),
+    );
+  }
+
+
+  Widget _buildContent(){
+    // if(_currentIndex == 0){
+    //   return _setFadeTransition(0, allDestinations[0]);
+    // } else if (_currentIndex == 1){
+    //   return _setFadeTransition(1, allDestinations[1]);
+    // };
+    // return Container();
+    return Container(
+        child: IndexedStack(
           index: _currentIndex,
           children: allDestinations.asMap().entries.map((entry) {
             int index = entry.key;
             Destination des = entry.value;
             return _setFadeTransition(index, des);
           }).toList(),
-        )),
-      ),
-    );
+        ));
   }
 
   Widget _setFadeTransition(int index, Destination des) {
     Widget destinedView = Text('Unknown Route ');
     if (des.namedRoute == allDestinations[0].namedRoute) {
-      destinedView = NotesView();
+      destinedView =  NotesView(key: UniqueKey());
     } else if (des.namedRoute == allDestinations[1].namedRoute) {
       destinedView = QuoteView();
     }
-    Widget view =   FadeTransition(
+    Widget view = FadeTransition(
         opacity: _faders[index].drive(CurveTween(curve: Curves.easeIn)),
-        child: KeyedSubtree(
+        child:
+        KeyedSubtree(
           key: _destinationKeys[index],
           child: destinedView,
-        ));
+        )
+    );
 
-    if(index == _currentIndex){
+    if (index == _currentIndex) {
       _faders[index].forward();
       return view;
-    }else{
+    } else {
       _faders[index].reverse();
-      if(_faders[index].isAnimating){
-        return IgnorePointer(child: view,);
+      if (_faders[index].isAnimating) {
+        return IgnorePointer(
+          child: view,
+        );
       }
-      return Offstage(child: view,);
+      return Offstage(
+        child: view,
+      );
     }
   }
 }

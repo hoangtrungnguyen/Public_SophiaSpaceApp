@@ -13,6 +13,7 @@ import 'package:sophia_hub/view/page/home/notes/image_note.dart';
 
 class NoteFirebaseRepository extends NoteRepository<GenericNote> {
   late FirebaseFirestore _firestore;
+  get firestore =>_firestore;
 
   late CollectionReference notesRef;
 

@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sophia_hub/model/note/note.dart';
@@ -114,17 +116,13 @@ class NotesViewModel extends BaseViewModel implements ReassembleHandler {
 
   @override
   void reassemble() {
-    // print("Hot reload Note View Model");
-    // repository.refresh();
-    // _notes.clear();
-    // notifyListeners();
-    // loadMore().then(print);
-  }
-
-  void clear({NoteRepository? repository}) {
     _notes.clear();
-    repository = repository ?? NoteFirebaseRepository();
-    listKey = null;
+    repository = NoteFirebaseRepository();
+    loadMore();
   }
 
+  void reload({NoteRepository? repository}){
+    _notes.clear();
+    this.repository = repository ?? NoteFirebaseRepository();
+  }
 }

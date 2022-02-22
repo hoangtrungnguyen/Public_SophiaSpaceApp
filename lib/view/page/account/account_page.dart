@@ -137,7 +137,8 @@ class _AccountPageState extends State<AccountPage> {
                             (await Provider.of<AccountViewModel>(context, listen: false).logOut());
                         if (isOk) {
                           Navigator.of(context)
-                              .pushReplacementNamed(AuthPage.nameRoute);
+                              .pushNamedAndRemoveUntil(AuthPage.nameRoute
+                          ,(_) => false);
                         } else {
                           showErrMessage(context, Provider.of<AccountViewModel>(context, listen: false).error!);
                         }
