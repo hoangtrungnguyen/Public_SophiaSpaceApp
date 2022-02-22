@@ -29,13 +29,17 @@ class AccountViewModel extends BaseViewModel  {
 
   void refresh() {
     //TODO refresh on device user data
+    _repository.refresh();
     notifyListeners();
   }
 
 
-  Stream<User?> userChanges() => _repository.auth.authStateChanges();
+  Stream<User?> authStateChanges() => _repository.auth.authStateChanges();
+  Stream<User?> userChanges() => _repository.auth.userChanges();
 
-  Future updateAvatar(String path, uid) async => setAppState(() async {
+  User? getCurrentUser() => _repository.auth.currentUser;
+
+  Future<bool> updateAvatar(String path, uid) async => setAppState(() async {
         return await _repository.updateAvatar(path, uid);
       });
 

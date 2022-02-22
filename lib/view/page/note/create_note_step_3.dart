@@ -49,7 +49,7 @@ class _NoteDetailsViewState extends State<NoteDetailsView> {
                 alignment: WrapAlignment.start,
                 crossAxisAlignment: WrapCrossAlignment.start,
                 runAlignment: WrapAlignment.start,
-                children: note.activities.length > 0
+                children: note.activities != null
                     ? note.activities.map((e) {
                         return Padding(
                           padding: EdgeInsets.symmetric(horizontal: 2),
@@ -132,7 +132,7 @@ class _AddButtonState extends State<AddButton> {
             await Provider.of<NotesViewModel>(context, listen: false)
                 .add(note: single.note);
             if (isOk)
-              Navigator.of(context, rootNavigator: true).pop();
+              Navigator.of(context, rootNavigator: true).pop(true);
             else
               showErrMessage(context, notes.error!);
           },

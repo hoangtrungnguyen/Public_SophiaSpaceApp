@@ -261,7 +261,7 @@ class _ColorThemePickerState extends State<ColorThemePicker> {
             ),
             shadows: [
               BoxShadow(
-                color: color.shade50.withOpacity(0.2),
+                color: Colors.grey.shade50.withOpacity(0.2),
                 spreadRadius: 1,
                 offset: Offset(0.0, 4.0), //(x,y)
                 blurRadius: 2.0,

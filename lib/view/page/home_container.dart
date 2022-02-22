@@ -5,6 +5,7 @@ import 'package:sophia_hub/constant/theme.dart';
 import 'package:sophia_hub/view/page/home/notes.dart';
 import 'package:sophia_hub/view/page/home/quote.dart';
 import 'package:sophia_hub/view/page/note/create_note_page.dart';
+import 'package:sophia_hub/view_model/note_view_model.dart';
 import 'package:sophia_hub/view_model/ui_logic.dart';
 
 class Destination {
@@ -108,14 +109,11 @@ class _HomeContainerState extends State<HomeContainer>
           backgroundColor: allDestinations[_currentIndex].color,
           child: Icon(Icons.add),
           onPressed: () async {
-            try {
-              //Dễ cast sai ở đây
-              int index =
-                  await Navigator.of(context, rootNavigator: true).pushNamed(
-                CreateNotePage.nameRoute,
-              ) as int;
-              // Provider.of<NotesStateManager>(context,listen: false).loadMore();
-            } catch (e) {}
+
+              dynamic isAdd = await Navigator.of(context, rootNavigator: true).pushNamed(CreateNotePage.nameRoute,) ;
+              if(isAdd is bool && isAdd){
+              }
+
           },
         ),
         bottomNavigationBar: SizeTransition(

@@ -157,8 +157,8 @@ class SophiaHubApp extends StatelessWidget {
         create: (_) => AccountViewModel(),
         update: (BuildContext context, firebaseUser,
             AccountViewModel? previous) {
-          // print("updating Auth ${firebaseUser?.uid}");
           previous?.refresh();
+          // return previous!;
           return previous!;
         },
       ),
@@ -166,25 +166,23 @@ class SophiaHubApp extends StatelessWidget {
       ChangeNotifierProxyProvider<AccountViewModel, NotesViewModel>(
         create: (_) => NotesViewModel(),
         lazy: true,
-        update: (_, auth, preNotesProvider) {
+        update: (_, auth, preNoteViewModel) {
           //TODO logic thay doi du lieu moi khi thay doi tai khoan nguoi dung
           if (FirebaseAuth.instance.currentUser == null)
-            preNotesProvider?.clear();
-          else {
-            // preNotesProvider?.config();
-            // preNotesProvider?.loadMoreNotes();
-          }
+            preNoteViewModel?.clear();
+          // else {
+          //   preNoteViewModel?.refresh();
+          // }
 
-          return preNotesProvider!;
+          return preNoteViewModel!;
         },
       ),
 
       ChangeNotifierProxyProvider<AccountViewModel, QuoteViewModel>(
         create: (_) => QuoteViewModel(),
         lazy: true,
-        update: (_, auth, preQuoteStateHolder) {
-          // print("updating notes task provider");
-          return preQuoteStateHolder!;
+        update: (_, auth, preQuoteViewModel) {
+          return preQuoteViewModel!;
         },
       ),
 

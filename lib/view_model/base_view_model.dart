@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:sophia_hub/model/result_container.dart';
 
@@ -20,6 +21,9 @@ abstract class BaseViewModel<T> with ChangeNotifier{
     appConnectionState = ConnectionState.done;
     if (result.isHasErr) {
       error = result.error;
+      if(kDebugMode) {
+        print(error);
+      }
       return false;
     } else {
       error = null;

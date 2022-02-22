@@ -9,9 +9,11 @@ import 'base_repository.dart';
 
 class AuthRepository with BaseRepository {
   late FirebaseAuth auth;
+  late FirebaseStorage storage;
 
-  AuthRepository({FirebaseAuth? auth}) {
+  AuthRepository({FirebaseAuth? auth, FirebaseStorage? storage }) {
     this.auth = auth ?? FirebaseAuth.instance;
+    this.storage = storage ?? FirebaseStorage.instance;
   }
 
   Future<Result<User>> login(String email, pwd) async {
@@ -46,14 +48,10 @@ class AuthRepository with BaseRepository {
 
   Future updateAvatar(String filePath, String uid) async {
     try {
-      print("update $filePath");
-
-      /// Heavy work load put inside an isolate stream
 
       File file = File(filePath);
-      print("FIle name ${file.path.split('/').last}");
-      final task = await FirebaseStorage.instance
-          .ref('users/avatar/${file.path.split('/').last}')
+      final task = await storage
+          .ref('users/${this.auth.currentUser?.uid}/avatar/${file.path.split('/').last}')
           .putFile(file);
 
       String imageUrl = await task.ref.getDownloadURL();
@@ -73,5 +71,10 @@ class AuthRepository with BaseRepository {
     } on Exception catch (e) {
       return Result(err: e);
     }
+  }
+
+  void refresh({FirebaseAuth? firebaseAuth, FirebaseStorage? storage}) {
+    this.auth = firebaseAuth ?? FirebaseAuth.instance;
+    this.storage = storage ?? FirebaseStorage.instance;
   }
 }

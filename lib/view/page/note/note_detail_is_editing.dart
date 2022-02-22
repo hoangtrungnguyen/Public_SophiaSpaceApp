@@ -69,7 +69,7 @@ class _EditingNoteDetailsState extends State<EditingNoteDetails> {
                       : () async {
                     bool isOk = await viewModel.update(note:singleNoteManager.note);
                     if (isOk) {
-                      Navigator.of(context).pop<Note?>(singleNoteManager.note);
+                      Navigator.of(context).pop<Note?>(singleNoteManager.note as Note);
                     } else {
                       showErrMessage(context, viewModel.error!);
                     }
@@ -239,8 +239,7 @@ class _SliderEmotionPointState extends State<SliderEmotionPoint> {
       divisions: 10,
       label: "${viewModel.note.emotionPoint}",
       onChanged: (double value) {
-        viewModel.note.emotionPoint = value.toInt();
-        setState(() {});
+        viewModel.setEmotionPoint(value.toInt());
       },
     );
   }

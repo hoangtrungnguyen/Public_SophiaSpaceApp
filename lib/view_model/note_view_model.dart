@@ -14,6 +14,8 @@ typedef RemovedItemBuilder<T> = Widget Function(
 class NotesViewModel extends BaseViewModel implements ReassembleHandler {
   List<SingleNoteViewModel> _notes = [];
 
+  bool isRefresh = false;
+
   late NoteRepository repository;
 
   GlobalKey<AnimatedListState>? listKey;
@@ -35,17 +37,15 @@ class NotesViewModel extends BaseViewModel implements ReassembleHandler {
         return res;
       });
 
-  Future<bool> delete(SingleNoteViewModel manager) async =>
+  Future<bool> delete(SingleNoteViewModel singleNote) async =>
       setAppState(() async {
-        Result res = await repository.delete(manager.note);
+        Result res = await repository.delete(singleNote.note);
         if (res.isHasData) {
-          deleteSorted(manager.note);
-          int index = _notes.indexWhere((e) => e.note.id == manager.note.id);
-
+          int deletedIndex = deleteSorted(singleNote.note);
           //remove item after delete
-          listKey!.currentState?.removeItem(index,
+          listKey!.currentState?.removeItem(deletedIndex,
               (BuildContext context, Animation<double> animation) {
-            return removedItemBuilder!(manager, context, animation);
+            return removedItemBuilder!(singleNote, context, animation);
           }, duration: Duration(seconds: 1));
         }
 
@@ -61,25 +61,31 @@ class NotesViewModel extends BaseViewModel implements ReassembleHandler {
         Result res = await repository.update(note);
         if (res.isHasData) {
           note = res.data as Note;
-          deleteSorted(note);
-          insertSorted(note);
         }
         return res;
       });
 
-  Future<bool> loadMore() async => setAppState(() async {
-        Result<List<GenericNote>> res = (await repository.loadMore() as Result<List<GenericNote>>);
-        if (res.isHasData) {
-          _notes.addAll(
-              (res.data as List<GenericNote>).map((e) => SingleNoteViewModel(e)));
-        }
-        return res;
-      });
+  Future<bool> loadMore()  async => setAppState(() async {
+    await Future.delayed(Duration(seconds: 1));
+    Result<List<GenericNote>> res = (await repository.loadMore() as Result<List<GenericNote>>);
 
-  clear() {
-    (repository as NoteFirebaseRepository).clear();
-    _notes.clear();
-  }
+    if (res.isHasData) {
+      (res.data as List<GenericNote>).forEach((element) {
+        int index = insertSorted(element);
+        listKey?.currentState?.insertItem(index);
+      });
+    }
+    return res;
+  });
+
+
+  Future<bool> refresh()  async => setAppState(() async {
+    this.isRefresh = true;
+    await Future.delayed(Duration(seconds: 3));
+    this.isRefresh = false;
+    return Result(data: "refresh");
+  });
+
 
   ///Logic methods
 
@@ -108,6 +114,17 @@ class NotesViewModel extends BaseViewModel implements ReassembleHandler {
 
   @override
   void reassemble() {
-    loadMore();
+    // print("Hot reload Note View Model");
+    // repository.refresh();
+    // _notes.clear();
+    // notifyListeners();
+    // loadMore().then(print);
   }
+
+  void clear({NoteRepository? repository}) {
+    _notes.clear();
+    repository = repository ?? NoteFirebaseRepository();
+    listKey = null;
+  }
+
 }

@@ -1,6 +1,7 @@
 import 'package:another_flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:sophia_hub/constant/theme.dart';
 import 'package:sophia_hub/helper/auth_validator.dart';
 import 'package:sophia_hub/model/result_container.dart';
 import 'package:sophia_hub/view_model/account_view_model.dart';
@@ -28,18 +29,7 @@ class _ForgotPwdState extends State<ForgotPwd> {
       },
       child: Container(
         decoration: BoxDecoration(
-            gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          stops: [
-            0.1,
-            1.0,
-          ],
-          colors: [
-            Theme.of(context).colorScheme.secondary,
-            Theme.of(context).colorScheme.primary,
-          ],
-        )),
+            gradient: backgroundLinearGradient(context)),
         alignment: Alignment.center,
         padding: EdgeInsets.symmetric(horizontal: 16),
         child: Stack(

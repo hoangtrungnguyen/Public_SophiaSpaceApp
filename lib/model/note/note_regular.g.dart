@@ -14,7 +14,7 @@ Note _$NoteFromJson(Map<String, dynamic> json) {
   return Note(
     title: json['title'] as String?,
     description: json['description'] as String?,
-    emotionPoint: json['emotionPoint'] as int? ?? 0,
+    emotionPoint: json['emotionPoint'] as int?,
   )
     ..type = $enumDecode(_$NoteTypeEnumMap, json['type'])
     ..timeCreated =

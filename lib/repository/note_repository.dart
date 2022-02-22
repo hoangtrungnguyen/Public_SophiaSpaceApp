@@ -4,4 +4,7 @@ import 'repository.dart';
 
 abstract class NoteRepository<GenericNote> extends Repository<GenericNote>  {
   Future<Result<List<GenericNote>>> loadMore();
+
+  Future<void> refresh();
+
 }

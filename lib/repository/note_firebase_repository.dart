@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:sophia_hub/constant/firebase.dart';
 import 'package:sophia_hub/model/activity.dart';
 import 'package:sophia_hub/model/note/note_image.dart';
@@ -15,26 +16,26 @@ class NoteFirebaseRepository extends NoteRepository<GenericNote> {
 
   late CollectionReference notesRef;
 
-  Query? query;
+  late Query query;
 
   //Last doc for pagination purpose
   DocumentSnapshot? lastDoc;
 
   NoteFirebaseRepository({FirebaseFirestore? firestore, FirebaseAuth? auth}) {
-    _firestore = FirebaseFirestore.instance;
-    FirebaseAuth auth = FirebaseAuth.instance;
+    _firestore = firestore ?? FirebaseFirestore.instance;
+    FirebaseAuth firebaseAuth = auth ?? FirebaseAuth.instance;
 
-    if (auth.currentUser == null) return;
+    if (firebaseAuth.currentUser == null) return;
     this.notesRef = _firestore
         .collection(FirebaseKey.dataCollection)
-        .doc(auth.currentUser!.uid)
+        .doc(firebaseAuth.currentUser!.uid)
         .collection(FirebaseKey.notes);
 
     this.query = getNotesQuery();
   }
 
   Query getNotesQuery() =>
-      notesRef.orderBy(FirebaseKey.timeCreated, descending: true).limit(10);
+      notesRef.orderBy(FirebaseKey.timeCreated, descending: true).limit(5);
 
   @override
   Future<Result> create(GenericNote note) async {
@@ -54,8 +55,8 @@ class NoteFirebaseRepository extends NoteRepository<GenericNote> {
         CollectionReference activityRef =
         currentDoc.collection(FirebaseKey.activities);
         WriteBatch batch = _firestore.batch();
-        for (final emotion in note.activities) {
-          batch.set(activityRef.doc(emotion.id), emotion.toJson());
+        for (final activity in note.activities) {
+          batch.set(activityRef.doc(activity.id), activity.toJson());
         }
         await batch.commit();
 
@@ -160,29 +161,21 @@ class NoteFirebaseRepository extends NoteRepository<GenericNote> {
     List<GenericNote> notes = [];
 
     try {
-      if (query == null) query = getNotesQuery();
 
-      if (lastDoc != null) query = query!.startAfterDocument(lastDoc!);
+      if (lastDoc != null) query = query.startAfterDocument(lastDoc!);
 
-      List<QueryDocumentSnapshot> docs = (await query!.get()).docs;
+      List<QueryDocumentSnapshot> docs = (await query.get()).docs;
 
       //save last doc for pagination purpose
       if (docs.isNotEmpty) this.lastDoc = docs.last;
 
 
       await Future.forEach(docs, (QueryDocumentSnapshot doc) async {
+
         if (doc.get("type") == NoteType.REGULAR.name.toLowerCase()) {
           Note note = Note.fromJson(doc.data() as Map<String, dynamic>)
             ..id = doc.id;
-
-            final listActivity =
-            await notesRef.doc(doc.id).collection(FirebaseKey.activities).get();
-            note.activities.addAll((listActivity).docs
-                .map((e) => Activity.fromJson(e.data())
-                ..icon =
-                    activities
-                        .firstWhere((element) => element.id == e.id)
-                        .icon));
+          note.activities.addAll(await loadActivities(doc.id));
 
           notes.add(note);
         } else if (doc.get("type") == NoteType.IMAGE.name.toLowerCase()) {
@@ -192,14 +185,33 @@ class NoteFirebaseRepository extends NoteRepository<GenericNote> {
         }
 
       });
-
+      print(notes);
       return Result<List<GenericNote>>(data: notes, err: null);
     } catch (e) {
       return Result(err: Exception(e), data: null);
     }
   }
 
-  clear() {
-    this.query = null;
+
+  Future<List<Activity>> loadActivities(String noteId) async {
+    try {
+      final listActivity = await notesRef.doc(noteId).collection(
+          FirebaseKey.activities).get();
+      return listActivity.docs.map((e) =>
+      Activity.fromJson(e.data())
+        ..icon = activities
+            .firstWhere((element) => element.id == e.id)
+            .icon
+      ).toList();
+    } catch (e) {
+      if(kDebugMode){
+        print("Exception while get activities from note with $noteId");
+      }
+      return [];
+    }
+  }
+  @override
+  Future<void> refresh() async {
+    this.query = getNotesQuery();
   }
 }

@@ -11,22 +11,21 @@ part 'note_regular.g.dart';
 @JsonSerializable(explicitToJson: true)
 class Note extends GenericNote implements Comparable<Note> {
 
-
-  int emotionPoint = 0;
+  int? emotionPoint;
 
   @JsonKey(ignore: true)
-  late List<Activity> activities;
+  List<Activity> activities = [];
   String? description;
 
   Note({
     String? title,
     String? description,
     List<Activity>? activities,
-    int emotionPoint = 0,
+    int? emotionPoint,
   }) : super(NoteType.REGULAR) {
     this.title = title;
     this.description = description;
-    this.emotionPoint = 0;
+    this.emotionPoint = emotionPoint;
     this.activities = activities ?? [];
     this.timeCreated = DateTime.now();
   }
@@ -40,8 +39,12 @@ class Note extends GenericNote implements Comparable<Note> {
     this.activities.remove(activity);
   }
 
-  bool isValid() =>
-      activities.length > 0 && emotionPoint <= 10 && emotionPoint >= 0;
+  bool isValid() {
+    if(emotionPoint == null){
+      return false;
+    }
+    return  activities.length > 0 && emotionPoint! <= 10 && emotionPoint! >= 0;
+  }
 
   Note copy() {
     return Note(
@@ -95,6 +98,7 @@ class Note extends GenericNote implements Comparable<Note> {
       "description": $description,
       "timeCreated": $timeCreated,
       "activities": $activities,
+      "type": $type,
     }""";
   }
 

@@ -18,7 +18,6 @@ class QuoteViewModel extends BaseViewModel {
       Result<List<Quote>> result = await quoteFirebaseRepository.loadQuote();
       if(result.isHasData) {
         quotes.addAll(result.data);
-        notifyListeners();
       }
       return result;
     });

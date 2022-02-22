@@ -19,7 +19,11 @@ class EmotionObjectsView extends StatefulWidget {
 
 class _EmotionObjectsViewState extends State<EmotionObjectsView> {
 
-
+  @override
+  void initState() {
+    super.initState();
+    (Provider.of<SingleNoteViewModel>(context,listen: false).note as Note).activities = [];
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -29,11 +33,11 @@ class _EmotionObjectsViewState extends State<EmotionObjectsView> {
           Note value = manager.note;
           Widget button;
           button = FloatingActionButton.extended(
-             elevation: value.activities.length <= 0 ? 0 : 6,
-              backgroundColor: value.activities.length <= 0
+             elevation: value.activities.isEmpty ? 0 : 6,
+              backgroundColor: value.activities.isEmpty
                   ? Colors.grey.withOpacity(0.3)
                   : Colors.white,
-              onPressed: value.activities.length <= 0
+              onPressed: value.activities == null
                   ? null
                   : () {
                     Provider.of<TabController>(context,listen: false).animateTo(2,
@@ -44,7 +48,7 @@ class _EmotionObjectsViewState extends State<EmotionObjectsView> {
                 child: Text(
                   "Tiếp tục",
                   style: Theme.of(context).textTheme.headline6?.apply(
-                    color: value.activities.length <= 0
+                    color: value.activities == null
                         ? Colors.grey.withOpacity(0.5)
                         : Theme.of(context).colorScheme.primary,
                   ),
@@ -78,7 +82,6 @@ class _EmotionObjectsViewState extends State<EmotionObjectsView> {
 
   @override
   void deactivate() {
-    print("deactivate emotion view");
     super.deactivate();
   }
 }
@@ -95,7 +98,7 @@ class _EmotionGridState extends State<EmotionGrid> {
 
   @override
   Widget build(BuildContext context) {
-    SingleNoteViewModel note = Provider.of<SingleNoteViewModel>(context);
+    SingleNoteViewModel viewModel = Provider.of<SingleNoteViewModel>(context);
     return GridView.builder(
       shrinkWrap: true,
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -105,7 +108,7 @@ class _EmotionGridState extends State<EmotionGrid> {
         scrollDirection: Axis.horizontal,
         itemBuilder: (BuildContext context, int index) {
           Activity emotion = _activities[index];
-          bool isChosen = note.note.activities.contains(emotion);
+          bool isChosen = viewModel.note.activities.contains(emotion);
           return Padding(
             padding: EdgeInsets.all(10),
             child: ElevatedButton(
@@ -115,9 +118,9 @@ class _EmotionGridState extends State<EmotionGrid> {
               ),
               onPressed: () {
                 if (isChosen) {
-                  note.removeActivity(emotion);
+                  viewModel.removeActivity(emotion);
                 } else {
-                  note.addActivity(emotion);
+                  viewModel.addActivity(emotion);
                 }
               },
               child: Column(

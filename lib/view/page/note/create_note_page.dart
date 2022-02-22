@@ -39,8 +39,6 @@ class _CreateNotePageState extends State<CreateNotePage>
           create: (BuildContext context) => SingleNoteViewModel(Note(
             title: "",
             description: "",
-            emotionPoint: 0,
-            activities: [],
           )),
         ),
         //This provider is to check if this screen is first screen

@@ -26,7 +26,7 @@ class TextFieldHelper {
                     padding: EdgeInsets.symmetric(
                         vertical: 2, horizontal: 5),
                     child: Text(
-                      "${currentLength}/${maxLength}",
+                      "$currentLength/$maxLength",
                       style: TextStyle(color: Theme.of(context).colorScheme.primary),))));
       },
     );

@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:sophia_hub/helper/note_helper_func.dart';
+import 'package:sophia_hub/model/note/note_regular.dart';
 import 'package:sophia_hub/view/page/note/note_detail.dart';
+import 'package:sophia_hub/view_model/account_view_model.dart';
 import 'package:sophia_hub/view_model/single_note_view_model.dart';
 import 'package:sophia_hub/view_model/single_note_view_model.dart';
 
@@ -12,12 +14,13 @@ class StatHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    AccountViewModel accountViewModel = Provider.of<AccountViewModel>(context);
     return Container(
       child: Stack(
         children: [
           Align(
             child: Text(
-              "Nhật ký của ${FirebaseAuth.instance.currentUser?.displayName}",
+              "Nhật ký của ${accountViewModel.getCurrentUser()?.displayName}",
               style: Theme.of(context)
                   .textTheme
                   .headline5
@@ -47,7 +50,6 @@ class StatHeader extends StatelessWidget {
 }
 
 class NoteDayHeader extends StatefulWidget {
-
   const NoteDayHeader({Key? key}) : super(key: key);
 
   @override
@@ -100,22 +102,23 @@ class _NoteDayHeaderState extends State<NoteDayHeader>
                 ),
               ],
             )),
-        title: Text("${DateFormat.EEEE('vi').format(manager.note.timeCreated)}"),
-        subtitle: Text("${DateFormat.y('vi').format(manager.note.timeCreated)}"),
+        title:
+            Text("${DateFormat.EEEE('vi').format(manager.note.timeCreated)}"),
+        subtitle:
+            Text("${DateFormat.y('vi').format(manager.note.timeCreated)}"),
       ),
     );
   }
 }
 
-class DailyNotes extends StatefulWidget {
-
-  DailyNotes({Key? key}) : super(key: key);
+class NoteItem extends StatefulWidget {
+  NoteItem({Key? key}) : super(key: key);
 
   @override
-  State<DailyNotes> createState() => _DailyNotesState();
+  State<NoteItem> createState() => _NoteItemState();
 }
 
-class _DailyNotesState extends State<DailyNotes>
+class _NoteItemState extends State<NoteItem>
     with SingleTickerProviderStateMixin {
   @override
   void initState() {
@@ -127,7 +130,6 @@ class _DailyNotesState extends State<DailyNotes>
     super.dispose();
   }
 
-
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -137,63 +139,74 @@ class _DailyNotesState extends State<DailyNotes>
   @override
   Widget build(BuildContext context) {
     SingleNoteViewModel manager = Provider.of<SingleNoteViewModel>(context);
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-      child: ElevatedButton(
-        style: Theme.of(context).elevatedButtonTheme.style?.copyWith(
-            padding: MaterialStateProperty.all<EdgeInsetsGeometry?>(
-              EdgeInsets.symmetric(horizontal: 16),
-            ),
-            shape: MaterialStateProperty.all<OutlinedBorder?>(
-                ContinuousRectangleBorder(
-              borderRadius: BorderRadius.circular(32.0),
-            )),
-            elevation: MaterialStateProperty.all<double?>(8),
-            backgroundColor: MaterialStateProperty.all<Color?>(Colors.white)),
-        onPressed: () {
-          Navigator.push(context,NoteDetails.route(manager.note));
-        },
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ListTile(
-              leading: Icon(
-                generateMoodIcon(manager.note.emotionPoint),
-                size: 36,
+    Widget content = Container();
+    if (manager.note is Note) {
+      Note note = manager.note as Note;
+      content = Padding(
+        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        child: ElevatedButton(
+          style: Theme.of(context).elevatedButtonTheme.style?.copyWith(
+              padding: MaterialStateProperty.all<EdgeInsetsGeometry?>(
+                EdgeInsets.symmetric(horizontal: 16),
               ),
-              contentPadding: EdgeInsets.zero,
-              title: Text("${displayTitle(manager)}"),
-              subtitle:
-                  Text("${DateFormat.jm().format(manager.note.timeCreated)} "),
-            ),
-            Wrap(
-              children: [
-                ...manager.note.activities.map((e) {
-                  return Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 2),
-                    child: Chip(
-                        elevation: 0,
-                        visualDensity: VisualDensity.compact,
-                        backgroundColor: Colors.grey.withOpacity(0.5),
-                        padding: EdgeInsets.zero,
-                        avatar: Icon(
-                          e.icon,
-                          color: Colors.grey,
-                        ),
-                        label: Text(
-                          e.name ?? "NaN",
-                          style: Theme.of(context).textTheme.caption,
-                        )),
-                  );
-                }).toList()
-              ],
-            )
-          ],
+              shape: MaterialStateProperty.all<OutlinedBorder?>(
+                  ContinuousRectangleBorder(
+                borderRadius: BorderRadius.circular(32.0),
+              )),
+              elevation: MaterialStateProperty.all<double?>(4),
+              backgroundColor: MaterialStateProperty.all<Color?>(Colors.white)),
+          onPressed: () {
+            Navigator.push(context, NoteDetails.route(note));
+          },
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: note.emotionPoint == null
+                    ? CircleAvatar(
+                        radius: 18,
+                        backgroundColor: Colors.grey,
+                      )
+                    : Icon(
+                        generateMoodIcon(note.emotionPoint!),
+                        size: 36,
+                      ),
+                contentPadding: EdgeInsets.zero,
+                title: Text("${displayTitle(manager)}"),
+                subtitle: Text("${DateFormat.jm().format(note.timeCreated)} "),
+              ),
+              Wrap(children: activityChips(manager.note),)
+            ],
+          ),
         ),
-      ),
-    );
+      );
+    } else {}
+    return content;
+  }
+
+  List<Widget> activityChips(Note note) {
+    return [
+      ...note.activities.map((e) {
+        return Padding(
+          padding: EdgeInsets.symmetric(horizontal: 2),
+          child: Chip(
+              elevation: 0,
+              visualDensity: VisualDensity.compact,
+              backgroundColor: Colors.grey.withOpacity(0.5),
+              padding: EdgeInsets.zero,
+              avatar: Icon(
+                e.icon,
+                color: Colors.grey,
+              ),
+              label: Text(
+                e.name ?? "NaN",
+                style: Theme.of(context).textTheme.caption,
+              )),
+        );
+      }).toList()
+    ];
   }
 
   String displayTitle(SingleNoteViewModel manager) {

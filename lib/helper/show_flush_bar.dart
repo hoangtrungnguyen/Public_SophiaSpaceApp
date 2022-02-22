@@ -1,6 +1,7 @@
 import 'package:another_flushbar/flushbar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:sophia_hub/helper/debug_print.dart';
 
 extension ShowMessage on Flushbar {}
 
@@ -31,6 +32,7 @@ void showErrMessage(BuildContext context, Exception exception) async {
         break;
     }
   } else {
+    printDebug(exception);
   }
 
   Flushbar(

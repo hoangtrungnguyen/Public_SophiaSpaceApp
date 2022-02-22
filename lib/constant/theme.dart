@@ -14,6 +14,7 @@ ShapeDecoration commonDecoration(Color color) =>
 ShapeDecoration commonDecorationShadow = ShapeDecoration(
   shape: continuousRectangleBorder,
   color: Colors.white,
+
   shadows: [
     BoxShadow(
       color: Colors.grey,
@@ -23,11 +24,27 @@ ShapeDecoration commonDecorationShadow = ShapeDecoration(
   ],
 );
 
+
+Gradient backgroundLinearGradient(BuildContext context){
+  return LinearGradient(
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+    stops: [
+      0.1,
+      1.0,
+    ],
+    colors: [
+      Theme.of(context).colorScheme.secondary,
+      Theme.of(context).colorScheme.primary,
+    ],
+  );
+}
+
 ColorScheme getColorScheme(BuildContext context, {
   MaterialColor color: Colors.indigo,
 }) {
-  final primary = color[600];
-  final secondary = color[300];
+  final primary = color[800];
+  final secondary = color[500];
   return Theme
       .of(context)
       .colorScheme
