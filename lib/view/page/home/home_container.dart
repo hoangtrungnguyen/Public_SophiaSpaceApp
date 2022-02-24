@@ -2,11 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:provider/provider.dart';
 import 'package:sophia_hub/constant/theme.dart';
-import 'package:sophia_hub/view/page/home/notes.dart';
+import 'package:sophia_hub/view/page/home/notes/note_tab_view_container.dart';
 import 'package:sophia_hub/view/page/home/quote.dart';
 import 'package:sophia_hub/view/page/note/create_note_page.dart';
 import 'package:sophia_hub/view_model/note_view_model.dart';
+import 'package:sophia_hub/view_model/quote_view_model.dart';
 import 'package:sophia_hub/view_model/ui_logic.dart';
+
+import 'notes/note_tab_view.dart';
 
 class Destination {
   const Destination(this.namedRoute, this.title, this.icon, this.color);
@@ -22,7 +25,7 @@ const List<Destination> allDestinations = <Destination>[
 
   // Destination("/holder", "", null, null),
   // Destination('/tasks', 'Nhiệm vụ', Icons.task_alt_outlined, Colors.orange),
-  Destination('/notes', 'Nhật ký', Icons.event_note_rounded, null),
+  Destination('/notes', 'Nhật ký', Icons.library_books_rounded, null),
 
   Destination('/quotes', 'Quote', Icons.format_quote_rounded, null),
 ];
@@ -98,65 +101,72 @@ class _HomeContainerState extends State<HomeContainer>
 
   @override
   Widget build(BuildContext context) {
-    UILogic uiLogic = Provider.of<UILogic>(context);
-    return NotificationListener(
-      onNotification: _handleScrollNotification,
-      child: Scaffold(
-        extendBody: true,
-        extendBodyBehindAppBar: true,
-        floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-        floatingActionButton: FloatingActionButton(
-          backgroundColor: allDestinations[_currentIndex].color,
-          child: Icon(Icons.add),
-          onPressed: () async {
-            dynamic isAdd =
-                await Navigator.of(context, rootNavigator: true).pushNamed(
-              CreateNotePage.nameRoute,
-            );
-            if (isAdd is bool && isAdd) {}
-          },
-        ),
-        bottomNavigationBar: SizeTransition(
-          sizeFactor: _hideBottomBar,
-          axisAlignment: -1.0,
-          child: BottomAppBar(
-            elevation: 8,
-            clipBehavior: Clip.hardEdge,
-            shape: AutomaticNotchedShape(
-              RoundedRectangleBorder(
-                  borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(10),
-                      topRight: Radius.circular(10))),
-              continuousRectangleBorder,
+
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider<NotesViewModel>(create: (context) => NotesViewModel()),
+        ChangeNotifierProvider<QuoteViewModel>(create: (_) => QuoteViewModel()),
+      ],
+      builder: (context,child){
+        return NotificationListener(
+          onNotification: _handleScrollNotification,
+          child: Scaffold(
+            extendBody: true,
+            extendBodyBehindAppBar: true,
+            floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+            floatingActionButton: FloatingActionButton(
+              backgroundColor: allDestinations[_currentIndex].color,
+              child: Icon(Icons.add),
+              onPressed: () async {
+                dynamic isAdd =
+                await Navigator.of(context, rootNavigator: true).push(
+                  CreateNotePage.route(Provider.of<NotesViewModel>(context,listen: false)),
+                );
+                if (isAdd is bool && isAdd) {}
+              },
             ),
-            child: BottomNavigationBar(
-                backgroundColor:
+            bottomNavigationBar: SizeTransition(
+              sizeFactor: _hideBottomBar,
+              axisAlignment: -1.0,
+              child: BottomAppBar(
+                elevation: 8,
+                clipBehavior: Clip.hardEdge,
+                shape: AutomaticNotchedShape(
+                  RoundedRectangleBorder(
+                      borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(10),
+                          topRight: Radius.circular(10))),
+                  continuousRectangleBorder,
+                ),
+                child: BottomNavigationBar(
+                    backgroundColor:
                     Theme.of(context).colorScheme.primary.withOpacity(0.15),
-                // backgroundColor: allDestinations[_currentIndex].color,
-                currentIndex: _currentIndex,
-                onTap: (i) {
-                  // Thay đổi logic i == ở đây để phù hợp với số lượng màn hình
-                  // if (i == _currentIndex || i == 1) return;
-                  uiLogic.homePageIndex = i;
-                  setState(() {
-                    _currentIndex = i;
-                  });
-                },
-                items: allDestinations.map((destination) {
-                  return BottomNavigationBarItem(
-                      icon: Icon(destination.icon),
-                      backgroundColor: destination.color,
-                      label: destination.title);
-                }).toList()),
+                    // backgroundColor: allDestinations[_currentIndex].color,
+                    currentIndex: _currentIndex,
+                    onTap: (i) {
+                      // Thay đổi logic i == ở đây để phù hợp với số lượng màn hình
+                      // if (i == _currentIndex || i == 1) return;
+                      Provider.of<UILogic>(context, listen: false).homePageIndex = i;
+                      setState(() {
+                        _currentIndex = i;
+                      });
+                    },
+                    items: allDestinations.map((destination) {
+                      return BottomNavigationBarItem(
+                          icon: Icon(destination.icon),
+                          backgroundColor: destination.color,
+                          label: destination.title);
+                    }).toList()),
+              ),
+            ),
+            body: _buildContent(),
           ),
-        ),
-        body: _buildContent(),
-      ),
+        );
+      },
     );
   }
 
-
-  Widget _buildContent(){
+  Widget _buildContent() {
     // if(_currentIndex == 0){
     //   return _setFadeTransition(0, allDestinations[0]);
     // } else if (_currentIndex == 1){
@@ -165,30 +175,28 @@ class _HomeContainerState extends State<HomeContainer>
     // return Container();
     return Container(
         child: IndexedStack(
-          index: _currentIndex,
-          children: allDestinations.asMap().entries.map((entry) {
-            int index = entry.key;
-            Destination des = entry.value;
-            return _setFadeTransition(index, des);
-          }).toList(),
-        ));
+      index: _currentIndex,
+      children: allDestinations.asMap().entries.map((entry) {
+        int index = entry.key;
+        Destination des = entry.value;
+        return _setFadeTransition(index, des);
+      }).toList(),
+    ));
   }
 
   Widget _setFadeTransition(int index, Destination des) {
     Widget destinedView = Text('Unknown Route ');
     if (des.namedRoute == allDestinations[0].namedRoute) {
-      destinedView =  NotesView(key: UniqueKey());
+      destinedView = const NoteTabView();
     } else if (des.namedRoute == allDestinations[1].namedRoute) {
       destinedView = QuoteView();
     }
     Widget view = FadeTransition(
         opacity: _faders[index].drive(CurveTween(curve: Curves.easeIn)),
-        child:
-        KeyedSubtree(
+        child: KeyedSubtree(
           key: _destinationKeys[index],
           child: destinedView,
-        )
-    );
+        ));
 
     if (index == _currentIndex) {
       _faders[index].forward();

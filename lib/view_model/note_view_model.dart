@@ -8,7 +8,7 @@ import 'package:sophia_hub/model/result_container.dart';
 import 'package:sophia_hub/repository/note_firebase_repository.dart';
 import 'package:sophia_hub/repository/note_repository.dart';
 import 'package:sophia_hub/view_model/base_view_model.dart';
-import 'package:sophia_hub/view_model/single_note_view_model.dart';
+import 'package:sophia_hub/view_model/note_single_view_model.dart';
 
 typedef RemovedItemBuilder<T> = Widget Function(
     T item, BuildContext context, Animation<double> animation);
@@ -16,12 +16,16 @@ typedef RemovedItemBuilder<T> = Widget Function(
 class NotesViewModel extends BaseViewModel implements ReassembleHandler {
   List<SingleNoteViewModel> _notes = [];
 
-  bool isRefresh = false;
+  bool isRefreshing = false;
+
+  bool isNoMoreNote = false;
 
   late NoteRepository repository;
 
   GlobalKey<AnimatedListState>? listKey;
   RemovedItemBuilder<SingleNoteViewModel>? removedItemBuilder;
+
+  RemovedItemBuilder<SingleNoteViewModel>? clearanceItemBuilder;
 
   NotesViewModel({NoteRepository? repository}) {
     this.repository = repository ?? NoteFirebaseRepository();
@@ -33,8 +37,7 @@ class NotesViewModel extends BaseViewModel implements ReassembleHandler {
         Result res = await repository.create(note);
         //Thêm note vào danh sách hiện tại
         if (res.isHasData) {
-          int index = insertSorted(note);
-          listKey?.currentState?.insertItem(index);
+          insertSorted(note);
         }
         return res;
       });
@@ -43,56 +46,82 @@ class NotesViewModel extends BaseViewModel implements ReassembleHandler {
       setAppState(() async {
         Result res = await repository.delete(singleNote.note);
         if (res.isHasData) {
-          int deletedIndex = deleteSorted(singleNote.note);
+          deleteSorted(singleNote);
           //remove item after delete
-          listKey!.currentState?.removeItem(deletedIndex,
-              (BuildContext context, Animation<double> animation) {
-            return removedItemBuilder!(singleNote, context, animation);
-          }, duration: Duration(seconds: 1));
         }
 
         return res;
       });
 
-  Future<bool> update({required Note note}) async => setAppState(() async {
-        int indexFound = _notes.indexWhere((other) => note.id == other.note.id);
+  Future<bool> update({required SingleNoteViewModel viewModel}) async =>
+      setAppState(() async {
+        int indexFound = _notes.indexWhere((other) => viewModel.note.id == other.note.id);
         if (indexFound == -1) {
           return Result(err: Exception("Note không tồn tại"));
         }
 
-        Result res = await repository.update(note);
+        Result res = await repository.update(viewModel.note);
         if (res.isHasData) {
-          note = res.data as Note;
+          deleteSorted(viewModel);
+          insertSorted(viewModel.note);
         }
         return res;
       });
 
-  Future<bool> loadMore()  async => setAppState(() async {
-    await Future.delayed(Duration(seconds: 1));
-    Result<List<GenericNote>> res = (await repository.loadMore() as Result<List<GenericNote>>);
+  Future<bool> loadMore() async => setAppState(() async {
 
-    if (res.isHasData) {
-      (res.data as List<GenericNote>).forEach((element) {
-        int index = insertSorted(element);
-        listKey?.currentState?.insertItem(index);
+
+        if (this.isNoMoreNote) {
+          print("No more note");
+          return Result(data: "No more note");
+        }
+
+        Result<List<GenericNote>> res =
+            (await repository.loadMore() as Result<List<GenericNote>>);
+
+        if (res.isHasData && (res.data as List).length == 0) {
+          this.isNoMoreNote = true;
+        }
+
+
+        if (res.isHasData && (res.data as List).length > 0) {
+          List<GenericNote> list = (res.data as List<GenericNote>);
+          for (int i = 0; i < list.length; i++) {
+            insertSorted(list[i]);
+          }
+        }
+        return res;
       });
-    }
-    return res;
-  });
 
+  Future<bool> refresh({NoteRepository? repository}) async =>
+      setAppState(() async {
+        this.isRefreshing = true;
+        refreshView();
+        this.repository = repository ?? NoteFirebaseRepository();
+        Result<List<GenericNote>> res =
+            (await this.repository.loadMore() as Result<List<GenericNote>>);
 
-  Future<bool> refresh()  async => setAppState(() async {
-    this.isRefresh = true;
-    await Future.delayed(Duration(seconds: 3));
-    this.isRefresh = false;
-    return Result(data: "refresh");
-  });
-
+        if (res.isHasData && (res.data as List).length > 0) {
+          List<GenericNote> list = (res.data as List<GenericNote>);
+          for (int i = 0; i < list.length; i++) {
+            insertSorted(list[i]);
+          }
+        }
+        await Future.delayed(Duration(seconds: 1));
+        this.isNoMoreNote = false;
+        this.isRefreshing = false;
+        return res;
+      });
 
   ///Logic methods
 
   //https://www.geeksforgeeks.org/search-insert-and-delete-in-a-sorted-array/
-  int insertSorted(GenericNote note) {
+  int insertSorted(GenericNote note, {Duration? duration}) {
+
+    if (_notes.contains(note)) {
+      return -1;
+    }
+
     //Thêm một note để giữ chỗ
     _notes.insert(0, SingleNoteViewModel(Note()));
     int i;
@@ -102,27 +131,50 @@ class NotesViewModel extends BaseViewModel implements ReassembleHandler {
         i++) _notes[i - 1] = _notes[i];
 
     _notes[i - 1] = SingleNoteViewModel(note);
+    listKey?.currentState
+        ?.insertItem(i - 1, duration: duration ?? Duration(milliseconds: 500));
     return (i - 1);
   }
 
-  int deleteSorted(GenericNote note) {
-    int index = this._notes.indexWhere((e) => e.note.id == note.id);
+  int deleteSorted(SingleNoteViewModel note, {Duration? duration}) {
+    int index = this._notes.indexWhere((e) => e.note.id == note.note.id);
     if (index == -1) {
       print("Không tồn tại");
     }
     this._notes.removeAt(index);
+    listKey!.currentState?.removeItem(index,
+        (BuildContext context, Animation<double> animation) {
+      return removedItemBuilder!(note, context, animation);
+    }, duration: duration ?? Duration(seconds: 1));
     return index;
+  }
+
+  refreshView({Duration? duration}) {
+    for (int i = _notes.length - 1; i >= 0; i--) {
+      SingleNoteViewModel note = _notes[i];
+      int index = this._notes.indexWhere((e) => e.note.id == note.note.id);
+      if (index == -1) {
+        print("Không tồn tại");
+      }
+      this._notes.removeAt(index);
+      listKey!.currentState?.removeItem(index,
+          (BuildContext context, Animation<double> animation) {
+        return clearanceItemBuilder!(note, context, animation);
+      }, duration: duration ?? Duration(seconds: 1));
+    }
   }
 
   @override
   void reassemble() {
-    _notes.clear();
-    repository = NoteFirebaseRepository();
-    loadMore();
+    refresh();
   }
 
-  void reload({NoteRepository? repository}){
-    _notes.clear();
+  Future reload({NoteRepository? repository}) async {
+    for (int i = _notes.length - 1; i >= 0; i--) {
+      deleteSorted(_notes[i], duration: Duration(milliseconds: 50));
+    }
+
     this.repository = repository ?? NoteFirebaseRepository();
+    return await loadMore();
   }
 }

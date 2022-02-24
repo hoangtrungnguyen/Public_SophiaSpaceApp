@@ -1,4 +1,3 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -6,48 +5,9 @@ import 'package:sophia_hub/helper/note_helper_func.dart';
 import 'package:sophia_hub/model/note/note_regular.dart';
 import 'package:sophia_hub/view/page/note/note_detail.dart';
 import 'package:sophia_hub/view_model/account_view_model.dart';
-import 'package:sophia_hub/view_model/single_note_view_model.dart';
-import 'package:sophia_hub/view_model/single_note_view_model.dart';
+import 'package:sophia_hub/view_model/note_single_view_model.dart';
+import 'package:sophia_hub/view_model/note_view_model.dart';
 
-class StatHeader extends StatelessWidget {
-  const StatHeader({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    AccountViewModel accountViewModel = Provider.of<AccountViewModel>(context);
-    return Container(
-      child: Stack(
-        children: [
-          Align(
-            child: Text(
-              "Nhật ký của ${accountViewModel.getCurrentUser()?.displayName}",
-              style: Theme.of(context)
-                  .textTheme
-                  .headline5
-                  ?.apply(color: Colors.grey.withOpacity(0.8)),
-              textAlign: TextAlign.center,
-            ),
-            alignment: Alignment.topCenter,
-          ),
-          // Align(
-          //   alignment: Alignment.bottomCenter,
-          //   child: Card(
-          //     elevation: 12,
-          //     child: Container(
-          //         height: 100,
-          //         child: ListTile(
-          //           title: Text("Nhật ký của bạn",style:
-          //           Theme.of(context).textTheme.headline5),
-          //           subtitle: Text(""),
-          //         )
-          //     ),
-          //   ),
-          // ),
-        ],
-      ),
-    );
-  }
-}
 
 class NoteDayHeader extends StatefulWidget {
   const NoteDayHeader({Key? key}) : super(key: key);
@@ -111,14 +71,14 @@ class _NoteDayHeaderState extends State<NoteDayHeader>
   }
 }
 
-class NoteItem extends StatefulWidget {
-  NoteItem({Key? key}) : super(key: key);
+class NoteSingleItemContent extends StatefulWidget {
+  NoteSingleItemContent({Key? key}) : super(key: key);
 
   @override
-  State<NoteItem> createState() => _NoteItemState();
+  State<NoteSingleItemContent> createState() => _NoteSingleItemContentState();
 }
 
-class _NoteItemState extends State<NoteItem>
+class _NoteSingleItemContentState extends State<NoteSingleItemContent>
     with SingleTickerProviderStateMixin {
   @override
   void initState() {
@@ -156,7 +116,8 @@ class _NoteItemState extends State<NoteItem>
               elevation: MaterialStateProperty.all<double?>(4),
               backgroundColor: MaterialStateProperty.all<Color?>(Colors.white)),
           onPressed: () {
-            Navigator.push(context, NoteDetails.route(note));
+            Navigator.push(context, NoteDetails.route(note,
+            Provider.of<NotesViewModel>(context,listen: false)));
           },
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -174,10 +135,10 @@ class _NoteItemState extends State<NoteItem>
                         size: 36,
                       ),
                 contentPadding: EdgeInsets.zero,
-                title: Text("${displayTitle(manager)}"),
+                title: Text("${displayTitle(note)}"),
                 subtitle: Text("${DateFormat.jm().format(note.timeCreated)} "),
               ),
-              Wrap(children: activityChips(manager.note),)
+              Wrap(children: activityChips(note),)
             ],
           ),
         ),
@@ -209,14 +170,14 @@ class _NoteItemState extends State<NoteItem>
     ];
   }
 
-  String displayTitle(SingleNoteViewModel manager) {
-    String? title = manager.note.title;
-    int emotionPoint = manager.note.emotionPoint;
+  String displayTitle(Note note) {
+    String? title = note.title;
+    int? emotionPoint = note.emotionPoint;
     String status;
     if (title != null) if (title.isNotEmpty) return title;
-
-    assert(emotionPoint >= 0 || emotionPoint < 10, 'Out of bound');
-    if (2 > emotionPoint && emotionPoint >= 0) {
+    if(emotionPoint == null){
+      status = "";
+    } else if (2 > emotionPoint && emotionPoint >= 0) {
       status = "Rất tệ";
     } else if (4 > emotionPoint && emotionPoint >= 2) {
       status = "Hơi tệ";

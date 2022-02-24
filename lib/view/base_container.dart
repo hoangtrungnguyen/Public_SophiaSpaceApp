@@ -6,7 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:sophia_hub/constant/sophia_hub_app.dart';
-import 'package:sophia_hub/view/page/home_container.dart';
+import 'package:sophia_hub/view/page/home/home_container.dart';
 import 'package:sophia_hub/view_model/ui_logic.dart';
 import 'package:url_launcher/url_launcher.dart';
 

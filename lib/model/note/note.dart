@@ -45,4 +45,16 @@ abstract class GenericNote {
 
   GenericNote.empty();
 
+  @override
+  bool operator ==(Object other) {
+    if(other is GenericNote ){
+      return (other).id == this.id;
+    }
+    return false;
+  }
+
+  @override
+  // TODO: implement hashCode
+  int get hashCode => super.hashCode;
+
 }

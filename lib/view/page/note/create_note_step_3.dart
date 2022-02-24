@@ -5,9 +5,7 @@ import 'package:sophia_hub/helper/show_flush_bar.dart';
 import 'package:sophia_hub/model/note/note_regular.dart';
 import 'package:sophia_hub/view/widget/animated_loading_icon.dart';
 import 'package:sophia_hub/view_model/note_view_model.dart';
-import 'package:sophia_hub/view_model/note_view_model.dart';
-import 'package:sophia_hub/view_model/single_note_view_model.dart';
-import 'package:sophia_hub/view_model/single_note_view_model.dart';
+import 'package:sophia_hub/view_model/note_single_view_model.dart';
 
 class NoteDetailsView extends StatefulWidget {
   static const String nameRoute = "/NoteDetailsView";

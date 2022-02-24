@@ -3,7 +3,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:sophia_hub/helper/note_helper_func.dart';
 import 'package:sophia_hub/model/note/note_regular.dart';
-import 'package:sophia_hub/view_model/single_note_view_model.dart';
+import 'package:sophia_hub/view_model/note_single_view_model.dart';
 
 class EmotionPointView extends StatefulWidget {
   static const String nameRoute = "/";
@@ -29,15 +29,16 @@ class _EmotionPointViewState extends State<EmotionPointView> {
     SingleNoteViewModel viewModel = Provider.of<SingleNoteViewModel>(
       context
     );
+    Note note =  (viewModel.note as Note);
     return Scaffold(
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       floatingActionButton: Consumer<TabController>(
         builder: (BuildContext context, tabControl, Widget? child) {
           return FloatingActionButton.extended(
-              elevation: viewModel.note.emotionPoint != null ? 4 : 0,
+              elevation: note.emotionPoint != null ? 4 : 0,
               backgroundColor:
-              viewModel.note.emotionPoint != null ? Colors.white : Colors.grey.withOpacity(0.3),
-              onPressed: viewModel.note.emotionPoint != null
+              note.emotionPoint != null ? Colors.white : Colors.grey.withOpacity(0.3),
+              onPressed: note.emotionPoint != null
                   ? () {
                       tabControl.animateTo(1,
                           duration: Duration(milliseconds: 1000));
@@ -48,7 +49,7 @@ class _EmotionPointViewState extends State<EmotionPointView> {
                 child: Text(
                   "Tiếp tục",
                   style: Theme.of(context).textTheme.headline6?.apply(
-                        color: viewModel.note.emotionPoint != null
+                        color: note.emotionPoint != null
                             ? Theme.of(context).colorScheme.primary
                             : Colors.grey.withOpacity(0.5),
                       ),
@@ -68,9 +69,9 @@ class _EmotionPointViewState extends State<EmotionPointView> {
             Spacer(
               flex: 3,
             ),
-            viewModel.note.emotionPoint == null ?
+            note.emotionPoint == null ?
             Icon(FontAwesomeIcons.grin,color: Colors.grey,size: 70,)
-                : Icon( generateMoodIcon(viewModel.note.emotionPoint),
+                : Icon( generateMoodIcon(note.emotionPoint ?? 5),
             color: Colors.white,
             size: 80,),
             Padding(
@@ -80,9 +81,9 @@ class _EmotionPointViewState extends State<EmotionPointView> {
               ) {
                 String status = '';
 
-                if (viewModel.note.emotionPoint == null) return Text("");
+                if (note.emotionPoint == null) return Text("");
 
-                status = generateMoodStatus(viewModel.note.emotionPoint.toInt());
+                status = generateMoodStatus(note.emotionPoint?.toInt() ?? 5);
                 return Text(
                   "$status",
                   style: Theme.of(context).textTheme.headline6,
@@ -92,11 +93,11 @@ class _EmotionPointViewState extends State<EmotionPointView> {
            Slider(
                   inactiveColor: Colors.grey.withOpacity(0.5),
                   activeColor: Colors.white,
-                  value: (viewModel.note.emotionPoint ?? 5).toDouble() ,
+                  value: (note.emotionPoint ?? 5).toDouble() ,
                   min: 0,
                   max: 10,
                   divisions: 10,
-                  label: "${viewModel.note.emotionPoint}",
+                  label: "${note.emotionPoint}",
                   onChanged: (double value) {
                     viewModel.setEmotionPoint(value.toInt());
                   },
@@ -112,7 +113,6 @@ class _EmotionPointViewState extends State<EmotionPointView> {
 
   @override
   void deactivate() {
-    print("deactivate point view");
     super.deactivate();
   }
 }

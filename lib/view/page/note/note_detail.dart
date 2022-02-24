@@ -3,23 +3,25 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:sophia_hub/helper/note_helper_func.dart';
 import 'package:sophia_hub/model/note/note_regular.dart';
-import 'package:sophia_hub/view/page/note/note_detail_is_editing.dart';
-import 'package:sophia_hub/view_model/single_note_view_model.dart';
+import 'package:sophia_hub/view/page/note/note_detail/note_detail_is_editing.dart';
+import 'package:sophia_hub/view_model/note_single_view_model.dart';
+import 'package:sophia_hub/view_model/note_view_model.dart';
 
 class NoteDetails extends StatefulWidget {
   static const String nameRoute = "/NoteDetails";
 
-  static Route<dynamic> route(Note note) {
+  static Route<dynamic> route(Note note, NotesViewModel notesViewModel) {
     return MaterialPageRoute(builder: (BuildContext context) {
-      return NoteDetails.view(note);
+      return MultiProvider(providers: [
+        ChangeNotifierProvider<SingleNoteViewModel>(
+            create: (_) => SingleNoteViewModel(note)),
+        ChangeNotifierProvider<NotesViewModel>.value(
+          value: notesViewModel,
+        )
+      ],
+        child: NoteDetails(),
+      );
     });
-  }
-
-  static Widget view(Note note, {Key? key}) {
-    return ChangeNotifierProvider<SingleNoteViewModel>(
-      create: (_) => SingleNoteViewModel(note),
-      child: NoteDetails(),
-    );
   }
 
   NoteDetails({Key? key}) : super(key: key);
@@ -36,24 +38,29 @@ class _NoteDetailsState extends State<NoteDetails> {
 
   @override
   Widget build(BuildContext context) {
-    SingleNoteViewModel note = Provider.of<SingleNoteViewModel>(context);
+    SingleNoteViewModel viewModel = Provider.of<SingleNoteViewModel>(context);
     Color primary = Theme.of(context).colorScheme.primary;
     final head4 = Theme.of(context).textTheme.headline4?.copyWith(
         color: primary.withOpacity(0.3), fontWeight: FontWeight.bold);
     final head6 = Theme.of(context).textTheme.headline6?.copyWith(
         color: primary.withOpacity(0.3), fontWeight: FontWeight.bold);
     Size size = MediaQuery.of(context).size;
+    Note note = viewModel.note as Note;
     return Scaffold(
         floatingActionButton: FloatingActionButton(
           shape: ContinuousRectangleBorder(
             borderRadius: BorderRadius.circular(28.0),
           ),
           child: Icon(Icons.edit_outlined),
-          onPressed: () async{
-            Note? note = await Navigator.push(context,
-                EditingNoteDetails.route(Provider.of<SingleNoteViewModel>(context,listen: false).note));
-            if(note != null)
-              Provider.of<SingleNoteViewModel>(context, listen: false).refresh(note: note);
+          onPressed: () async {
+            Note? note = await Navigator.push(
+              context, EditingNoteDetails.route(
+                  Provider.of<SingleNoteViewModel>(context, listen: false).note as Note,
+                  Provider.of<NotesViewModel>(context, listen: false)),
+            );
+            if (note != null)
+              Provider.of<SingleNoteViewModel>(context, listen: false)
+                  .refresh(note: note);
           },
         ),
         appBar: AppBar(
@@ -85,7 +92,7 @@ class _NoteDetailsState extends State<NoteDetails> {
           title: Hero(
             tag: "appBarTitle",
             child: Text(
-              "${DateFormat.yMd().add_jm().format(note.note.timeCreated)}",
+              "${DateFormat.yMd().add_jm().format(note.timeCreated)}",
               style: Theme.of(context)
                   .textTheme
                   .bodyText1
@@ -118,7 +125,7 @@ class _NoteDetailsState extends State<NoteDetails> {
                     child: Hero(
                       tag: "mood icon",
                       child: Icon(
-                        generateMoodIcon(note.note.emotionPoint),
+                        generateMoodIcon(note.emotionPoint ?? 5),
                         color: primary.withOpacity(0.1),
                         size: 130,
                       ),
@@ -136,7 +143,7 @@ class _NoteDetailsState extends State<NoteDetails> {
                           child: Hero(
                             tag: "mood text",
                             child: Text(
-                              "${generateMoodStatus(note.note.emotionPoint)}",
+                              "${generateMoodStatus(note.emotionPoint ?? 5)}",
                               style: head6?.copyWith(color: primary),
                             ),
                           ),
@@ -152,7 +159,7 @@ class _NoteDetailsState extends State<NoteDetails> {
                         SizedBox(
                           width: size.width / 4,
                         ),
-                        ...note.note.activities.map((e) {
+                        ...note.activities.map((e) {
                           return Hero(
                             tag: "emotions ${e.id}",
                             child: Padding(
@@ -201,9 +208,12 @@ class _NoteDetailsState extends State<NoteDetails> {
                                 child: Material(
                                   child: TextFormField(
                                       readOnly: true,
-                                      initialValue: note.note.title,
-                                      decoration:
-                                          InputDecoration(hintText: "Tiêu đề",hintStyle: TextStyle(color: Colors.grey.withOpacity(0.8))),
+                                      initialValue: note.title,
+                                      decoration: InputDecoration(
+                                          hintText: "Tiêu đề",
+                                          hintStyle: TextStyle(
+                                              color: Colors.grey
+                                                  .withOpacity(0.8))),
                                       onChanged: null),
                                 ),
                               ),
@@ -216,12 +226,14 @@ class _NoteDetailsState extends State<NoteDetails> {
                                   child: TextFormField(
                                       decoration: InputDecoration(
                                           // label: Text("Nội dung",style: TextStyle(color: textColor),),
-                                        hintStyle:TextStyle(color: Colors.grey.withOpacity(0.8)),
+                                          hintStyle: TextStyle(
+                                              color:
+                                                  Colors.grey.withOpacity(0.8)),
                                           hintText: "Suy nghĩ của bạn..."),
                                       maxLines: 10,
                                       minLines: 3,
                                       readOnly: true,
-                                      initialValue: note.note.description,
+                                      initialValue: note.description,
                                       onChanged: null),
                                 ),
                               ),

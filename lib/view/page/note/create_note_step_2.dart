@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sophia_hub/model/activity.dart';
 import 'package:sophia_hub/model/note/note_regular.dart';
-import 'package:sophia_hub/view_model/single_note_view_model.dart';
+import 'package:sophia_hub/view_model/note_single_view_model.dart';
 
 class EmotionObjectsView extends StatefulWidget {
   static const String nameRoute = "/EmotionObjectsView";
@@ -30,14 +30,14 @@ class _EmotionObjectsViewState extends State<EmotionObjectsView> {
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       floatingActionButton: Consumer<SingleNoteViewModel>(
         builder: (BuildContext context, manager, Widget? child) {
-          Note value = manager.note;
+          Note value = manager.note as Note;
           Widget button;
           button = FloatingActionButton.extended(
              elevation: value.activities.isEmpty ? 0 : 6,
               backgroundColor: value.activities.isEmpty
                   ? Colors.grey.withOpacity(0.3)
                   : Colors.white,
-              onPressed: value.activities == null
+              onPressed: value.activities.isEmpty
                   ? null
                   : () {
                     Provider.of<TabController>(context,listen: false).animateTo(2,
@@ -108,7 +108,7 @@ class _EmotionGridState extends State<EmotionGrid> {
         scrollDirection: Axis.horizontal,
         itemBuilder: (BuildContext context, int index) {
           Activity emotion = _activities[index];
-          bool isChosen = viewModel.note.activities.contains(emotion);
+          bool isChosen = (viewModel.note as Note).activities.contains(emotion);
           return Padding(
             padding: EdgeInsets.all(10),
             child: ElevatedButton(

@@ -30,89 +30,124 @@ class _UserAvatarState extends State<UserAvatar> {
 
   @override
   Widget build(BuildContext context) {
-    AccountViewModel auth = Provider.of<AccountViewModel>(context);
+    AccountViewModel auth =
+        Provider.of<AccountViewModel>(context, listen: false);
 
-    return StreamBuilder<User?>(
-        initialData: null,
-        stream: auth.userChanges(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Material(
-              elevation: 2,
-              child: SizedBox(
-                height: 150,
-                width: 150,
-                child: AnimatedLoadingIcon(),
-              ),
-            );
-          } else if (snapshot.connectionState == ConnectionState.active) {
-            if (snapshot.hasData && snapshot.data?.photoURL != null) {
-              return CachedNetworkImage(
-                imageUrl: snapshot.data?.photoURL ?? "",
-                fit: BoxFit.cover,
-                imageBuilder: (context, imageProvider) {
-                  return Material(
+
+    return Material(
+        elevation: 2,
+        shape: continuousRectangleBorder,
+        child: SizedBox(
+          height: 150,
+          width: 150,
+          child: auth.appConnectionState == ConnectionState.waiting ?
+          AnimatedLoadingIcon() :
+          auth.getCurrentUser()?.photoURL == null ?
+          Semantics(
+            label: 'image_picker_example_from_gallery',
+            child: FloatingActionButton(
+              onPressed: () async {
+                await _updateAvatar(auth, user: auth.getCurrentUser());
+              },
+              heroTag: 'image0',
+              tooltip: 'Pick Image from gallery',
+              child: const Icon(Icons.photo),
+            ),
+          ) : CachedNetworkImage(
+            imageUrl: auth.getCurrentUser()?.photoURL ?? "",
+            fit: BoxFit.fill,
+            imageBuilder: (context, imageProvider) {
+              return GestureDetector(
+                onTap: () async {
+                  await _updateAvatar(auth, user: auth.getCurrentUser());
+                },
+                child: Container(
+                  decoration: ShapeDecoration(
                     shape: continuousRectangleBorder,
-                    child: TextButton(
-                      onPressed: () async {
-                        await _updateAvatar(auth, user: snapshot.data);
-                      },
-                      child: Container(
-                        height: 150,
-                        width: 150,
-                        decoration: BoxDecoration(
-                            image: DecorationImage(
-                                image: imageProvider, fit: BoxFit.cover)),
-                      ),
-                    ),
-                  );
-                },
-                fadeOutDuration: Duration(milliseconds: 500),
-                useOldImageOnUrlChange: true,
-                errorWidget: (_, err, stackTrace) {
-                  return Error();
-                },
-                placeholder: (context, url) {
-                  return Card(
-                      child: SizedBox(
-                          height: 150,
-                          width: 150,
-                          child: AnimatedLoadingIcon()));
-                },
-              );
-            } else {
-              return Semantics(
-                label: 'image_picker_example_from_gallery',
-                child: SizedBox(
-                  height: 150,
-                  width: 150,
-                  child: FloatingActionButton(
-                    onPressed: () async {
-                      await _updateAvatar(auth, user: snapshot.data);
-                    },
-                    heroTag: 'image0',
-                    tooltip: 'Pick Image from gallery',
-                    child: const Icon(Icons.photo),
+                    image: DecorationImage(image: imageProvider,
+                    fit: BoxFit.cover),
                   ),
                 ),
               );
-            }
-          } else {
-            return Error();
-          }
-        });
+            },
+            fadeOutDuration: Duration(milliseconds: 500),
+            useOldImageOnUrlChange: true,
+            errorWidget: (_, err, stackTrace) {
+              return Error();
+            },
+            placeholder: (context, url) {
+              return AnimatedLoadingIcon();
+            },
+          ),
+        ));
+
+    return Material(
+      elevation: 2,
+      shape: continuousRectangleBorder,
+      child: SizedBox(
+        height: 150,
+        width: 150,
+        child: StreamBuilder<User?>(
+            initialData: null,
+            stream: auth.userChanges(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return AnimatedLoadingIcon();
+              } else if (snapshot.connectionState == ConnectionState.active) {
+                if (snapshot.hasData && snapshot.data?.photoURL != null) {
+                  return CachedNetworkImage(
+                    imageUrl: snapshot.data?.photoURL ?? "",
+                    fit: BoxFit.fill,
+                    imageBuilder: (context, imageProvider) {
+                      return GestureDetector(
+                        onTap: () async {
+                          await _updateAvatar(auth, user: snapshot.data);
+                        },
+                        child: Container(
+                          decoration: ShapeDecoration(
+                            shape: continuousRectangleBorder,
+                            image: DecorationImage(image: imageProvider),
+                          ),
+                        ),
+                      );
+                    },
+                    fadeOutDuration: Duration(milliseconds: 500),
+                    useOldImageOnUrlChange: true,
+                    errorWidget: (_, err, stackTrace) {
+                      return Error();
+                    },
+                    placeholder: (context, url) {
+                      return AnimatedLoadingIcon();
+                    },
+                  );
+                } else {
+                  return Semantics(
+                    label: 'image_picker_example_from_gallery',
+                    child: FloatingActionButton(
+                      onPressed: () async {
+                        await _updateAvatar(auth, user: snapshot.data);
+                      },
+                      heroTag: 'image0',
+                      tooltip: 'Pick Image from gallery',
+                      child: const Icon(Icons.photo),
+                    ),
+                  );
+                }
+              } else {
+                return Error();
+              }
+            }),
+      ),
+    );
   }
 
   Future _updateAvatar(AccountViewModel auth, {User? user}) async {
     XFile? image = await _picker.pickImage(source: ImageSource.gallery);
     if (image == null) return;
 
-    setState(() {
-      _image = File(image.path);
-    });
-
     bool isOk = await auth.updateAvatar(image.path, user!.uid);
-    if (!isOk) {
+    if (isOk) {
+    } else {
       showErrMessage(context, auth.error!);
     }
   }

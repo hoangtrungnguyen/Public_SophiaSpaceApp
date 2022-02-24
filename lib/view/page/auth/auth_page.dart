@@ -45,6 +45,9 @@ class _AuthPageState extends State<AuthPage> {
           body: Container(
             child: Theme(
               data: Theme.of(context).copyWith(
+                textSelectionTheme: Theme.of(context).textSelectionTheme.copyWith(
+                  cursorColor: Colors.white
+                ),
                   inputDecorationTheme:
                       Theme.of(context).inputDecorationTheme.copyWith(
                             labelStyle: TextStyle(color: Colors.white),

@@ -137,8 +137,10 @@ class _StepThreeState extends State<StepThree> {
                               auth.account.loginEmail!, auth.account.loginPwd!, auth.account.registerName ?? "NaN");
 
                           if (isOk) {
-                            await Future.delayed(Duration(milliseconds: 500));
+
                             showSuccessMessage(context, "Đăng nhập thành công");
+
+                            await Future.delayed(Duration(milliseconds: 1000));
                             Navigator.of(context, rootNavigator: true)
                                 .pushReplacementNamed(BaseContainer.nameRoute);
                           } else {

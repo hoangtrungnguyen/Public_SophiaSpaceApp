@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
@@ -10,10 +11,12 @@ import 'base_repository.dart';
 class AuthRepository with BaseRepository {
   late FirebaseAuth auth;
   late FirebaseStorage storage;
+  late FirebaseFirestore firestore;
 
-  AuthRepository({FirebaseAuth? auth, FirebaseStorage? storage }) {
+  AuthRepository({FirebaseAuth? auth, FirebaseStorage? storage, FirebaseFirestore? firestore }) {
     this.auth = auth ?? FirebaseAuth.instance;
     this.storage = storage ?? FirebaseStorage.instance;
+    this.firestore = firestore ?? FirebaseFirestore.instance;
   }
 
   Future<Result<User>> login(String email, pwd) async {
@@ -49,15 +52,27 @@ class AuthRepository with BaseRepository {
   Future updateAvatar(String filePath, String uid) async {
     try {
 
+      String uid = this.auth.currentUser!.uid;
+
       File file = File(filePath);
+
+      String fileName = "avatar${file.path.split('/').last.split(".").last}";
       final task = await storage
-          .ref('users/${this.auth.currentUser?.uid}/avatar/${file.path.split('/').last}')
+          .ref('users/$uid/avatar/$fileName')
           .putFile(file);
 
       String imageUrl = await task.ref.getDownloadURL();
-      print("Image URL $imageUrl");
-      if (kDebugMode || kProfileMode) {}
-      await auth.currentUser?.updatePhotoURL(imageUrl);
+
+      //TODO checking later
+      await auth.currentUser?.updatePhotoURL(imageUrl)
+      //     .then((value)async {
+      //   await firestore.collection("users").doc(uid).set({"avatarFileName": fileName});
+      //   String currentAvatarFileName = (await firestore.collection("users").doc(uid).get()).get("avatarFileName");
+      //   await storage.ref("users/$uid/avatar/$currentAvatarFileName").delete();
+      // }).catchError((err){
+      //   print("$err");
+      // })
+      ;
       return Result(data: "$imageUrl");
     } on Exception catch (e) {
       return Result(err: e);

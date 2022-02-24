@@ -1,5 +1,5 @@
 class FirebaseKey {
-  static const String dataCollection = "userNotes";
+  static const String users = "users";
   static const String notes = "notes";
   static const String tasks = "tasks";
 

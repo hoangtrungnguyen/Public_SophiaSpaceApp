@@ -3,15 +3,17 @@ import 'package:sophia_hub/model/note/note.dart';
 import 'package:sophia_hub/model/note/note_regular.dart';
 import 'package:sophia_hub/view_model/base_view_model.dart';
 
-class SingleNoteViewModel<GenericNote> extends BaseViewModel {
+class SingleNoteViewModel extends BaseViewModel<GenericNote> {
   late GenericNote _note;
+
   GenericNote get note => _note;
-  set note(GenericNote note){
+
+  set note(GenericNote note) {
     this._note = note;
     notifyListeners();
   }
 
-  SingleNoteViewModel(GenericNote note){
+  SingleNoteViewModel(GenericNote note) {
     this._note = note;
   }
 
@@ -42,14 +44,12 @@ class SingleNoteViewModel<GenericNote> extends BaseViewModel {
     }
   }
 
-  setEmotionPoint(int point){
+  setEmotionPoint(int point) {
     if (note is Note) {
       (note as Note).emotionPoint = point;
       notifyListeners();
     }
   }
-
-
 
   @override
   String toString() {

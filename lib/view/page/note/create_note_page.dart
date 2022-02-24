@@ -1,18 +1,19 @@
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sophia_hub/model/note/note_regular.dart';
 import 'package:sophia_hub/view/page/note/create_note_step_1.dart';
 import 'package:sophia_hub/view/page/note/create_note_step_2.dart';
 import 'package:sophia_hub/view/page/note/create_note_step_3.dart';
-import 'package:sophia_hub/view_model/single_note_view_model.dart';
+import 'package:sophia_hub/view_model/note_view_model.dart';
+import 'package:sophia_hub/view_model/note_single_view_model.dart';
 
 class CreateNotePage extends StatefulWidget {
   static const String nameRoute = "/CreateNotePage";
 
-  static Route<dynamic> route(Note note) {
+  static Route<dynamic> route(NotesViewModel notesViewModel) {
     return MaterialPageRoute(builder: (BuildContext context) {
-      return CreateNotePage();
+      return ChangeNotifierProvider.value(
+          value: notesViewModel, child: CreateNotePage());
     });
   }
 
@@ -35,7 +36,6 @@ class _CreateNotePageState extends State<CreateNotePage>
     return MultiProvider(
       providers: [
         ChangeNotifierProvider<SingleNoteViewModel>(
-
           create: (BuildContext context) => SingleNoteViewModel(Note(
             title: "",
             description: "",
@@ -49,8 +49,8 @@ class _CreateNotePageState extends State<CreateNotePage>
           create: (_) => tabController,
         )
       ],
-      builder: (context,child){
-        return  Scaffold(
+      builder: (context, child) {
+        return Scaffold(
             extendBodyBehindAppBar: true,
             appBar: AppBar(
               backgroundColor: Colors.transparent,
@@ -88,29 +88,28 @@ class _CreateNotePageState extends State<CreateNotePage>
             body: Container(
               decoration: BoxDecoration(
                   gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    stops: [
-                      0.1,
-                      1.0,
-                    ],
-                    colors: [
-                      Theme.of(context).colorScheme.secondary,
-                      Theme.of(context).colorScheme.primary,
-                    ],
-                  )),
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                stops: [
+                  0.1,
+                  1.0,
+                ],
+                colors: [
+                  Theme.of(context).colorScheme.secondary,
+                  Theme.of(context).colorScheme.primary,
+                ],
+              )),
               child: Theme(
                 data: Theme.of(context).copyWith(
                     scaffoldBackgroundColor: Colors.transparent,
                     textTheme: Theme.of(context).textTheme.apply(
-                      bodyColor: Colors.white,
-                      displayColor: Colors.white,
-                    )),
+                          bodyColor: Colors.white,
+                          displayColor: Colors.white,
+                        )),
                 child: Padding(
                   padding: EdgeInsets.only(top: 100),
                   child: Builder(
-                    builder: (BuildContext context) =>
-                     TabBarView(
+                    builder: (BuildContext context) => TabBarView(
                       controller: tabController,
                       physics: NeverScrollableScrollPhysics(),
                       children: [

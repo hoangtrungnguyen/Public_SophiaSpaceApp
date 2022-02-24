@@ -6,7 +6,6 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
-import 'package:sophia_hub/configure/app_config.dart';
 import 'package:sophia_hub/constant/theme.dart';
 import 'package:sophia_hub/firebase_options.dart';
 import 'package:sophia_hub/model/note/note_regular.dart';
@@ -19,10 +18,11 @@ import 'package:sophia_hub/view/page/note/note_detail.dart';
 import 'package:sophia_hub/view/page/task/create_task_page.dart';
 import 'package:sophia_hub/view/page/task/list_task_page.dart';
 import 'package:sophia_hub/view_model/account_view_model.dart';
-import 'package:sophia_hub/view_model/note_view_model.dart';
 import 'package:sophia_hub/view_model/quote_view_model.dart';
 import 'package:sophia_hub/view_model/share_pref.dart';
 import 'package:sophia_hub/view_model/ui_logic.dart';
+
+import 'configure/app_config.dart';
 
 /// Requires that a Firestore emulator is running locally.
 /// See https://firebase.flutter.dev/docs/firestore/usage#emulator-usage
@@ -33,7 +33,8 @@ Future<void> main() async {
     WidgetsFlutterBinding.ensureInitialized();
     await Firebase.initializeApp(
             options: DefaultFirebaseOptions.currentPlatform)
-        .then((value) => print("$value"));
+        .then((value) {
+    });
 
     await AppConfig.forEnvironment();
 
@@ -82,16 +83,16 @@ class SophiaHubApp extends StatelessWidget {
                 // type: Note.
                 widget = CreateNotePage();
                 break;
-              case NoteDetails.nameRoute:
-                // Cast the arguments to the correct
-                // type: Note.
-                try {
-                  Note note = settings.arguments as Note;
-                  widget = NoteDetails.view(note.copy());
-                } catch (e) {
-                  print("Phải có object Note");
-                }
-                break;
+              // case NoteDetails.nameRoute:
+              //   // Cast the arguments to the correct
+              //   // type: Note.
+              //   try {
+              //     Note note = settings.arguments as Note;
+              //     widget = NoteDetails.view(note.copy());
+              //   } catch (e) {
+              //     print("Phải có object Note");
+              //   }
+              //   break;
               case CreateTaskPage.nameRoute:
                 widget = CreateTaskPage();
                 break;
@@ -160,20 +161,6 @@ class SophiaHubApp extends StatelessWidget {
           previous?.refresh();
           // return previous!;
           return previous!;
-        },
-      ),
-
-      ChangeNotifierProxyProvider<AccountViewModel, NotesViewModel>(
-        create: (_) => NotesViewModel(),
-        lazy: true,
-        update: (_, auth, preNoteViewModel) {
-          //TODO logic thay doi du lieu moi khi thay doi tai khoan nguoi dung
-          if (auth.getCurrentUser() == null) {
-          } else {
-            preNoteViewModel?.reload();
-          }
-
-          return preNoteViewModel!;
         },
       ),
 

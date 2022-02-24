@@ -9,7 +9,6 @@ import 'package:sophia_hub/model/note/note.dart';
 import 'package:sophia_hub/model/note/note_type.dart';
 import 'package:sophia_hub/model/result_container.dart';
 import 'package:sophia_hub/repository/note_repository.dart';
-import 'package:sophia_hub/view/page/home/notes/image_note.dart';
 
 class NoteFirebaseRepository extends NoteRepository<GenericNote> {
   late FirebaseFirestore _firestore;
@@ -28,7 +27,7 @@ class NoteFirebaseRepository extends NoteRepository<GenericNote> {
 
     if (firebaseAuth.currentUser == null) return;
     this.notesRef = _firestore
-        .collection(FirebaseKey.dataCollection)
+        .collection(FirebaseKey.users)
         .doc(firebaseAuth.currentUser!.uid)
         .collection(FirebaseKey.notes);
 
@@ -186,7 +185,6 @@ class NoteFirebaseRepository extends NoteRepository<GenericNote> {
         }
 
       });
-      print(notes);
       return Result<List<GenericNote>>(data: notes, err: null);
     } catch (e) {
       return Result(err: Exception(e), data: null);

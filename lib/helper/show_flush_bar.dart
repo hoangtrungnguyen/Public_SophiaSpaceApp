@@ -30,14 +30,29 @@ void showErrMessage(BuildContext context, Exception exception) async {
       case "auth/wrong-password":
         errMessage = "Sai mật khẩu";
         break;
+      case "firebase_auth/network-request-failed":
+        errMessage = "Không thể kết nối tới mạng";
+        break;
+      case "firebase_auth/unknown":
+        errMessage = "Lỗi không xác đinh đã xảy ra, xin thử lại sau";
+        break;
+      case "firebase_auth/email-already-in-use":
+        errMessage = "Email đã được sử dụng bởi một tài khoản khác";
+            break;
     }
-  } else {
+  } else if( exception is FirebaseException){
+    switch(exception.code){
+      case "firebase_storage/unauthorized":
+        errMessage = "Không thể truy cập";
+        break;
+    }
+  }
+  else {
     printDebug(exception);
   }
 
   Flushbar(
-    backgroundColor:
-    Theme.of(context).colorScheme.error,
+    backgroundColor: Theme.of(context).colorScheme.error,
     message: errMessage,
     flushbarPosition: FlushbarPosition.TOP,
     borderRadius: BorderRadius.circular(16),
@@ -55,4 +70,3 @@ void showSuccessMessage(BuildContext context, String? message) async {
     duration: Duration(seconds: 3),
   ).show(context);
 }
-
