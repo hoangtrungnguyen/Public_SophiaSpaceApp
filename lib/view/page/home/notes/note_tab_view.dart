@@ -4,6 +4,7 @@ import 'package:sophia_hub/view/page/home/notes/note_tab_animated_list_view.dart
 import 'package:sophia_hub/view/page/home/notes/note_tab_single_item_content.dart';
 import 'package:sophia_hub/view/page/home/notes/note_tab_statistic.dart';
 import 'package:sophia_hub/view/widget/animated_loading_icon.dart';
+import 'package:sophia_hub/view/widget/spinning_ring.dart';
 import 'package:sophia_hub/view_model/note_view_model.dart';
 import 'package:sophia_hub/view_model/note_single_view_model.dart';
 
@@ -43,29 +44,44 @@ class _NoteTabViewState extends State<NoteTabView> {
   }
 
   void _scrollListener() {
-    if (_listNoteController?.position.extentAfter == 0 && Provider.of<NotesViewModel>(context, listen: false)
-    .appConnectionState !=
-    ConnectionState.waiting) {
-        Provider.of<NotesViewModel>(context, listen: false).loadMore();
+    final notesViewModel = Provider.of<NotesViewModel>(context, listen: false);
+    if (_listNoteController?.position.extentAfter == 0 && notesViewModel
+    .appConnectionState != ConnectionState.waiting && notesViewModel.notes.length > 3) {
+        notesViewModel.loadMore();
     } else if (_listNoteController?.position.pixels != null &&
-        Provider.of<NotesViewModel>(context, listen: false)
-                .appConnectionState !=
-            ConnectionState.waiting) {
+        notesViewModel.appConnectionState != ConnectionState.waiting) {
       double pixels = _listNoteController?.position.pixels ?? 0;
+      // double pixels = _listNoteController?.position.outOfRange.pixels ?? 0;
       if (pixels < -90.0) {
-        Provider.of<NotesViewModel>(context, listen: false).refresh();
+        notesViewModel.refresh();
       }
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    Alignment ringAlignment =  Alignment(3,0.8);
     Widget content = Container(
       width: double.infinity,
       height: double.infinity,
       padding: EdgeInsets.only(top: 100),
       child: Stack(
         children: [
+          Align(
+            alignment: ringAlignment,
+            child: Transform.scale(scale: 1.5,
+                child: SpinningRing()),
+          ),
+          Align(
+            alignment: ringAlignment,
+            child: SpinningRing(),
+          ),
+          Align(
+            alignment: ringAlignment,
+            child: Transform.scale(scale: 0.5,
+                child: SpinningRing()),
+          ),
+
           Center(
             child: Consumer<NotesViewModel>(
               builder: (context, value, child) =>

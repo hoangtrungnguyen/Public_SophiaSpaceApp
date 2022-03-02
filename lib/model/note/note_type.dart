@@ -2,9 +2,9 @@ import 'package:json_annotation/json_annotation.dart';
 
 enum NoteType {
   @JsonValue("regular")
-  REGULAR,
+  regular,
   @JsonValue("image")
-  IMAGE,
+  image,
   @JsonValue("sound")
   SOUND,
   @JsonValue("draw")

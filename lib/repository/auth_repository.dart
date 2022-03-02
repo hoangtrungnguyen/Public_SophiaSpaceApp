@@ -13,7 +13,11 @@ class AuthRepository with BaseRepository {
   late FirebaseStorage storage;
   late FirebaseFirestore firestore;
 
-  AuthRepository({FirebaseAuth? auth, FirebaseStorage? storage, FirebaseFirestore? firestore }) {
+  AuthRepository({
+    FirebaseAuth? auth,
+    FirebaseStorage? storage,
+    FirebaseFirestore? firestore,
+  }) {
     this.auth = auth ?? FirebaseAuth.instance;
     this.storage = storage ?? FirebaseStorage.instance;
     this.firestore = firestore ?? FirebaseFirestore.instance;
@@ -38,7 +42,7 @@ class AuthRepository with BaseRepository {
     }
   }
 
-  Future<Result<User>> register(String email, pwd,displayName) async {
+  Future<Result<User>> register(String email, pwd, displayName) async {
     try {
       UserCredential credential = await auth.createUserWithEmailAndPassword(
           email: email, password: pwd);
@@ -51,28 +55,26 @@ class AuthRepository with BaseRepository {
 
   Future updateAvatar(String filePath, String uid) async {
     try {
-
       String uid = this.auth.currentUser!.uid;
 
       File file = File(filePath);
 
       String fileName = "avatar${file.path.split('/').last.split(".").last}";
-      final task = await storage
-          .ref('users/$uid/avatar/$fileName')
-          .putFile(file);
+      final task =
+          await storage.ref('users/$uid/avatar/$fileName').putFile(file);
 
       String imageUrl = await task.ref.getDownloadURL();
 
       //TODO checking later
       await auth.currentUser?.updatePhotoURL(imageUrl)
-      //     .then((value)async {
-      //   await firestore.collection("users").doc(uid).set({"avatarFileName": fileName});
-      //   String currentAvatarFileName = (await firestore.collection("users").doc(uid).get()).get("avatarFileName");
-      //   await storage.ref("users/$uid/avatar/$currentAvatarFileName").delete();
-      // }).catchError((err){
-      //   print("$err");
-      // })
-      ;
+          //     .then((value)async {
+          //   await firestore.collection("users").doc(uid).set({"avatarFileName": fileName});
+          //   String currentAvatarFileName = (await firestore.collection("users").doc(uid).get()).get("avatarFileName");
+          //   await storage.ref("users/$uid/avatar/$currentAvatarFileName").delete();
+          // }).catchError((err){
+          //   print("$err");
+          // })
+          ;
       return Result(data: "$imageUrl");
     } on Exception catch (e) {
       return Result(err: e);

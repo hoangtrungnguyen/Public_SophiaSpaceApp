@@ -92,7 +92,7 @@ class _LoginViewState extends State<LoginView> {
                     flex: 2,
                   ),
                   Tooltip(
-                    message: "Login email form field",
+                    message: "Email Field",
                     child: TextFormField(
                       initialValue: email,
                       style: Theme.of(context)
@@ -108,7 +108,7 @@ class _LoginViewState extends State<LoginView> {
                   ),
                   SizedBox(height: 20),
                   Tooltip(
-                    message: "Login password form field",
+                    message: "Password Field",
                     child: TextFormField(
                       initialValue: pwd,
                       obscureText: _isObscure,

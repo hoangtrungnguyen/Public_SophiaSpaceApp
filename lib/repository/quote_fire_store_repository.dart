@@ -9,16 +9,16 @@ class QuoteFireStoreRepository extends QuoteRepository {
   late CollectionReference quotesRef;
   late FirebaseFirestore fireStore;
 
-  late Query query;
+  late Query _query;
   //Last doc for pagination purpose
-  DocumentSnapshot? lastDoc;
+  DocumentSnapshot? _lastDoc;
 
   /// Constructor has [firestore] to make this class testable
   QuoteFireStoreRepository({FirebaseFirestore? firestore}) {
     // Using app firebase as default option
     this.fireStore = firestore ?? FirebaseFirestore.instance;
     this.quotesRef = this.fireStore.collection(FirebaseKey.quotes);
-    this.query = initialQuery();
+    this._query = initialQuery();
   }
 
 
@@ -33,13 +33,13 @@ class QuoteFireStoreRepository extends QuoteRepository {
 
     try {
 
-      if (lastDoc != null )
-        query = query.startAfterDocument(lastDoc!);
+      if (_lastDoc != null )
+        _query = _query.startAfterDocument(_lastDoc!);
 
-      List<QueryDocumentSnapshot> docs = (await query.get()).docs;
+      List<QueryDocumentSnapshot> docs = (await _query.get()).docs;
 
       //save last doc for pagination purpose
-      if (docs.isNotEmpty) this.lastDoc = docs.last;
+      if (docs.isNotEmpty) this._lastDoc = docs.last;
 
       docs.forEach((e){
         Quote quote = Quote.fromJson(e.data() as Map<String, dynamic>)..id = e.id;

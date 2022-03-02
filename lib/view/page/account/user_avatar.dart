@@ -31,7 +31,7 @@ class _UserAvatarState extends State<UserAvatar> {
   @override
   Widget build(BuildContext context) {
     AccountViewModel auth =
-        Provider.of<AccountViewModel>(context, listen: false);
+        Provider.of<AccountViewModel>(context);
 
 
     return Material(

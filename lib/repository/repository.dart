@@ -6,7 +6,7 @@ abstract class Repository<T> extends BaseRepository{
 
   Future<Result<List<T>>> getAll();
 
-  Future<Result<T>> get();
+  Future<Result<T>> getById(String id);
 
   Future<Result> delete(T element);
 

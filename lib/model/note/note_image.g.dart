@@ -31,8 +31,8 @@ Map<String, dynamic> _$NoteImageToJson(NoteImage instance) => <String, dynamic>{
     };
 
 const _$NoteTypeEnumMap = {
-  NoteType.REGULAR: 'regular',
-  NoteType.IMAGE: 'image',
+  NoteType.regular: 'regular',
+  NoteType.image: 'image',
   NoteType.SOUND: 'sound',
   NoteType.DRAW: 'draw',
 };

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sophia_hub/model/activity.dart';
 import 'package:sophia_hub/model/note/note_regular.dart';
+import 'package:sophia_hub/view_model/account_view_model.dart';
 import 'package:sophia_hub/view_model/note_single_view_model.dart';
 
 class EmotionObjectsView extends StatefulWidget {
@@ -94,7 +95,13 @@ class EmotionGrid extends StatefulWidget {
 }
 
 class _EmotionGridState extends State<EmotionGrid> {
-  List<Activity> _activities = activities;
+  late List<Activity> _activities;
+
+  @override
+  void initState() {
+    _activities = Provider.of<AccountViewModel>(context,listen: false).account.activities;
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -107,8 +114,8 @@ class _EmotionGridState extends State<EmotionGrid> {
         itemCount: _activities.length,
         scrollDirection: Axis.horizontal,
         itemBuilder: (BuildContext context, int index) {
-          Activity emotion = _activities[index];
-          bool isChosen = (viewModel.note as Note).activities.contains(emotion);
+          Activity activity = _activities[index];
+          bool isChosen = (viewModel.note as Note).activities.contains(activity);
           return Padding(
             padding: EdgeInsets.all(10),
             child: ElevatedButton(
@@ -118,18 +125,18 @@ class _EmotionGridState extends State<EmotionGrid> {
               ),
               onPressed: () {
                 if (isChosen) {
-                  viewModel.removeActivity(emotion);
+                  viewModel.removeActivity(activity);
                 } else {
-                  viewModel.addActivity(emotion);
+                  viewModel.addActivity(activity);
                 }
               },
               child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(emotion.icon),
+                    Icon(activity.icon),
                     Text(
-                      '${emotion.name}',
+                      '${activity.name}',
                       textAlign: TextAlign.center,
                     )
                   ]),

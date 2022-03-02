@@ -26,7 +26,7 @@ abstract class QuoteRepository extends Repository<Quote> {
   }
 
   @override
-  Future<Result<Quote>> get() {
+  Future<Result<Quote>> getById(String id) {
     // TODO: implement get
     throw UnimplementedError();
   }

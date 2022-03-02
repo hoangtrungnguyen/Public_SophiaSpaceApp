@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:sophia_hub/constant/sophia_hub_app.dart';
 import 'package:sophia_hub/view/page/account/account_page.dart';
+import 'package:sophia_hub/view_model/share_pref.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class DrawerMenu extends StatefulWidget {
@@ -53,7 +55,7 @@ class _DrawerMenuState extends State<DrawerMenu>
                     margin: EdgeInsets.all(16),
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: Colors.white,
+                      color: Provider.of<SharedPref>(context,listen: false).materialColor.shade900,
                       boxShadow: [
                         BoxShadow(
                           color: Colors.grey,
@@ -66,12 +68,12 @@ class _DrawerMenuState extends State<DrawerMenu>
                     width: 150,
                     child: Image(
                       fit: BoxFit.fill,
-                  image: AssetImage('media/logo/astronaut_logo.png'),
+                  image: AssetImage('media/logo/astronaut_logo_no_bkg.png'),
                 ),
                   ),
                   ListTile(
-                      title: Text("Sophia Hub",style:Theme.of(context).textTheme.headline5,textAlign: TextAlign.center,),
-                    subtitle: Text("Tiềm thức là một vũ trụ rộng lớn",textAlign: TextAlign.center,),
+                      title: Text("Sophia Space",style:Theme.of(context).textTheme.headline5,textAlign: TextAlign.center,),
+                    subtitle: Text("Khám phá vũ trụ trong bạn",textAlign: TextAlign.center,),
                   ),
                   SizedBox(height: 30,),
                   Card(

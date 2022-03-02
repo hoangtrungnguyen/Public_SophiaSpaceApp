@@ -1,51 +1,49 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:sophia_hub/constant/theme.dart';
 import 'package:sophia_hub/helper/show_flush_bar.dart';
+import 'package:sophia_hub/model/note/note.dart';
 import 'package:sophia_hub/model/note/note_regular.dart';
-import 'package:sophia_hub/view/page/note/note_detail/activity_list.dart';
 import 'package:sophia_hub/view/widget/animated_loading_icon.dart';
 import 'package:sophia_hub/view_model/note_single_view_model.dart';
 import 'package:sophia_hub/view_model/note_view_model.dart';
 
-import 'emotion_status.dart';
-import 'form_content.dart';
-import 'slider_emotion_point.dart';
+import 'editing_activity_list.dart';
+import 'editing_date_time.dart';
+import 'editing_form_content.dart';
+import 'editing_slider_emotion_point.dart';
+import 'editting_emotion_status.dart';
+
+class EditingSingleNoteViewModel extends SingleNoteViewModel {
+  EditingSingleNoteViewModel(GenericNote note) : super(note);
+}
 
 class EditingNoteDetails extends StatefulWidget {
-  static const String nameRoute = "/NoteDetails";
+  static const String nameRoute = "/NoteDetailsEditing";
 
   static Route<Note> route(Note note, NotesViewModel notesViewModel) {
     return MaterialPageRoute(builder: (BuildContext context) {
-      return MultiProvider(providers: [
-        ChangeNotifierProvider<SingleNoteViewModel>(
-            create: (_) => SingleNoteViewModel(note)),
-        ChangeNotifierProvider<NotesViewModel>.value(
+      return MultiProvider(
+        providers: [
+          ChangeNotifierProvider<NotesViewModel>.value(
             value: notesViewModel,
-        )
-      ],
-      builder: (context,child) =>EditingNoteDetails() ,
-      // child: EditingNoteDetails(),
+          ),
+          ChangeNotifierProvider<EditingSingleNoteViewModel>(
+              create: (_) => EditingSingleNoteViewModel(note.copyContent())),
+        ],
+        // builder: (context, child) => EditingNoteDetails(),
+        child: EditingNoteDetails(key: ValueKey("Editing")),
       );
     });
   }
+
+  EditingNoteDetails({Key? key}) : super(key: key);
 
   @override
   _EditingNoteDetailsState createState() => _EditingNoteDetailsState();
 }
 
 class _EditingNoteDetailsState extends State<EditingNoteDetails> {
-  @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -62,22 +60,20 @@ class _EditingNoteDetailsState extends State<EditingNoteDetails> {
                       color: Colors.white,
                     )
                   : Icon(Icons.done),
-              onPressed: isWaiting
-                  ? null
-                  : () async {
-                      NotesViewModel viewModel =
-                          Provider.of<NotesViewModel>(context, listen: false);
-                      SingleNoteViewModel single =
-                          Provider.of<SingleNoteViewModel>(context,
-                              listen: false);
-                      bool isOk =
-                          await viewModel.update(viewModel: single );
-                      if (isOk) {
-                        Navigator.of(context).pop<Note?>(single.note as Note);
-                      } else {
-                        showErrMessage(context, viewModel.error!);
-                      }
-                    },
+              onPressed: () async {
+                if (isWaiting) return;
+                NotesViewModel viewModel =
+                    Provider.of<NotesViewModel>(context, listen: false);
+                EditingSingleNoteViewModel single =
+                    Provider.of<EditingSingleNoteViewModel>(context,
+                        listen: false);
+                bool isOk = await viewModel.update(note: single.note);
+                if (isOk) {
+                  Navigator.of(context).pop<Note?>(single.note as Note);
+                } else {
+                  showErrMessage(context, viewModel.error!);
+                }
+              },
             );
           },
         ),
@@ -100,10 +96,7 @@ class _EditingNoteDetailsState extends State<EditingNoteDetails> {
           ],
           elevation: 0,
           centerTitle: true,
-          title: Hero(
-            tag: "appBarTitle",
-            child:NoteDateTime(),
-          ),
+          title: NoteDateTime(),
         ),
         body: SingleChildScrollView(
           physics: BouncingScrollPhysics(),
@@ -113,13 +106,11 @@ class _EditingNoteDetailsState extends State<EditingNoteDetails> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   EmotionStatus(),
-                  SizedBox(
-                    height: 20,
-                  ),
+                  SizedBox(height: 20),
                   SliderEmotionPoint(),
                   Padding(
                       padding: EdgeInsets.symmetric(vertical: 16),
-                      child: ActivityList()),
+                      child: EditingActivityList()),
                   Padding(
                       padding: EdgeInsets.symmetric(horizontal: 16),
                       child: NoteFormContent()),
@@ -128,20 +119,3 @@ class _EditingNoteDetailsState extends State<EditingNoteDetails> {
         ));
   }
 }
-
-class NoteDateTime extends StatelessWidget {
-  const NoteDateTime({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return  Selector<SingleNoteViewModel, String>(
-      selector: (context, model) =>
-      "${DateFormat.yMd().add_jm().format(model.note.timeCreated)}",
-      builder: (context, value, child) => Text(
-        value,
-        style: Theme.of(context).textTheme.bodyText1,
-      ),
-    );
-  }
-}
-

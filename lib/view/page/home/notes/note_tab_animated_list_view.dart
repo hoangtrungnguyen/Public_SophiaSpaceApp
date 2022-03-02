@@ -160,7 +160,7 @@ class _NoteItemState extends State<NoteItem> {
               NotesViewModel viewModel =
               Provider.of<NotesViewModel>(context, listen: false);
               bool isOk = await viewModel.delete(
-                  Provider.of<SingleNoteViewModel>(context, listen: false));
+                  Provider.of<SingleNoteViewModel>(context, listen: false).note);
               if (isOk) {
                 showSuccessMessage(context, "Xóa thành công");
                 Navigator.of(context).pop(true);

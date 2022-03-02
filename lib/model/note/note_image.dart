@@ -13,7 +13,7 @@ class NoteImage extends GenericNote {
   @JsonKey(ignore: true)
   List<String> imageUris = [];
 
-  NoteImage({this.imageUrls = const []}) : super(NoteType.IMAGE);
+  NoteImage({this.imageUrls = const []}) : super(NoteType.image);
 
   @override
   bool isValid() => imageUrls.length > 0;

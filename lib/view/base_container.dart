@@ -203,7 +203,6 @@ class Background extends StatelessWidget {
       //     ? Theme.of(context).colorScheme.secondary.withOpacity(0.9)
       //     : Theme.of(context).colorScheme.secondary.withOpacity(0.25),
       // child:/* Image(
-      //   image: AssetImage('media/images/random_round_square.png'),
       //
       //   fit: BoxFit.fill,
       // ),*/
@@ -219,8 +218,8 @@ class Background extends StatelessWidget {
           1.1,
         ],
         colors: [
-          Theme.of(context).colorScheme.primary,
           Theme.of(context).colorScheme.secondary,
+          Theme.of(context).colorScheme.primary,
             ],
           )),
     );

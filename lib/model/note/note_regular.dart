@@ -13,7 +13,6 @@ class Note extends GenericNote implements Comparable<Note> {
 
   int? emotionPoint;
 
-  @JsonKey(ignore: true)
   List<Activity> activities = [];
   String? description;
 
@@ -22,7 +21,7 @@ class Note extends GenericNote implements Comparable<Note> {
     String? description,
     List<Activity>? activities,
     int? emotionPoint,
-  }) : super(NoteType.REGULAR) {
+  }) : super(NoteType.regular) {
     this.title = title;
     this.description = description;
     this.emotionPoint = emotionPoint;
@@ -46,15 +45,13 @@ class Note extends GenericNote implements Comparable<Note> {
     return  activities.length > 0 && emotionPoint! <= 10 && emotionPoint! >= 0;
   }
 
-  Note copy() {
+  Note copyContent() {
     return Note(
       emotionPoint: this.emotionPoint,
       description: this.description,
       title: this.title,
       activities: List.of(this.activities),
-    )
-      ..timeCreated = this.timeCreated
-      ..id = this.id;
+    )..id = this.id;
   }
 
   factory Note.fromJson(Map<String, dynamic> json) => _$NoteFromJson(json);
@@ -80,11 +77,11 @@ class Note extends GenericNote implements Comparable<Note> {
   bool operator ==(Object _other) {
     if (_other.runtimeType == Note) {
       Note other = _other as Note;
-      return /*this.timeCreated.isAtSameMomentAs((other as Note).timeCreated) &&*/
+      return this.timeCreated.isAtSameMomentAs((other as Note).timeCreated) &&
           this.id == other.id &&
               this.description == other.description &&
               this.title == other.title &&
-              // this.activities == other.activities &&
+              this.activities == other.activities &&
               this.emotionPoint == other.emotionPoint;
     } else
       return false;

@@ -61,9 +61,20 @@ void showErrMessage(BuildContext context, Exception exception) async {
   ).show(context);
 }
 
+
+void showLoadingMessage(BuildContext context){
+  Flushbar(
+    title: "Loading...",
+    flushbarPosition: FlushbarPosition.TOP,
+    borderRadius: BorderRadius.circular(16),
+    margin: EdgeInsets.all(8),
+    duration: Duration(seconds: 4),
+  ).show(context);
+}
 void showSuccessMessage(BuildContext context, String? message) async {
   Flushbar(
     title: message ?? "Thành công",
+    backgroundColor: Colors.green,
     flushbarPosition: FlushbarPosition.TOP,
     borderRadius: BorderRadius.circular(16),
     margin: EdgeInsets.all(8),

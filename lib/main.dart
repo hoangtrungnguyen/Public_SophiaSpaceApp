@@ -8,21 +8,17 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:sophia_hub/constant/theme.dart';
 import 'package:sophia_hub/firebase_options.dart';
-import 'package:sophia_hub/model/note/note_regular.dart';
 import 'package:sophia_hub/view/animation/route_change_anim.dart';
 import 'package:sophia_hub/view/base_container.dart';
 import 'package:sophia_hub/view/page/account/account_page.dart';
 import 'package:sophia_hub/view/page/auth/auth_page.dart';
 import 'package:sophia_hub/view/page/note/create_note_page.dart';
-import 'package:sophia_hub/view/page/note/note_detail.dart';
 import 'package:sophia_hub/view/page/task/create_task_page.dart';
 import 'package:sophia_hub/view/page/task/list_task_page.dart';
 import 'package:sophia_hub/view_model/account_view_model.dart';
 import 'package:sophia_hub/view_model/quote_view_model.dart';
 import 'package:sophia_hub/view_model/share_pref.dart';
 import 'package:sophia_hub/view_model/ui_logic.dart';
-
-import 'configure/app_config.dart';
 
 /// Requires that a Firestore emulator is running locally.
 /// See https://firebase.flutter.dev/docs/firestore/usage#emulator-usage
@@ -36,7 +32,7 @@ Future<void> main() async {
         .then((value) {
     });
 
-    await AppConfig.forEnvironment();
+    // await AppConfig.forEnvironment();
 
     SharedPref sharePref = SharedPref();
     await sharePref.init();

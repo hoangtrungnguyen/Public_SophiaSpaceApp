@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:sophia_hub/helper/note_helper_func.dart';
+import 'package:sophia_hub/model/activity.dart';
 import 'package:sophia_hub/model/note/note_regular.dart';
-import 'package:sophia_hub/view/page/note/note_detail.dart';
+import 'package:sophia_hub/view/page/note/note_detail/note_detail.dart';
 import 'package:sophia_hub/view_model/account_view_model.dart';
 import 'package:sophia_hub/view_model/note_single_view_model.dart';
 import 'package:sophia_hub/view_model/note_view_model.dart';
@@ -80,21 +81,6 @@ class NoteSingleItemContent extends StatefulWidget {
 
 class _NoteSingleItemContentState extends State<NoteSingleItemContent>
     with SingleTickerProviderStateMixin {
-  @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    // print("Single Item called didChangeDependencies()");
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -149,7 +135,7 @@ class _NoteSingleItemContentState extends State<NoteSingleItemContent>
 
   List<Widget> activityChips(Note note) {
     return [
-      ...note.activities.map((e) {
+      ...note.activities.map((Activity e) {
         return Padding(
           padding: EdgeInsets.symmetric(horizontal: 2),
           child: Chip(

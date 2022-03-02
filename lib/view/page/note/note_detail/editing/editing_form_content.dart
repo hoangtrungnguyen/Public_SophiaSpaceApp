@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sophia_hub/model/note/note_regular.dart';
-import 'package:sophia_hub/view_model/note_single_view_model.dart';
+import 'package:sophia_hub/view/page/note/note_detail/editing/note_detail_is_editing.dart';
 
 class NoteFormContent extends StatelessWidget {
   const NoteFormContent({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    SingleNoteViewModel viewModel = Provider.of<SingleNoteViewModel>(context);
+    EditingSingleNoteViewModel viewModel = Provider.of<EditingSingleNoteViewModel>(context);
     Note note = viewModel.note as Note;
 
     return Column(

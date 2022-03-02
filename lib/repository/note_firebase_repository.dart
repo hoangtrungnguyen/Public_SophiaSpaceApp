@@ -1,37 +1,40 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/foundation.dart';
 import 'package:sophia_hub/constant/firebase.dart';
-import 'package:sophia_hub/model/activity.dart';
+import 'package:sophia_hub/model/note/note.dart';
 import 'package:sophia_hub/model/note/note_image.dart';
 import 'package:sophia_hub/model/note/note_regular.dart';
-import 'package:sophia_hub/model/note/note.dart';
 import 'package:sophia_hub/model/note/note_type.dart';
 import 'package:sophia_hub/model/result_container.dart';
 import 'package:sophia_hub/repository/note_repository.dart';
 
+import 'note_exception/note_exception.dart';
+
 class NoteFirebaseRepository extends NoteRepository<GenericNote> {
   late FirebaseFirestore _firestore;
-  get firestore =>_firestore;
 
-  late CollectionReference notesRef;
+  get firestore => _firestore;
 
-  late Query query;
+  late CollectionReference _notesRef;
+
+  CollectionReference get notesRef => _notesRef;
+
+  late Query _query;
 
   //Last doc for pagination purpose
-  DocumentSnapshot? lastDoc;
+  DocumentSnapshot? _lastDoc;
 
   NoteFirebaseRepository({FirebaseFirestore? firestore, FirebaseAuth? auth}) {
     _firestore = firestore ?? FirebaseFirestore.instance;
     FirebaseAuth firebaseAuth = auth ?? FirebaseAuth.instance;
 
     if (firebaseAuth.currentUser == null) return;
-    this.notesRef = _firestore
+    _notesRef = _firestore
         .collection(FirebaseKey.users)
         .doc(firebaseAuth.currentUser!.uid)
         .collection(FirebaseKey.notes);
-
-    this.query = getNotesQuery();
+    //set initial query
+    this._query = getNotesQuery();
   }
 
   Query getNotesQuery() =>
@@ -43,22 +46,15 @@ class NoteFirebaseRepository extends NoteRepository<GenericNote> {
       if (!note.isValid()) {
         return Result(
             err: FormatException(
-              "Dữ liệu không hợp lệ",
-            ));
+          "Dữ liệu không hợp lệ",
+        ));
       }
 
       DocumentReference currentDoc = this.notesRef.doc();
 
       //Nếu là note bình thường
       if (note is Note) {
-        // set emotion objects
-        CollectionReference activityRef =
-        currentDoc.collection(FirebaseKey.activities);
-        WriteBatch batch = _firestore.batch();
-        for (final activity in note.activities) {
-          batch.set(activityRef.doc(activity.id), activity.toJson());
-        }
-        await batch.commit();
+        // TODO làm theo SDS
 
         //Cập nhật danh sách lên server
         await currentDoc.set(note.toJson());
@@ -83,15 +79,8 @@ class NoteFirebaseRepository extends NoteRepository<GenericNote> {
   Future<Result> delete(GenericNote note) async {
     try {
       await notesRef.doc(note.id).delete();
-
+      // TODO làm theo SDS
       if (note is Note) {
-        WriteBatch batch = this._firestore.batch();
-        for (final activity in note.activities)
-          batch.delete(notesRef
-              .doc(note.id)
-              .collection(FirebaseKey.activities)
-              .doc(activity.id));
-        await batch.commit();
       } else if (note is NoteImage) {
         //TODO delete images here
       }
@@ -103,10 +92,26 @@ class NoteFirebaseRepository extends NoteRepository<GenericNote> {
   }
 
   @override
-  Future<Result<Note>> get() {
-    // TODO: implement get
-    throw UnimplementedError();
+  Future<Result<GenericNote>> getById(String id) async {
+    try {
+      final doc = await notesRef.doc(id).get();
+
+      if(!doc.exists){
+        return Result(err: NoteNotFoundException("Không tìm thấy"));
+      }
+      GenericNote? note;
+      if(doc.get("type") == NoteType.regular.name){
+        note = Note.fromJson(doc.data() as Map<String,dynamic>);
+        note.id = doc.id;
+      } else if (doc.get("type") == NoteType.image.name){
+
+      }
+      return Result(data: note);
+    } on Exception catch (e) {
+      return Result(err: e);
+    }
   }
+
 
   @override
   Future<Result<List<Note>>> getAll() {
@@ -121,36 +126,12 @@ class NoteFirebaseRepository extends NoteRepository<GenericNote> {
 
       if (note is Note) {
         await notesRef.doc(note.id).update(note.toJson());
-
-        // Xóa tất cả activity hiện tại trong note
-        final snapshot =
-        await notesRef.doc(note.id).collection(FirebaseKey.activities).get();
-        await Future.forEach(snapshot.docs, (QueryDocumentSnapshot e) async {
-          await notesRef
-              .doc(note.id)
-              .collection(FirebaseKey.activities)
-              .doc(e.id)
-              .delete();
-        });
-
-        //Cập nhật activity mới
-        WriteBatch activitiesBatch = _firestore.batch();
-        for (final activity in note.activities) {
-          activitiesBatch.set(
-              notesRef
-                  .doc(note.id)
-                  .collection(FirebaseKey.activities)
-                  .doc(activity.id),
-              activity.toJson());
-        }
-        await activitiesBatch.commit();
       } else if (note is NoteImage) {
         //TODO update NoteImage here
 
       }
 
       return Result<GenericNote>(data: note);
-      return Result(data: Note());
     } on Exception catch (e) {
       return Result(err: e);
     }
@@ -161,56 +142,32 @@ class NoteFirebaseRepository extends NoteRepository<GenericNote> {
     List<GenericNote> notes = [];
 
     try {
+      if (_lastDoc != null) _query = _query.startAfterDocument(_lastDoc!);
 
-      if (lastDoc != null) query = query.startAfterDocument(lastDoc!);
-
-      List<QueryDocumentSnapshot> docs = (await query.get()).docs;
+      List<QueryDocumentSnapshot> docs = (await _query.get()).docs;
 
       //save last doc for pagination purpose
-      if (docs.isNotEmpty) this.lastDoc = docs.last;
+      if (docs.isNotEmpty) _lastDoc = docs.last;
 
-
-      await Future.forEach(docs, (QueryDocumentSnapshot doc) async {
-
-        if (doc.get("type") == NoteType.REGULAR.name.toLowerCase()) {
+      docs.forEach((QueryDocumentSnapshot doc) {
+        if (doc.get("type") == NoteType.regular.name.toLowerCase()) {
           Note note = Note.fromJson(doc.data() as Map<String, dynamic>)
             ..id = doc.id;
-          note.activities.addAll(await loadActivities(doc.id));
-
           notes.add(note);
-        } else if (doc.get("type") == NoteType.IMAGE.name.toLowerCase()) {
-          NoteImage noteImage = NoteImage()
-            ..id = doc.id;
+        } else if (doc.get("type") == NoteType.image.name.toLowerCase()) {
+          NoteImage noteImage = NoteImage()..id = doc.id;
           //TODO
         }
-
       });
+
       return Result<List<GenericNote>>(data: notes, err: null);
     } catch (e) {
       return Result(err: Exception(e), data: null);
     }
   }
 
-
-  Future<List<Activity>> loadActivities(String noteId) async {
-    try {
-      final listActivity = await notesRef.doc(noteId).collection(
-          FirebaseKey.activities).get();
-      return listActivity.docs.map((e) =>
-      Activity.fromJson(e.data())
-        ..icon = activities
-            .firstWhere((element) => element.id == e.id)
-            .icon
-      ).toList();
-    } catch (e) {
-      if(kDebugMode){
-        print("Exception while get activities from note with $noteId");
-      }
-      return [];
-    }
-  }
   @override
   Future<void> refresh() async {
-    this.query = getNotesQuery();
+    _query = getNotesQuery();
   }
 }

@@ -5,11 +5,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
+import 'package:sophia_hub/model/activity.dart';
 import 'package:sophia_hub/model/note/note_regular.dart';
 import 'package:sophia_hub/repository/auth_repository.dart';
 import 'package:sophia_hub/repository/note_firebase_repository.dart';
-import 'package:sophia_hub/view/page/home/notes.dart';
-import 'package:sophia_hub/view/page/home/notes/single_item_note.dart';
+import 'package:sophia_hub/view/page/home/notes/note_tab_single_item_content.dart';
+import 'package:sophia_hub/view/page/home/notes/note_tab_view.dart';
 import 'package:sophia_hub/view_model/account_view_model.dart';
 import 'package:sophia_hub/view_model/note_view_model.dart';
 
@@ -23,6 +24,7 @@ main() async {
   late AuthRepository authRepository;
   late NotesViewModel notesViewModel;
   late Widget testWidget;
+  int initialNotesCount = 10;
 
   setUp(() async {
     mockFirebaseAuth = MockFirebaseAuth(signedIn: true);
@@ -33,9 +35,10 @@ main() async {
         NoteFirebaseRepository(firestore: fireStore, auth: mockFirebaseAuth);
     notesViewModel = NotesViewModel(repository: repository);
 
-    authRepository =
-        AuthRepository(auth: mockFirebaseAuth, storage: mockFirebaseStorage);
-    await TestHelper.initialData(repository);
+    authRepository = AuthRepository(
+        auth: mockFirebaseAuth,
+        storage: mockFirebaseStorage,
+        firestore: fireStore);
 
     testWidget = MultiProvider(
       providers: [
@@ -62,45 +65,71 @@ main() async {
             return Locale('vi', '');
           },
           locale: Locale('vi', ''),
-          home: Scaffold(body: NotesView())),
+          home: Scaffold(body: NoteTabView())),
     );
   });
 
-  testWidgets("Read: hiển thị đúng thứ tự thời gian",
-      (WidgetTester tester) async {
-    await tester.pumpWidget(testWidget);
+  tearDown(() async {});
 
-    await tester.pump();
+  group(("Read"), () {
 
-    //kiểm tra có dữ liệu không
-    expect(notesViewModel.notes.length > 0, true);
 
-    //kiểm tra có widget danh sách không
-    expect(find.byType(NoteItem), findsWidgets);
-  });
+    testWidgets("Hiển thị", (WidgetTester tester) async {
+      await TestHelper.initialRandomTimeNoteRegular(repository,
+          size: initialNotesCount);
 
-  testWidgets("Read: lần đầu hiển thị", (WidgetTester tester) async {
-    await tester.pumpWidget(testWidget);
-    await tester.pump();
-    //kiểm tra có dữ liệu không
-    expect(notesViewModel.notes.length > 0, true);
+      await tester.pumpWidget(testWidget);
 
-    //kiểm tra có widget danh sách không
-    expect(find.byType(NoteItem), findsWidgets);
-  });
+      await tester.pump();
 
-  testWidgets("Read: thêm một Note", (WidgetTester tester) async {
-    await tester.pumpWidget(testWidget);
+      //kiểm tra có widget danh sách không
+      expect(find.byType(NoteSingleItemContent), findsWidgets);
+    });
 
-    await notesViewModel.add(
-        note: Note(
-      title: 'Tiêu đề mới nhất',
-      description: "Nội dung test 1",
-      emotionPoint: 8,
-    ));
+    testWidgets("Thêm một Note", (WidgetTester tester) async {
+      await TestHelper.initialRandomTimeNoteRegular(repository,
+          size: initialNotesCount);
 
-    await tester.pumpAndSettle();
+      await tester.pumpWidget(testWidget);
 
-    expectLater(find.text("Tiêu đề mới nhất"), findsOneWidget);
+      expect((await repository.notesRef.get()).size, initialNotesCount);
+
+      await notesViewModel.add(
+          note: Note(
+        title: 'Tiêu đề mới nhất',
+        description: "Nội dung test 1",
+        emotionPoint: 8,
+        activities: [defaultActivities[2]],
+      ));
+
+      expect((await repository.notesRef.get()).size, initialNotesCount + 1);
+
+      await tester.idle();
+
+      expect(notesViewModel.notes.first.note.title, 'Tiêu đề mới nhất');
+
+      expectLater(find.text("Tiêu đề mới nhất"), findsOneWidget);
+    });
+
+
+    testWidgets("Pagination", (WidgetTester tester) async {
+      // List<Note> notes = await TestHelper.initialRandomTimeNoteRegular(repository,
+      //     size: initialNotesCount);
+      // notes.sort((Note note, Note note2) => note.timeCreated.compareTo(note2.timeCreated));
+      // Note oldestNote = notes.first;
+      //
+      // await tester.pumpWidget(testWidget);
+      // await tester.pump();
+      //
+      // expect(notesViewModel.notes.length, 5);
+      // await tester.dragFrom(Offset(0,200),Offset(0,-200));
+      // await tester.dragFrom(Offset(0,200),Offset(0,-200));
+      // await tester.dragFrom(Offset(0,200),Offset(0,-200));
+      // await tester.dragFrom(Offset(0,200),Offset(0,-200));
+      // await tester.dragFrom(Offset(0,200),Offset(0,-200));
+      // await tester.idle();
+      // expect(notesViewModel.notes.length, initialNotesCount);
+
+    });
   });
 }

@@ -1,19 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:json_annotation/json_annotation.dart';
+import 'package:sophia_hub/model/icon_pool.dart';
 
 part 'activity.g.dart';
 
-List<Activity> activities = [
-  Activity(id: "1", name: "Công việc", icon: Icons.work_outline),
-  Activity(id: "2", name: "Bạn bè", icon: Icons.people_outline),
-  Activity(id: "3", name: "Gia đình", icon: Icons.home_outlined),
-  Activity(id: "4", name: "Giấc ngủ", icon: Icons.bed),
-  Activity(id: "5", name: "Mối quan hệ", icon: Icons.supervisor_account),
-  Activity(id: "6", name: "Trường học", icon: Icons.school),
-  Activity(id: "7", name: "Đồ ăn", icon: Icons.emoji_food_beverage),
-  Activity(id: "8", name: "Sức khỏe", icon: Icons.volunteer_activism),
-  Activity(id: "9", name: "Sở thích", icon: Icons.piano),
-  Activity(id: "10", name: "Thời tiết", icon: Icons.wb_sunny),
+List<Activity> defaultActivities = [
+  Activity(id: "1", name: "Công việc", iconCode: "${Icons.work_outline.codePoint}"),
+  Activity(id: "2", name: "Bạn bè", iconCode: "${Icons.people_outline.codePoint}"),
+  Activity(id: "3", name: "Gia đình", iconCode: "${Icons.home_outlined.codePoint}"),
+  Activity(id: "4", name: "Giấc ngủ", iconCode: "${Icons.bed.codePoint}"),
+  Activity(id: "5", name: "Mối quan hệ", iconCode: "${Icons.supervisor_account.codePoint}"),
+  Activity(id: "6", name: "Trường học", iconCode: "${Icons.school.codePoint}"),
+  Activity(id: "7", name: "Đồ ăn", iconCode: "${Icons.emoji_food_beverage.codePoint}"),
+  Activity(id: "8", name: "Sức khỏe", iconCode: "${Icons.volunteer_activism.codePoint}"),
+  Activity(id: "9", name: "Sở thích", iconCode: "${Icons.piano.codePoint}"),
+  Activity(id: "10", name: "Thời tiết", iconCode: "${Icons.wb_sunny.codePoint}"),
 ];
 
 
@@ -21,12 +22,17 @@ List<Activity> activities = [
 class Activity{
   String id;
   String? name;
+
+  String? iconCode;
+
   @JsonKey(ignore: true)
-  IconData? icon;
+  IconData? get icon {
+    return iconPool[iconCode];
+  }
 
   Activity({
     required this.id,
-    this.icon,
+    this.iconCode,
     this.name,
   });
 

@@ -20,7 +20,7 @@
         android:networkSecurityConfig="@xml/network_security_config"
         android:allowBackup="true"
         android:name="io.flutter.app.FlutterApplication"
-        android:label="Nhật ký thói quen"
+        android:label="Nhật ký Sophia Space"
         android:icon="@mipmap/ic_launcher">
         <activity
             android:name=".MainActivity"

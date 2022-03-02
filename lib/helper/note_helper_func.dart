@@ -39,3 +39,4 @@ IconData generateMoodIcon(int _emotionPoint){
 
   return statusIcon;
 }
+

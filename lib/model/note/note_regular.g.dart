@@ -14,6 +14,9 @@ Note _$NoteFromJson(Map<String, dynamic> json) {
   return Note(
     title: json['title'] as String?,
     description: json['description'] as String?,
+    activities: (json['activities'] as List<dynamic>?)
+        ?.map((e) => Activity.fromJson(e as Map<String, dynamic>))
+        .toList(),
     emotionPoint: json['emotionPoint'] as int?,
   )
     ..type = $enumDecode(_$NoteTypeEnumMap, json['type'])
@@ -26,12 +29,13 @@ Map<String, dynamic> _$NoteToJson(Note instance) => <String, dynamic>{
       'type': _$NoteTypeEnumMap[instance.type],
       'timeCreated': GenericNote.timeCreatedToJson(instance.timeCreated),
       'emotionPoint': instance.emotionPoint,
+      'activities': instance.activities.map((e) => e.toJson()).toList(),
       'description': instance.description,
     };
 
 const _$NoteTypeEnumMap = {
-  NoteType.REGULAR: 'regular',
-  NoteType.IMAGE: 'image',
+  NoteType.regular: 'regular',
+  NoteType.image: 'image',
   NoteType.SOUND: 'sound',
   NoteType.DRAW: 'draw',
 };

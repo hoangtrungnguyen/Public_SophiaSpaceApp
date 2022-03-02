@@ -3,18 +3,18 @@ import 'package:provider/provider.dart';
 import 'package:sophia_hub/constant/theme.dart';
 import 'package:sophia_hub/model/activity.dart';
 import 'package:sophia_hub/model/note/note_regular.dart';
-import 'package:sophia_hub/view_model/note_single_view_model.dart';
+import 'package:sophia_hub/view/page/note/note_detail/editing/note_detail_is_editing.dart';
 
-import 'activity_grid.dart';
+import 'editing_activity_grid.dart';
 
-class ActivityList extends StatefulWidget {
-  const ActivityList({Key? key}) : super(key: key);
+class EditingActivityList extends StatefulWidget {
+  const EditingActivityList({Key? key}) : super(key: key);
 
   @override
   _ListActivitiesState createState() => _ListActivitiesState();
 }
 
-class _ListActivitiesState extends State<ActivityList> {
+class _ListActivitiesState extends State<EditingActivityList> {
   @override
   void initState() {
     super.initState();
@@ -22,12 +22,10 @@ class _ListActivitiesState extends State<ActivityList> {
 
   @override
   Widget build(BuildContext context) {
-    SingleNoteViewModel viewModel = Provider.of<SingleNoteViewModel>(context);
+    EditingSingleNoteViewModel viewModel =
+        Provider.of<EditingSingleNoteViewModel>(context);
 
-    Color primary = Theme
-        .of(context)
-        .colorScheme
-        .primary;
+    Color primary = Theme.of(context).colorScheme.primary;
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       child: Padding(
@@ -41,10 +39,7 @@ class _ListActivitiesState extends State<ActivityList> {
             width: 40,
             decoration: ShapeDecoration(
                 shape: continuousRectangleBorder,
-                color: Theme
-                    .of(context)
-                    .colorScheme
-                    .primary),
+                color: Theme.of(context).colorScheme.primary),
             alignment: Alignment.center,
             child: TextButton(
               onPressed: () async {
@@ -52,11 +47,10 @@ class _ListActivitiesState extends State<ActivityList> {
                     context: context,
                     builder: (ctx) => _buildActivitiesDialog(ctx, viewModel));
                 // print("updated activity:\n${activities}");
-                if (activities != null)
+                if (activities != null) {
                   (viewModel.note as Note).activities = activities;
-                setState(() {
-
-                });
+                  setState(() {});
+                }
               },
               child: Icon(
                 Icons.add,
@@ -79,7 +73,8 @@ class _ListActivitiesState extends State<ActivityList> {
                         color: primary.withOpacity(0.5),
                       ),
                       onDeleted: () {
-                        if((viewModel as Note).activities.length == 1) return;
+                        if ((viewModel.note as Note).activities.length == 1)
+                          return;
                         viewModel.removeActivity(e);
                       },
                       backgroundColor: Colors.white,
@@ -102,38 +97,35 @@ class _ListActivitiesState extends State<ActivityList> {
     );
   }
 
-
-
-  Widget _buildActivitiesDialog(BuildContext context, SingleNoteViewModel manager) {
+  Widget _buildActivitiesDialog(
+      BuildContext context, EditingSingleNoteViewModel manager) {
     // print("build dialog ${List.of(note.activities)}");
     return Provider<List<Activity>>(
       create: (context) => List.of((manager.note as Note).activities),
-      builder: (context, child) =>
-          SimpleDialog(
-            title: Text(
-              "Chọn hoạt động",
-              textAlign: TextAlign.center,
-            ),
+      builder: (context, child) => SimpleDialog(
+        title: Text(
+          "Chọn hoạt động",
+          textAlign: TextAlign.center,
+        ),
+        children: [
+          Container(height: 300, width: 200, child: ActivityGrid()),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              Container(height: 300, width: 200, child: ActivityGrid()),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  TextButton(
-                      child: Icon(Icons.done_outline),
-                      onPressed: () =>
-                          Navigator.of(context)
-                              .pop(context.read<List<Activity>>())),
-                  TextButton(
-                    child: Icon(Icons.cancel),
-                    onPressed: () async {
-                      Navigator.of(context).pop(false);
-                    },
-                  ),
-                ],
-              )
+              TextButton(
+                  child: Icon(Icons.done_outline),
+                  onPressed: () => Navigator.of(context)
+                      .pop(context.read<List<Activity>>())),
+              TextButton(
+                child: Icon(Icons.cancel),
+                onPressed: () async {
+                  Navigator.of(context).pop(null);
+                },
+              ),
             ],
-          ),
+          )
+        ],
+      ),
     );
   }
 }

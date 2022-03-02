@@ -69,7 +69,7 @@ class _WelcomeState extends State<Welcome> with TickerProviderStateMixin {
                 opacity:
                     _starterAnim.drive(Tween<double>(begin: 1.0, end: 0.7)),
                 child: Image(
-                  image: AssetImage('media/images/astronaut.jpg'),
+                  image: AssetImage('media/images/astronaut2.jpg'),
                   fit: BoxFit.fill,
                 ),
               )),

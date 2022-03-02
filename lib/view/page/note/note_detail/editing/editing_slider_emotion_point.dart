@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sophia_hub/model/note/note_regular.dart';
-import 'package:sophia_hub/view_model/note_single_view_model.dart';
+
+import 'note_detail_is_editing.dart';
 
 class SliderEmotionPoint extends StatelessWidget {
   const SliderEmotionPoint({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<SingleNoteViewModel>(
+    return Consumer<EditingSingleNoteViewModel>(
         builder: (context, viewModel, child){
           Note note = viewModel.note as Note;
           return Slider(

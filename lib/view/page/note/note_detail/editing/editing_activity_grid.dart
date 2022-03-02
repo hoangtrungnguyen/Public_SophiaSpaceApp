@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sophia_hub/model/activity.dart';
+import 'package:sophia_hub/view_model/account_view_model.dart';
 
 class ActivityGrid extends StatefulWidget {
   const ActivityGrid({Key? key}) : super(key: key);
@@ -10,10 +11,11 @@ class ActivityGrid extends StatefulWidget {
 }
 
 class _ActivityGridState extends State<ActivityGrid> {
-  List<Activity> _activities = activities;
+  late List<Activity> _activities;
 
   @override
   void initState() {
+    _activities = Provider.of<AccountViewModel>(context,listen: false).account.activities;
     super.initState();
   }
 
@@ -28,9 +30,7 @@ class _ActivityGridState extends State<ActivityGrid> {
         scrollDirection: Axis.horizontal,
         itemBuilder: (BuildContext context, int index) {
           Activity activity = _activities[index];
-          bool isChosen = Provider
-              .of<List<Activity>>(context, listen: false).contains(activity);
-
+          bool isChosen = Provider.of<List<Activity>>(context, listen: false).contains(activity);
           return Container(
             height: 40,
             width: 40,

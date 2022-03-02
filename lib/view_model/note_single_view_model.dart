@@ -17,13 +17,13 @@ class SingleNoteViewModel extends BaseViewModel<GenericNote> {
     this._note = note;
   }
 
-  void refresh({Note? note}) {
-    if (note is Note) {
-      (note).emotionPoint = note.emotionPoint;
-      (note).title = note.title;
-      (note).description = note.description;
-      (note).timeCreated = note.timeCreated;
-      (note).activities = note.activities;
+  void refresh({required Note note}) {
+    if(this._note is Note) {
+      (this._note as Note).emotionPoint = note.emotionPoint;
+      (this._note as Note).title = note.title;
+      (this._note as Note).description = note.description;
+      (this._note as Note).timeCreated = note.timeCreated;
+      (this._note as Note).activities = note.activities;
       notifyListeners();
     } else {
       return;
