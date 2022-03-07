@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:sophia_hub/constant/firebase.dart';
 import 'package:sophia_hub/model/quote.dart';
+import 'package:sophia_hub/model/quote/quote_category.dart';
 import 'package:sophia_hub/model/result_container.dart';
 import 'package:sophia_hub/repository/quote_repository.dart';
 
@@ -52,7 +53,7 @@ class QuoteFireStoreRepository extends QuoteRepository {
     }
   }
 
-  Query initialQuery() => quotesRef.limit(3);
+  Query initialQuery() => quotesRef.where(FirebaseKey.category,isEqualTo: QuoteCategory.general.name);
 
   clear() {}
 }

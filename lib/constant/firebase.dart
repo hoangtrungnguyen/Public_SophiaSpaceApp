@@ -11,5 +11,7 @@ class FirebaseKey {
   static const String authors = "authors";
   static const String timeCreated = "timeCreated";
 
+  static const String category = "category";
+
 
 }

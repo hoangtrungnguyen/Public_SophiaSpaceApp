@@ -4,6 +4,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
+import 'package:gallery_saver/gallery_saver.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:sophia_hub/constant/theme.dart';
@@ -29,9 +30,10 @@ class QuoteTabShareButton extends StatelessWidget {
               shape: MaterialStateProperty.all<OutlinedBorder?>(
                   continuousRectangleBorder as OutlinedBorder)),
           onPressed: () async {
+            showLoadingMessage(context);
             final RenderRepaintBoundary? boundary = stackKey.currentContext?.findRenderObject() as RenderRepaintBoundary?;
             final image = await boundary?.toImage();
-            final byteData = await image?.toByteData(format: ImageByteFormat.png);
+            final byteData = await image?.toByteData(format: ImageByteFormat.png,);
             final imageBytes = byteData?.buffer.asUint8List();
             final tempDir = await getTemporaryDirectory();
             if(imageBytes == null){
@@ -39,8 +41,13 @@ class QuoteTabShareButton extends StatelessWidget {
               return;
             }
             File file = await File('${tempDir.path}/shared_quote_image.png').create();
-            file.writeAsBytesSync(imageBytes);
-            Share.shareFiles(['${file.path}'], text: 'Quote from Sophia Space app');
+            await file.writeAsBytes(imageBytes);
+
+            GallerySaver.saveImage(file.path).then((bool? isOk) {
+              if(isOk!){
+                showSuccessMessage(context, "Lưu thành công");
+              }
+            });
           },
           child: Icon(
             Icons.share,

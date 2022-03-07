@@ -51,7 +51,8 @@ class Note extends GenericNote implements Comparable<Note> {
       description: this.description,
       title: this.title,
       activities: List.of(this.activities),
-    )..id = this.id;
+    )..id = this.id
+    ..timeCreated = this.timeCreated;
   }
 
   factory Note.fromJson(Map<String, dynamic> json) => _$NoteFromJson(json);

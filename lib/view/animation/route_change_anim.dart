@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
 class RouteAnimation {
-  static PageRouteBuilder buildDefaultRouteTransition(Widget page,RouteSettings settings) {
+  static PageRouteBuilder buildDefaultRouteTransition(Widget page,RouteSettings? settings) {
     return PageRouteBuilder(
 
-      transitionDuration: Duration(milliseconds: 400),
+      transitionDuration: Duration(milliseconds: 800),
       settings: settings,
       pageBuilder: (context, animation, secondaryAnimation) => page,
       maintainState: true,

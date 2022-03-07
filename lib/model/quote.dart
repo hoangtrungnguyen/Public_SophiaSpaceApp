@@ -1,27 +1,30 @@
-import 'package:flutter/cupertino.dart';
 import 'package:json_annotation/json_annotation.dart';
+import 'package:sophia_hub/model/quote/quote_category.dart';
+
+import 'author.dart';
 
 part 'quote.g.dart';
 
-@JsonSerializable()
-class Quote with ChangeNotifier {
+@JsonSerializable(explicitToJson: true)
+class Quote {
   @JsonKey(ignore: true)
   late String id;
 
-  String? authorId;
-
-  String? authorName;
-
   String? content;
+
+  Author? author;
 
   String? src;
 
   String? imageUrl;
 
-  Quote({
+  @JsonKey(required: true)
+  late QuoteCategory category;
+
+  Quote(this.category,{
     this.content,
     this.imageUrl,
-    this.authorName,
+    this.author,
   });
 
 
@@ -35,7 +38,7 @@ class Quote with ChangeNotifier {
   String toString() {
     return """{
       content: $content,
-      authorName: $authorName,
+      author: $author,
       imageUrl: $imageUrl
     }""";
   }

@@ -83,6 +83,9 @@ dependencies:
   #TODO: Testing purpose only, disable when build release
   flutter_lorem: ^2.0.0
   unsplash_client: ^2.1.0+1
+  gallery_saver: ^2.3.2
+
+  auto_size_text: ^3.0.0
 
 
 dev_dependencies:

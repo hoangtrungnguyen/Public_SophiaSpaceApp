@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:provider/provider.dart';
 import 'package:sophia_hub/constant/theme.dart';
-import 'package:sophia_hub/view/page/home/quote.dart';
 import 'package:sophia_hub/view/page/note/create_note_page.dart';
 import 'package:sophia_hub/view_model/note_view_model.dart';
 import 'package:sophia_hub/view_model/quote_view_model.dart';
 import 'package:sophia_hub/view_model/ui_logic.dart';
 
 import 'notes/note_tab_view.dart';
+import 'quote_tab/quote_tab.dart';
 
 class Destination {
   const Destination(this.namedRoute, this.title, this.icon, this.color);
@@ -119,6 +119,8 @@ class _HomeContainerState extends State<HomeContainer>
               onPressed: () async {
                 dynamic isAdd =
                 await Navigator.of(context, rootNavigator: true).push(
+
+
                   CreateNotePage.route(Provider.of<NotesViewModel>(context,listen: false)),
                 );
                 if (isAdd is bool && isAdd) {}

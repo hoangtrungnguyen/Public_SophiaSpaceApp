@@ -11,6 +11,7 @@ import 'package:sophia_hub/view_model/ui_logic.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'widget/drawer_menu.dart';
+import 'widget/spinning_ring.dart';
 
 class BaseContainer extends StatefulWidget {
   static const String nameRoute = "/";
@@ -54,8 +55,9 @@ class _BaseContainerState extends State<BaseContainer>
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
-    double maxSlide = size.width * 2.5 / 3;
+    double maxSlide = size.width * 2.3 / 3;
     Color primary = Theme.of(context).colorScheme.primary;
+    Alignment ringAlignment =  Alignment(0,-0.7);
     return WillPopScope(
       onWillPop: () async {
         // if(Provider.of<UILogic>(context,listen: false).homePageIndex == 0){
@@ -91,6 +93,20 @@ class _BaseContainerState extends State<BaseContainer>
         child: Stack(
           children: [
             Positioned.fill(child: Background()),
+            Align(
+              alignment: ringAlignment,
+              child: Transform.scale(scale: 1.5,
+                  child: SpinningRing()),
+            ),
+            Align(
+              alignment: ringAlignment,
+              child: SpinningRing(),
+            ),
+            Align(
+              alignment: ringAlignment,
+              child: Transform.scale(scale: 0.5,
+                  child: SpinningRing()),
+            ),
 
             //Drawer Menu
             AnimatedBuilder(

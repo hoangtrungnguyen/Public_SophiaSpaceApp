@@ -60,27 +60,12 @@ class _NoteTabViewState extends State<NoteTabView> {
 
   @override
   Widget build(BuildContext context) {
-    Alignment ringAlignment =  Alignment(3,0.8);
     Widget content = Container(
       width: double.infinity,
       height: double.infinity,
       padding: EdgeInsets.only(top: 100),
       child: Stack(
         children: [
-          Align(
-            alignment: ringAlignment,
-            child: Transform.scale(scale: 1.5,
-                child: SpinningRing()),
-          ),
-          Align(
-            alignment: ringAlignment,
-            child: SpinningRing(),
-          ),
-          Align(
-            alignment: ringAlignment,
-            child: Transform.scale(scale: 0.5,
-                child: SpinningRing()),
-          ),
 
           Center(
             child: Consumer<NotesViewModel>(

@@ -20,6 +20,8 @@ import 'package:sophia_hub/view_model/quote_view_model.dart';
 import 'package:sophia_hub/view_model/share_pref.dart';
 import 'package:sophia_hub/view_model/ui_logic.dart';
 
+import 'configure/app_config.dart';
+
 /// Requires that a Firestore emulator is running locally.
 /// See https://firebase.flutter.dev/docs/firestore/usage#emulator-usage
 bool USE_FIRESTORE_EMULATOR = false;
