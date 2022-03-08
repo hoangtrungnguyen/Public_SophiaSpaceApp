@@ -2,8 +2,10 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:sophia_hub/constant/theme.dart';
+import 'package:sophia_hub/model/quote.dart';
 import 'package:sophia_hub/view/animation/route_change_anim.dart';
 import 'package:sophia_hub/view/page/quote/quote_hero_widget.dart';
 import 'package:sophia_hub/view/page/quote/quote_shared_page.dart';
@@ -48,7 +50,12 @@ class _QuoteViewState extends State<QuoteView> {
             fit: StackFit.expand,
             children: [
               //Image
-                  QuoteTabImage(),
+              Selector<QuoteViewModel,Quote?>(
+                selector: (_, viewModel) => viewModel.curQuote,
+                builder: (_,value, child){
+                  return QuoteTabImage(quote: value,);
+                },
+              ),
               // Text
                  QuoteTabPageView(),
 
@@ -66,7 +73,7 @@ class _QuoteViewState extends State<QuoteView> {
                       width: 40,
                       child: TextButton(
                         child: Icon(
-                          Icons.share,
+                          FontAwesomeIcons.shareAlt,
                           color: Colors.white,
                           size: 20,
                         ),

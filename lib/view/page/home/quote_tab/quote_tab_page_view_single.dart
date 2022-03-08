@@ -23,14 +23,14 @@ class QuoteTabPageViewSingle extends StatelessWidget {
             alignment: Alignment(0.75, -0.15),
             child: Icon(
               FontAwesomeIcons.quoteRight,
-              color: primary.withOpacity(0.8),
+              color: primary.withOpacity(0.5),
               size: 80,
             ),
           ),
           Align(
             alignment: Alignment.center,
             child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 8),
+              padding: EdgeInsets.symmetric(horizontal: 16,vertical: 16),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
