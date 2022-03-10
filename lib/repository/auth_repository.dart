@@ -47,6 +47,7 @@ class AuthRepository with BaseRepository {
       UserCredential credential = await auth.createUserWithEmailAndPassword(
           email: email, password: pwd);
       await credential.user?.updateDisplayName(displayName);
+      await credential.user?.sendEmailVerification();
       return Result(data: credential.user);
     } on Exception catch (e) {
       return Result(err: e);
@@ -93,5 +94,14 @@ class AuthRepository with BaseRepository {
   void refresh({FirebaseAuth? firebaseAuth, FirebaseStorage? storage}) {
     this.auth = firebaseAuth ?? FirebaseAuth.instance;
     this.storage = storage ?? FirebaseStorage.instance;
+  }
+
+  Future resetPwd(String email) async {
+    try {
+      await  auth.sendPasswordResetEmail(email: email);
+      return Result(data: "ok");
+    } on Exception catch (e) {
+      return Result(err: e);
+    }
   }
 }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sophia_hub/helper/auth_validator.dart';
 import 'package:sophia_hub/view_model/account_view_model.dart';
+import 'package:sophia_hub/view_model/register/register_view_model.dart';
 
 class StepTwo extends StatefulWidget {
   const StepTwo({Key? key}) : super(key: key);
@@ -30,24 +31,6 @@ class _StepTwoState extends State<StepTwo> {
           margin: EdgeInsets.symmetric(horizontal: 16),
       child: Stack(
         children: [
-          Align(
-            alignment: Alignment.topLeft,
-            child: Container(
-                alignment: Alignment.center,
-                margin: EdgeInsets.only(top: 12, right: 0),
-                height: 50,
-                width: 50,
-                decoration: ShapeDecoration(
-                    color: Colors.grey.shade200.withOpacity(0.5),
-                    shape: ContinuousRectangleBorder(
-                        borderRadius: BorderRadius.circular(32))),
-                child: TextButton(
-                  onPressed: () =>
-                      Provider.of<TabController>(context, listen: false)
-                          .animateTo(0),
-                  child: Icon(Icons.arrow_back_rounded),
-                )),
-          ),
           Positioned.fill(
             child: Form(
               key: _formKey,
@@ -112,8 +95,8 @@ class _StepTwoState extends State<StepTwo> {
                           if (!(_formKey.currentState?.validate() ?? false))
                             return;
                           auth.account.loginEmail = email1;
-                          Provider.of<TabController>(context, listen: false)
-                              .animateTo(2);
+                          context.read<RegisterViewModel>()
+                              .moveToNextStep();
                         },
                         style: ElevatedButtonTheme.of(context).style?.copyWith(
                             backgroundColor: MaterialStateProperty.all<Color?>(

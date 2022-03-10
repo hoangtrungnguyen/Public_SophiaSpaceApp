@@ -32,7 +32,10 @@ class _LoginViewState extends State<LoginView> {
   bool _isObscure = true;
   @override
   void initState() {
+
     super.initState();
+    this.email = context.read<AccountViewModel>().account.loginEmail ?? '';
+    this.pwd = context.read<AccountViewModel>().account.loginPwd ?? '';
     if(kDebugMode){
       this.email = "c@gmail.com";
       this.pwd = "12345678";

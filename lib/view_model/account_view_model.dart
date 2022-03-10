@@ -25,7 +25,13 @@ class AccountViewModel extends BaseViewModel  {
       });
 
   Future<bool> logOut() async =>
-      setAppState(() async => await _repository.signOut());
+      setAppState(() async {
+        final res = await _repository.signOut();
+        if(res.isHasData){
+          this.account.clear();
+        }
+        return res;
+      });
 
   void refresh() {
     //TODO refresh on device user data
@@ -46,8 +52,8 @@ class AccountViewModel extends BaseViewModel  {
   Future updateName(String name) async => setAppState(
           () async => await _repository.updateName(name));
 
-  resetPwd(String email) {
-    //TODO reset pwd
-  }
+  Future<bool> resetPwd(String email) async => setAppState(() async {
+    return await _repository.resetPwd(email);
+  });
 
 }

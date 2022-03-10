@@ -14,4 +14,11 @@ class Account {
   setUserActivities({List<Activity> activities = const []}){
     _activities.addAll(activities);
   }
+
+  void clear() {
+    loginEmail = '';
+    loginPwd = '';
+    registerName ='';
+    _activities = defaultActivities;
+  }
 }

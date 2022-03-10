@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sophia_hub/constant/theme.dart';
 import 'package:sophia_hub/helper/auth_validator.dart';
+import 'package:sophia_hub/helper/show_flush_bar.dart';
 import 'package:sophia_hub/model/result_container.dart';
+import 'package:sophia_hub/view/widget/animated_loading_icon.dart';
 import 'package:sophia_hub/view_model/account_view_model.dart';
 
 class ForgotPwd extends StatefulWidget {
@@ -91,45 +93,51 @@ class _ForgotPwdState extends State<ForgotPwd> {
                   Spacer(
                     flex: 5,
                   ),
-                  ElevatedButton(
-                      style: ElevatedButtonTheme.of(context).style?.copyWith(
-                          backgroundColor:
-                              MaterialStateProperty.all<Color?>(Colors.white)),
-                      onPressed: () async {
-                        bool isValidForm =
-                            _formKey.currentState?.validate() ?? false;
-                        if (!isValidForm) return;
-                        Result result = await auth.resetPwd(email);
-                        if (result.data != null)
-                          Flushbar(
-                            message: result.data['message'],
-                            flushbarPosition: FlushbarPosition.TOP,
-                            borderRadius: BorderRadius.circular(16),
-                            margin: EdgeInsets.all(8),
-                            duration: Duration(seconds: 3),
-                          )..show(context);
-                        else
-                          Flushbar(
-                            message:
-                                "Lỗi không xác định đã xảy, vui lòng thử lại sau.",
-                            flushbarPosition: FlushbarPosition.TOP,
-                            borderRadius: BorderRadius.circular(16),
-                            margin: EdgeInsets.all(8),
-                            duration: Duration(seconds: 3),
-                          )..show(context);
-                      },
-                      child: Padding(
-                        padding:
-                            EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                        child: Text(
-                          "Lấy lại mật khẩu",
-                          style: Theme.of(context)
-                              .textTheme
-                              .headline5
-                              ?.copyWith(
-                                  color: Theme.of(context).colorScheme.primary),
+                   ElevatedButton(
+                        style: ElevatedButtonTheme.of(context).style?.copyWith(
+                            backgroundColor:
+                                MaterialStateProperty.all<Color?>(Colors.white),
+                          padding:  MaterialStateProperty.all<EdgeInsets?>(EdgeInsets.symmetric(horizontal: 16,vertical: 4)),
+                  ),
+                        onPressed: () async {
+                          bool isValidForm =
+                              _formKey.currentState?.validate() ?? false;
+                          if (!isValidForm) return;
+                          bool isOk = await auth.resetPwd(email);
+                          if (isOk) {
+                            showSuccessMessage(context,
+                                "Đã gửi email đặt lại mật khẩu vào địa chỉ: $email");
+                            await Future.delayed(Duration(seconds: 2));
+                            Navigator.pop(context);
+                          }
+                          else
+                           showErrMessage(context, auth.error!);
+                        },
+                        child:  Container(
+                          width: 240,
+                          height: 40,
+                          alignment: Alignment.center,
+
+                          child: Selector<AccountViewModel,bool>(
+                            selector: (_,viewModel) => viewModel.appConnectionState == ConnectionState.waiting,
+                            builder: (context,value, child){
+                              if(value)
+                                return AnimatedLoadingIcon();
+                              else
+                                return child!;
+                            },
+                            child: Text(
+                                  "Lấy lại mật khẩu",
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .headline6
+                                      ?.copyWith(
+                                          color: Theme.of(context).colorScheme.primary),
+                                ),
+                          ),
                         ),
-                      )),
+                          ),
+
                   Spacer()
                 ],
               ),

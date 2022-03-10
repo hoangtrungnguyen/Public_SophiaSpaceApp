@@ -50,8 +50,8 @@ class _WelcomeState extends State<Welcome> with TickerProviderStateMixin {
         body: Container(
           decoration: BoxDecoration(
               gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
+            begin: Alignment.topRight,
+            end: Alignment.bottomLeft,
             stops: [0.1, 1.0],
             colors: [
               Theme.of(context).colorScheme.secondary,
@@ -74,56 +74,73 @@ class _WelcomeState extends State<Welcome> with TickerProviderStateMixin {
                 ),
               )),
               Positioned(
+                top: 8,
+                right: 8,
+                child: SafeArea(
+                  child: FadeTransition(
+                    opacity: _lateAnim,
+                    child: TextButton(
+                        onPressed: () {
+                          Navigator.pushNamed(context, LoginView.routeName);
+                        },
+                        child: Text(
+                          "Tiếp tục hành trình",
+                          style: TextStyle(color: Colors.white.withOpacity(0.8)),
+                        )),
+                  ),
+                ),
+              ),
+              Positioned(
                 left: 20,
                 right: 20,
                 top: 120,
                 child: FadeTransition(
                   opacity: _starterAnim,
                   child: Text(
-                    "Nhật ký của bạn",
-                    textAlign: TextAlign.center,
+                    "Nhật ký\nkhám phá bản thân",
+                    textAlign: TextAlign.left,
                     style: Theme.of(context)
                         .textTheme
-                        .headline4
+                        .headline5
                         ?.copyWith(color: Colors.white),
                   ),
                 ),
               ),
-              Align(
-                  alignment: Alignment(0, 0.85),
-                  child: FadeTransition(
-                    opacity: _lateAnim,
-                    child: ElevatedButton(
-                        onPressed: () async {
-                          Navigator.pushNamed(
-                              context, RegisterView.routeName);
-                        },
-                        child: Container(
-                          margin: EdgeInsets.symmetric(
-                              horizontal: 16, vertical: 4),
-                          child: Text(
-                            "Bắt đầu",
-                            style: Theme.of(context)
-                                .textTheme
-                                .headline5
-                                ?.copyWith(color: Colors.white),
-                          ),
-                        )),
+              Positioned(
+                bottom: 24,
+                  left: 32,
+                  right: 32,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text("Nâng cấp cuộc sống bằng những\nkỹ thuật tâm lý học",
+                        textAlign: TextAlign.center,
+                        style: Theme.of(context)
+                            .textTheme
+                            .bodyText1
+                            ?.copyWith(color: Colors.white),),
+                      SizedBox(height: 8,),
+                      FadeTransition(
+                        opacity: _lateAnim,
+                        child: ElevatedButton(
+                            onPressed: () async {
+                              Navigator.pushNamed(
+                                  context, RegisterView.routeName);
+                            },
+                            child: Container(
+                              margin: EdgeInsets.symmetric(
+                                  horizontal: 16, vertical: 4),
+                              child: Text(
+                                "Bắt đầu hành trình",
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .headline6
+                                    ?.copyWith(color: Colors.white),
+                              ),
+                            )),
+                      ),
+                    ],
                   )),
-              Align(
-                alignment: Alignment(0, 0.97),
-                child: FadeTransition(
-                  opacity: _lateAnim,
-                  child: TextButton(
-                      onPressed: () {
-                        Navigator.pushNamed(context, LoginView.routeName);
-                      },
-                      child: Text(
-                        "Đã có tài khoản",
-                        style: TextStyle(color: Colors.white),
-                      )),
-                ),
-              ),
             ],
           ),
         ));

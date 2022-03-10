@@ -7,7 +7,7 @@ class UILogic extends ChangeNotifier{
 
   //Chỉ cho phép đặt Id một lần
   set homePageIndex(int index) {
-    print(_homePageIndex);
+    // print(_homePageIndex);
     _homePageIndex = index;
     notifyListeners();
   }

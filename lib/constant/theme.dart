@@ -77,6 +77,13 @@ ThemeData lightTheme(BuildContext context, MaterialColor materialColor) {
     //       (blue ~/ 1.1).toInt(), 0.5);
     // }(),
 
+    checkboxTheme: CheckboxTheme.of(context).copyWith(
+      fillColor: MaterialStateProperty.all<Color?>(themeData.colorScheme.secondary),
+      shape: continuousRectangleBorder as OutlinedBorder,
+      materialTapTargetSize: MaterialTapTargetSize.padded,
+      side: BorderSide(color: Colors.white, width: 3)
+    ),
+
     dialogTheme:
     DialogTheme.of(context).copyWith(shape: continuousRectangleBorder),
     chipTheme: ChipTheme.of(context).copyWith(

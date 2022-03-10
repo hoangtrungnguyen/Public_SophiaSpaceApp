@@ -12,6 +12,7 @@ import 'package:sophia_hub/view/page/auth/auth_page.dart';
 import 'package:sophia_hub/view/widget/animated_loading_icon.dart';
 import 'package:sophia_hub/view_model/account_view_model.dart';
 import 'package:sophia_hub/view_model/share_pref.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class AccountPage extends StatefulWidget {
   static const String nameRoute = "/AccountPage";
@@ -117,6 +118,9 @@ class _AccountPageState extends State<AccountPage> {
                               readOnly: true,
                               style: TextStyle(color: Colors.grey),
                               decoration: InputDecoration(
+                                disabledBorder: OutlineInputBorder(borderSide: BorderSide(
+                                  color: Colors.red
+                                )),
                                   suffixIcon: Icon(
                                 Icons.lock,
                                 color: Colors.grey,
@@ -124,6 +128,26 @@ class _AccountPageState extends State<AccountPage> {
                               initialValue:
                               FirebaseAuth.instance.currentUser?.email ?? "",
                             ),
+                            (){
+                              bool emailVerified = auth.getCurrentUser()?.emailVerified ?? false;
+                              return emailVerified ? SizedBox() : Row(
+                                children: [
+                                  Spacer(),
+                                  InputChip(
+                                      backgroundColor: Colors.white,
+                                      padding: EdgeInsets.zero,
+                                      onPressed: ()async{
+                                        try {
+                                          if (!await launch(
+                                              "https://play.google.com/store/apps/details?id=com.google.android.gm")) throw 'Could not launch Gmail';
+                                        } catch (e){
+                                          showErrMessage(context, Exception("Lỗi đã xảy ra, xin thử lại sau"));
+                                        }
+                                      },
+                                      label: Text("Xác thực email",style: Theme.of(context).textTheme.bodyText1?.copyWith(color: Colors.red),)),
+                                ],
+                              );
+                            }()
                           ],
                         ),
                       )),
@@ -133,6 +157,7 @@ class _AccountPageState extends State<AccountPage> {
                       leading: Icon(Icons.logout),
                       title: Text("Đăng xuất"),
                       onTap: () async {
+                        await Future.delayed(Duration(milliseconds: 500));
                         bool isOk =
                             (await Provider.of<AccountViewModel>(context, listen: false).logOut());
                         if (isOk) {

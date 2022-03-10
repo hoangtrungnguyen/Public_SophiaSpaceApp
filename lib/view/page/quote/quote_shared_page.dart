@@ -97,8 +97,7 @@ class QuoteSharePage extends StatelessWidget {
                         try {
                           await Clipboard.setData(ClipboardData(
                               text:
-                                  "${quote.content} ${quote.author?.name ?? ''}" ??
-                                      ''));
+                                  "${quote.content} ${quote.author?.name ?? ''}"));
                           showMessage(context, "Đã sao chép nội dung");
                         } on Exception catch (e) {
                           showErrMessage(context, e);
