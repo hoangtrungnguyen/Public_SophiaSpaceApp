@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
+import 'package:sophia_hub/constant/sophia_hub_app.dart';
 import 'package:sophia_hub/helper/auth_validator.dart';
 import 'package:sophia_hub/helper/show_flush_bar.dart';
 import 'package:sophia_hub/model/result_container.dart';
@@ -13,6 +14,7 @@ import 'package:sophia_hub/view/page/auth/forgot/forgot_pwd.dart';
 import 'package:sophia_hub/view/widget/animated_loading_icon.dart';
 import 'package:sophia_hub/view/widget/sophia_hub_close_button.dart';
 import 'package:sophia_hub/view_model/account_view_model.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class LoginView extends StatefulWidget {
   static const String routeName = "/LoginView";
@@ -37,7 +39,7 @@ class _LoginViewState extends State<LoginView> {
     this.email = context.read<AccountViewModel>().account.loginEmail ?? '';
     this.pwd = context.read<AccountViewModel>().account.loginPwd ?? '';
     if(kDebugMode){
-      this.email = "c@gmail.com";
+      this.email = "qierbao77@roidirt.com";
       this.pwd = "12345678";
     }
   }
@@ -63,7 +65,8 @@ class _LoginViewState extends State<LoginView> {
             Theme.of(context).colorScheme.secondary,
             Theme.of(context).colorScheme.primary,
           ],
-        )),
+        )
+        ),
         alignment: Alignment.center,
         padding: EdgeInsets.symmetric(horizontal: 16),
         child: Stack(
@@ -178,7 +181,20 @@ class _LoginViewState extends State<LoginView> {
                       );
                     },
                   ),
-                  Spacer()
+                  TextButton(
+                    onPressed: ()async{
+                      if (!await launch(SophiaSpaceLink.privacyAndPolicy)){
+                        showErrMessage(context, Exception("Không mở được đường dẫn"));
+                      };
+                    },
+                    child: Text("Điều khoản dịch vụ và chính sách bảo mật",
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context)
+                          .textTheme
+                          .bodyText1
+                          ?.copyWith(color: Colors.white,fontSize: 8),),
+                  ),
+                  SizedBox(height: 12,)
                 ],
               ),
             ),

@@ -5,7 +5,7 @@ class RegisterHelper {
 
   Widget buildText(String text,int step, TextStyle textStyle){
     return AnimatedDefaultTextStyle(
-      duration: Duration(milliseconds: 1000),
+      duration: Duration(milliseconds: 300),
       style: (){
         if(subStep > step)
           return textStyle.copyWith(color: Colors.white.withOpacity(0.5));

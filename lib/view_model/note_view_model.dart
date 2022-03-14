@@ -138,11 +138,13 @@ class NotesViewModel extends BaseViewModel implements ReassembleHandler {
     if (index == -1) {
       print("Không tồn tại");
     }
-    this._notes.removeAt(index);
+
     listKey?.currentState?.removeItem(index,
         (BuildContext context, Animation<double> animation) {
       return removedItemBuilder!(_notes[index], context, animation);
     }, duration: duration ?? Duration(seconds: 1));
+
+    this._notes.removeAt(index);
     return index;
   }
 

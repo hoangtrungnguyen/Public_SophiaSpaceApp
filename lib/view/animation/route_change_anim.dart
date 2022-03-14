@@ -1,9 +1,18 @@
 import 'package:flutter/material.dart';
 
 class RouteAnimation {
-  static PageRouteBuilder buildDefaultRouteTransition(Widget page,RouteSettings? settings) {
+  static PageRoute noneAnimation(Widget page, RouteSettings? settings) {
     return PageRouteBuilder(
+      transitionDuration: Duration(milliseconds: 50),
+      settings: settings,
+      pageBuilder: (context, animation, secondaryAnimation) => page,
+      maintainState: true,
+    );
+  }
 
+  static PageRouteBuilder buildDefaultRouteTransition(
+      Widget page, RouteSettings? settings) {
+    return PageRouteBuilder(
       transitionDuration: Duration(milliseconds: 800),
       settings: settings,
       pageBuilder: (context, animation, secondaryAnimation) => page,
@@ -28,26 +37,29 @@ class RouteAnimation {
     );
   }
 
-  static PageRouteBuilder getCreateNoteRouteTransition(Widget page,RouteSettings settings) {
+  static PageRouteBuilder getCreateNoteRouteTransition(
+      Widget page, RouteSettings settings) {
     return PageRouteBuilder(
       transitionDuration: Duration(milliseconds: 400),
       settings: settings,
       pageBuilder: (context, animation, secondaryAnimation) => page,
       transitionsBuilder: (context, animation, secondaryAnimation, child) {
-        Size screenSize = MediaQuery.of(context,).size;
+        Size screenSize = MediaQuery.of(
+          context,
+        ).size;
         // print("${screenSize.width}:${screenSize.height}");
-        var tween = Tween<Offset>(begin: Offset(1.5,0), end: Offset.zero);
+        var tween = Tween<Offset>(begin: Offset(1.5, 0), end: Offset.zero);
 
         var curvedAnimation = CurvedAnimation(
           parent: animation,
           curve: Curves.linear,
         );
 
-        return SlideTransition(position: tween.animate(curvedAnimation),
+        return SlideTransition(
+          position: tween.animate(curvedAnimation),
           child: child,
         );
       },
     );
   }
-
 }

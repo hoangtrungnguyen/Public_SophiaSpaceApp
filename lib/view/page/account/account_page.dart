@@ -4,6 +4,7 @@ import 'package:another_flushbar/flushbar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:sophia_hub/constant/colors.dart';
 import 'package:sophia_hub/constant/theme.dart';
 import 'package:sophia_hub/helper/show_flush_bar.dart';
 import 'package:sophia_hub/helper/text_field_helper.dart';
@@ -13,6 +14,8 @@ import 'package:sophia_hub/view/widget/animated_loading_icon.dart';
 import 'package:sophia_hub/view_model/account_view_model.dart';
 import 'package:sophia_hub/view_model/share_pref.dart';
 import 'package:url_launcher/url_launcher.dart';
+
+import 'code_pin_widget.dart';
 
 class AccountPage extends StatefulWidget {
   static const String nameRoute = "/AccountPage";
@@ -39,15 +42,10 @@ class _AccountPageState extends State<AccountPage> {
         floatingActionButton: name.isNotEmpty ? FloatingActionButton(
             onPressed: () async {
               if (name.isNotEmpty) {
-                await auth.updateName(name);
-                Flushbar(
-                  backgroundColor: Colors.green,
-                  message: "Lưu thành công",
-                  flushbarPosition: FlushbarPosition.TOP,
-                  borderRadius: BorderRadius.circular(16),
-                  margin: EdgeInsets.all(8),
-                  duration: Duration(seconds: 2),
-                )..show(context);
+                bool isOk = await auth.updateName(name);
+                if(isOk){
+                  showSuccessMessage(context, "Lưu thông tin thành công");
+                }
               }
             },
             child: Selector<AccountViewModel, ConnectionState>(
@@ -61,11 +59,10 @@ class _AccountPageState extends State<AccountPage> {
                     );
                   }
                 })) : null,
-        body: Container(
-          margin: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-          height: size.height,
-          child: SafeArea(
-            child: SingleChildScrollView(
+        body: SafeArea(
+          child: SingleChildScrollView(
+            child: Container(
+              padding: EdgeInsets.symmetric(vertical: 16, horizontal: 16),
               child: Column(
                 children: [
                   Row(
@@ -99,7 +96,8 @@ class _AccountPageState extends State<AccountPage> {
                   Material(
                       elevation: 4,
                       shape: continuousRectangleBorder,
-                      child: Padding(
+
+                      child: Container(
                         padding:
                             EdgeInsets.symmetric(vertical: 16, horizontal: 16),
                         child: Column(
@@ -139,7 +137,9 @@ class _AccountPageState extends State<AccountPage> {
                                       onPressed: ()async{
                                         try {
                                           if (!await launch(
-                                              "https://play.google.com/store/apps/details?id=com.google.android.gm")) throw 'Could not launch Gmail';
+                                              "https://play.google.com/store/apps/details?id=com.google.android.gm")) {
+                                            showErrMessage(context, Exception("Không mở được đường dẫn"));
+                                          };
                                         } catch (e){
                                           showErrMessage(context, Exception("Lỗi đã xảy ra, xin thử lại sau"));
                                         }
@@ -151,6 +151,14 @@ class _AccountPageState extends State<AccountPage> {
                           ],
                         ),
                       )),
+                  SizedBox(
+                    height: 32,
+                  ),
+              Material(
+                elevation: 4,
+                shape: continuousRectangleBorder,
+                child: CodePinWidget(),
+              ),
                   ColorThemePicker(),
                   Card(
                     child: ListTile(
@@ -160,7 +168,11 @@ class _AccountPageState extends State<AccountPage> {
                         await Future.delayed(Duration(milliseconds: 500));
                         bool isOk =
                             (await Provider.of<AccountViewModel>(context, listen: false).logOut());
+
+
                         if (isOk) {
+                          //also set sharedPrefs to empty
+                          context.read<SharedPref>().updateIsLockActive(value: false);
                           Navigator.of(context)
                               .pushNamedAndRemoveUntil(AuthPage.nameRoute
                           ,(_) => false);
@@ -232,7 +244,7 @@ class _ColorThemePickerState extends State<ColorThemePicker> {
       child: PageView.builder(
         controller: _controller,
         scrollDirection: Axis.horizontal,
-        itemCount: Colors.primaries.length,
+        itemCount: themeColors.length,
         itemBuilder: _colorBuilder,
       ),
     );
@@ -252,7 +264,7 @@ class _ColorThemePickerState extends State<ColorThemePicker> {
   double curPage = 0;
 
   Widget _colorBuilder(BuildContext context, int index) {
-    MaterialColor color = Colors.primaries[index];
+    MaterialColor color = themeColors[index];
     // bool isPicked = color == pickedColor;
     double scale = math.max(
         viewPortFraction, (1 - (curPage - index).abs()) + viewPortFraction);

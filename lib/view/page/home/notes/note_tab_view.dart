@@ -8,6 +8,8 @@ import 'package:sophia_hub/view/widget/spinning_ring.dart';
 import 'package:sophia_hub/view_model/note_view_model.dart';
 import 'package:sophia_hub/view_model/note_single_view_model.dart';
 
+import 'point_to_adding_button_widget.dart';
+
 class NoteTabView extends StatefulWidget {
   const NoteTabView({Key? key}) : super(key: key);
 
@@ -84,10 +86,30 @@ class _NoteTabViewState extends State<NoteTabView> {
                         value.appConnectionState != ConnectionState.waiting
                     ? Center(
                         child: Text(
-                            "Hãy thêm ghi chú \nvề ngày của bạn tại đây",
-                            style: Theme.of(context).textTheme.headline5,
+                            "Ghi chú của bạn sẽ\n xuất hiện tại đây",
+                            style: Theme.of(context).textTheme.headline6,
                             textAlign: TextAlign.center))
                     : SizedBox();
+              },
+            ),
+          ),
+          Align(
+            alignment: Alignment(0,0.7),
+            child: Consumer<NotesViewModel>(
+              builder: (context, value, child) {
+                if (value.notes.length == 0 &&
+                    value.appConnectionState != ConnectionState.waiting) {
+                  return Column(
+                    mainAxisSize: MainAxisSize.min,
+                      children: [
+                    Text("Ấn để thêm",style: TextStyle(
+                      fontSize: 12,
+                      color: Theme.of(context).colorScheme.primary.withOpacity(0.5)
+                    ),),
+                    PointToAddingNotesWidget()]);
+                } else {
+                  return SizedBox();
+                }
               },
             ),
           ),

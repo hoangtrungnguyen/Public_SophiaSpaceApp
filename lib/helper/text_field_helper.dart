@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:sophia_hub/constant/theme.dart';
+import 'dart:math' as math;
 
 class TextFieldHelper {
   static Widget buildCounter(_,
@@ -11,13 +12,13 @@ class TextFieldHelper {
     return LayoutBuilder(
       builder: (BuildContext context,
           BoxConstraints constraints) {
-        double height = constraints.maxHeight;
+        double height = constraints.heightConstraints().maxHeight;
         double width = constraints.maxWidth;
         // print(height);
         // print(width);
         return Transform(
             transform: Matrix4.translationValues(
-                width / 20,  -width/4, 0),
+                width / 20,  - (width/4).toDouble(), 0),
             child: Material(
                 elevation: 4,
                 type: MaterialType.card,

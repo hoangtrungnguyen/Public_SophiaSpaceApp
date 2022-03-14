@@ -45,6 +45,7 @@ class _ListActivitiesState extends State<EditingActivityList> {
               onPressed: () async {
                 List<Activity>? activities = await showDialog<List<Activity>?>(
                     context: context,
+
                     builder: (ctx) => _buildActivitiesDialog(ctx, viewModel));
                 // print("updated activity:\n${activities}");
                 if (activities != null) {
@@ -100,15 +101,17 @@ class _ListActivitiesState extends State<EditingActivityList> {
   Widget _buildActivitiesDialog(
       BuildContext context, EditingSingleNoteViewModel manager) {
     // print("build dialog ${List.of(note.activities)}");
+    Size size = MediaQuery.of(context).size;
     return Provider<List<Activity>>(
       create: (context) => List.of((manager.note as Note).activities),
       builder: (context, child) => SimpleDialog(
+
         title: Text(
           "Chọn hoạt động",
           textAlign: TextAlign.center,
         ),
         children: [
-          Container(height: 300, width: 200, child: ActivityGrid()),
+          Container(height: size.height/5*2, width: size.width/5*4.5, child: ActivityGrid()),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [

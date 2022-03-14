@@ -61,7 +61,17 @@ class _ActivityGridState extends State<ActivityGrid> {
                   }
                 });
               },
-              child: Icon(activity.icon),
+              child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(activity.icon),
+                    Text(
+                      '${activity.name}',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 10),
+                    )
+                  ]),
             ),
           );
         });

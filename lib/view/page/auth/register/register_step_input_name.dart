@@ -49,7 +49,7 @@ class _RegisterStepInputNameState extends State<RegisterStepInputName> with Regi
                   buildText("Ghi danh vào phi hành đoàn:", 2, textStyle),
                   AnimatedOpacity(
                     duration: Duration(seconds: 1),
-                    opacity: subStep == 3? 1.0: 0.0,
+                    opacity: subStep >= 3? 1.0: 0.0,
                     child: Form(
                       key: _formKey,
                       child: TextFormField(
@@ -89,7 +89,7 @@ class _RegisterStepInputNameState extends State<RegisterStepInputName> with Regi
 
                           if (!(_formKey.currentState?.validate() ?? false))
                             return;
-
+                          FocusManager.instance.primaryFocus?.unfocus();
                           Provider.of<RegisterViewModel>(context, listen: false).moveToNextStep();
                         },
                         child: Text("Tiếp tục",

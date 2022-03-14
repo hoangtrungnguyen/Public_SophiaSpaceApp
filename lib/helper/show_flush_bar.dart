@@ -3,14 +3,16 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:sophia_hub/helper/debug_print.dart';
+import 'package:sophia_hub/model/exception/pin_exception.dart';
 
 extension ShowMessage on Flushbar {}
 
 void showErrMessage(BuildContext context, Exception exception) async {
   String errMessage = 'Lỗi đã xảy ra, xin vui lòng thử lại sau';
-
-  if (exception is FirebaseAuthException) {
-    if(kDebugMode){
+  if (exception is PinException) {
+    errMessage = "Mã pin không đúng, xin vui lòng thử lại";
+  } else if (exception is FirebaseAuthException) {
+    if (kDebugMode) {
       print(exception.code);
     }
 
@@ -35,16 +37,15 @@ void showErrMessage(BuildContext context, Exception exception) async {
         break;
       case "email-already-in-use":
         errMessage = "Email đã được sử dụng bởi một tài khoản khác";
-            break;
+        break;
     }
-  } else if( exception is FirebaseException){
-    switch(exception.code){
+  } else if (exception is FirebaseException) {
+    switch (exception.code) {
       case "unauthorized":
         errMessage = "Không thể truy cập";
         break;
     }
-  }
-  else {
+  } else {
     printDebug(exception);
   }
 
@@ -58,8 +59,7 @@ void showErrMessage(BuildContext context, Exception exception) async {
   ).show(context);
 }
 
-
-void showLoadingMessage(BuildContext context){
+void showLoadingMessage(BuildContext context) {
   Flushbar(
     message: "Loading...",
     flushbarPosition: FlushbarPosition.BOTTOM,
@@ -68,6 +68,7 @@ void showLoadingMessage(BuildContext context){
     duration: Duration(seconds: 4),
   ).show(context);
 }
+
 void showSuccessMessage(BuildContext context, String? message) async {
   Flushbar(
     message: message ?? "Thành công",

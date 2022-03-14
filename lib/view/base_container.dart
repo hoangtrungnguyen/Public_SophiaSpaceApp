@@ -6,10 +6,14 @@ import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:sophia_hub/constant/sophia_hub_app.dart';
+import 'package:sophia_hub/helper/show_flush_bar.dart';
 import 'package:sophia_hub/view/page/home/home_container.dart';
+import 'package:sophia_hub/view/page/lock/lock_page.dart';
+import 'package:sophia_hub/view_model/share_pref.dart';
 import 'package:sophia_hub/view_model/ui_logic.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import 'animation/route_change_anim.dart';
 import 'widget/drawer_menu.dart';
 import 'widget/spinning_ring.dart';
 
@@ -29,25 +33,57 @@ class BaseContainer extends StatefulWidget {
 }
 
 class _BaseContainerState extends State<BaseContainer>
-    with SingleTickerProviderStateMixin {
+    with SingleTickerProviderStateMixin, WidgetsBindingObserver {
   late AnimationController animController;
+
+
+  late AppLifecycleState _notification;
+
 
   @override
   void initState() {
     super.initState();
     animController =
         AnimationController(duration: Duration(milliseconds: 300), vsync: this);
+
+    WidgetsBinding.instance!.addObserver(this);
+    Future.microtask(() {
+      if(context.read<SharedPref>().isLockActivate) {
+        if(!(ModalRoute.of(context, )!.settings.name == LockPage.nameRoute)){
+          Navigator
+              .push(context, RouteAnimation.noneAnimation(
+              LockPage(), RouteSettings(
+              name: LockPage.nameRoute
+          )));
+        }
+      }
+    }) ;
+
   }
 
   @override
   void dispose() {
     super.dispose();
     animController.dispose();
+    WidgetsBinding.instance!.removeObserver(this);
   }
 
+
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+      _notification = state;
+      if(state == AppLifecycleState.resumed){
+        if(context.read<SharedPref>().isLockActivate) {
+          if(!(ModalRoute.of(context, )!.settings.name == LockPage.nameRoute)){
+            Navigator
+                .push(context, RouteAnimation.noneAnimation(
+                LockPage(), RouteSettings(
+                name: LockPage.nameRoute
+            )));
+          }
+        }
+      }
+      print("App State $state");
   }
 
   bool canBeDragged = false;
@@ -196,7 +232,9 @@ class _BaseContainerState extends State<BaseContainer>
                   message: "web: small-habits.com",
                   child: TextButton(
                       onPressed: ()async{
-                        if (!await launch(smallHabitsWebUrl)) throw 'Could not launch $smallHabitsWebUrl';
+                        if (!await launch(smallHabitsWebUrl)) {
+                          showErrMessage(context, Exception("Không mở được đường dẫn"));
+                        };
                       }, child: Icon(FontAwesomeIcons.chrome)),
                 ),
               ),

@@ -3,6 +3,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:sophia_hub/constant/sophia_hub_app.dart';
+import 'package:sophia_hub/helper/show_flush_bar.dart';
 import 'package:sophia_hub/view/page/account/account_page.dart';
 import 'package:sophia_hub/view_model/share_pref.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -85,19 +86,23 @@ class _DrawerMenuState extends State<DrawerMenu>
                   Card(
                       child: ListTile(
                         onTap: ()async{
-                          if (!await launch(googleFormFeedback)) throw 'Could not launch $googleFormFeedback';
+                          if (!await launch(SophiaSpaceLink.feedBackForm)) {
+                            showErrMessage(context, Exception("Không mở được đường dẫn"));
+                          };
                         },
-                          leading: Icon(Icons.message_rounded), title: Text("Liên hệ"))),
+                          leading: Icon(Icons.message_rounded), title: Text("Báo lỗi"))),
                   Card(
                       child: ListTile(
                         onTap: ()async{
-                          Share.share('Ứng dụng "Nhật ký thói quen" $sophiaHubPlayStoreLink');
+                          Share.share('Ứng dụng "Nhật ký thói quen: Sophia Space" ${SophiaSpaceLink.playStore}');
                         },
                           leading: Icon(Icons.share), title: Text("Chia sẻ"))),
                   Card(
                       child: ListTile(
                         onTap: ()async{
-                          if (!await launch(sophiaHubPlayStoreLink)) throw 'Could not launch $sophiaHubPlayStoreLink';
+                          if (!await launch(SophiaSpaceLink.playStore)) {
+                            showErrMessage(context, Exception("Không mở được đường dẫn"));
+                          };
                         },
                           leading: Icon(Icons.star_rate_rounded), title: Text("Đánh giá ứng dụng"))),
                   Spacer(flex: 9,),

@@ -42,10 +42,10 @@ class _RegisterStepIntroAppFeatureState extends State<RegisterStepIntroAppFeatur
                       buildText("Hành trình vạn dặm bắt đầu bằng những bước nhỏ nhất", 1, textStyle),
                       AnimatedOpacity(
                         duration: Duration(seconds: 1),
-                        opacity: subStep == 3 ? 1: subStep < 3 ? 0: 0.5,
+                        opacity: subStep == 2 ? 1: subStep < 3 ? 0: 0.5,
                         child: Column(
                           children: [
-                            Text("Trang bị mà bạn được hỗ trợ:",style: textStyle,),
+                            Text("Trang bị bạn được hỗ trợ:",style: textStyle,),
                             Column(
                               children: [
                                 ListTile(
@@ -68,7 +68,7 @@ class _RegisterStepIntroAppFeatureState extends State<RegisterStepIntroAppFeatur
 
                       AnimatedOpacity(
                         duration: Duration(seconds: 1),
-                        opacity: subStep == 4 ? 1: subStep < 4 ? 0: 0.5,
+                        opacity: subStep == 3 ? 1: subStep < 4 ? 0: 0.5,
                         child: Column(
                           children: [
                             // Center(
@@ -102,7 +102,7 @@ class _RegisterStepIntroAppFeatureState extends State<RegisterStepIntroAppFeatur
                       ),
                       AnimatedContainer(
                         duration: Duration(seconds: 1),
-                        height: subStep == 4 ? 0:100,
+                        height: subStep == 3 ? 0:100,
                         alignment: Alignment.center,
                         child: TextButton(
                           onPressed: () {

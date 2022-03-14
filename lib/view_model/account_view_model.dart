@@ -21,6 +21,9 @@ class AccountViewModel extends BaseViewModel  {
 
   Future<bool> register(String email,String pwd,String displayName) async => setAppState(() async {
         Result<User> result = await _repository.register(email, pwd,displayName);
+        if(result.isHasData){
+          account.clear();
+        }
         return result;
       });
 
@@ -49,7 +52,7 @@ class AccountViewModel extends BaseViewModel  {
         return await _repository.updateAvatar(path, uid);
       });
 
-  Future updateName(String name) async => setAppState(
+  Future<bool> updateName(String name) async => setAppState(
           () async => await _repository.updateName(name));
 
   Future<bool> resetPwd(String email) async => setAppState(() async {

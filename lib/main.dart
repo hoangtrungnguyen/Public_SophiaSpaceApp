@@ -21,6 +21,7 @@ import 'package:sophia_hub/view_model/share_pref.dart';
 import 'package:sophia_hub/view_model/ui_logic.dart';
 
 import 'configure/app_config.dart';
+import 'view/page/lock/lock_page.dart';
 
 /// Requires that a Firestore emulator is running locally.
 /// See https://firebase.flutter.dev/docs/firestore/usage#emulator-usage
@@ -57,7 +58,7 @@ class SophiaHubApp extends StatelessWidget {
     Widget app = Consumer2<SharedPref, AccountViewModel>(
       builder: (context, sharePrefs, auth, child) {
         return MaterialApp(
-          title: 'Sophia Diary',
+          title: 'Sophia Space',
           navigatorObservers: [],
           initialRoute: FirebaseAuth.instance.currentUser == null
               ? AuthPage.nameRoute
@@ -99,6 +100,9 @@ class SophiaHubApp extends StatelessWidget {
                 break;
               case AccountPage.nameRoute:
                 widget = AccountPage();
+                break;
+              case LockPage.nameRoute:
+                widget = LockPage();
                 break;
               default:
                 // The assertion here will help remind
@@ -144,6 +148,12 @@ class SophiaHubApp extends StatelessWidget {
 
     // Providers cần thiết.
     MultiProvider multiProvider = MultiProvider(providers: [
+
+
+      ChangeNotifierProvider<SharedPref>(
+          create: (BuildContext context) => this.sharedPref!),
+
+
       StreamProvider<firebase_auth.User?>(
         create: (_) => FirebaseAuth.instance.authStateChanges(),
         initialData: FirebaseAuth.instance.currentUser,
@@ -170,8 +180,6 @@ class SophiaHubApp extends StatelessWidget {
         },
       ),
 
-      ChangeNotifierProvider<SharedPref>(
-          create: (BuildContext context) => this.sharedPref!),
 
       ChangeNotifierProvider<UILogic>(
           create: (BuildContext context) => UILogic())
@@ -180,3 +188,6 @@ class SophiaHubApp extends StatelessWidget {
     return multiProvider;
   }
 }
+
+// class SophiaSpaceApp ex
+

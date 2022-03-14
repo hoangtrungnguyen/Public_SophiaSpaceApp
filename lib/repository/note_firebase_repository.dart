@@ -50,7 +50,9 @@ class NoteFirebaseRepository extends NoteRepository<GenericNote> {
         ));
       }
 
-      DocumentReference currentDoc = this.notesRef.doc();
+      DocumentReference currentDoc = this.notesRef.doc(
+        note.timeCreated.millisecondsSinceEpoch.toString()
+      );
 
       //Nếu là note bình thường
       if (note is Note) {
@@ -94,6 +96,8 @@ class NoteFirebaseRepository extends NoteRepository<GenericNote> {
   @override
   Future<Result<GenericNote>> getById(String id) async {
     try {
+      final ref = notesRef.doc(id);
+
       final doc = await notesRef.doc(id).get();
 
       if(!doc.exists){

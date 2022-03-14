@@ -34,6 +34,8 @@ apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
 android {
     compileSdkVersion 32
 
+    ndkVersion "23.1.7779620"
+
     sourceSets {
         main.java.srcDirs += 'src/main/kotlin'
     }
@@ -50,6 +52,10 @@ android {
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
         multiDexEnabled true
+
+        ndk {
+            debugSymbolLevel 'FULL'
+        }
     }
 
     signingConfigs {
