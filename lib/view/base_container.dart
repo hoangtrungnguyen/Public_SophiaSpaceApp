@@ -72,7 +72,7 @@ class _BaseContainerState extends State<BaseContainer>
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
       _notification = state;
-      if(state == AppLifecycleState.resumed){
+      if(state == AppLifecycleState.resumed ){
         if(context.read<SharedPref>().isLockActivate) {
           if(!(ModalRoute.of(context, )!.settings.name == LockPage.nameRoute)){
             Navigator
@@ -83,7 +83,6 @@ class _BaseContainerState extends State<BaseContainer>
           }
         }
       }
-      print("App State $state");
   }
 
   bool canBeDragged = false;

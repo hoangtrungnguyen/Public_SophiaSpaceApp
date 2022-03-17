@@ -1,13 +1,10 @@
-import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:local_auth/local_auth.dart';
+import 'package:pinput/pinput.dart';
 import 'package:provider/src/provider.dart';
 import 'package:sophia_hub/helper/show_flush_bar.dart';
-import 'package:sophia_hub/helper/text_field_helper.dart';
 import 'package:sophia_hub/view_model/share_pref.dart';
-import 'package:flutter/services.dart';
-import 'package:local_auth/error_codes.dart' as auth_error;
 
 class CodePinWidget extends StatefulWidget {
   const CodePinWidget({Key? key}) : super(key: key);
@@ -28,15 +25,14 @@ class _CodePinWidgetState extends State<CodePinWidget> {
       setState(() {
         this.isBiometricSupported = types.isNotEmpty;
       });
-
     });
   }
 
   @override
   Widget build(BuildContext context) {
     return SwitchListTile(
-        activeTrackColor: Theme.of(context).colorScheme.secondary,
-      activeColor:Theme.of(context).colorScheme.primary,
+      activeTrackColor: Theme.of(context).colorScheme.secondary,
+      activeColor: Theme.of(context).colorScheme.primary,
       title: Text("Khóa ${isBiometricSupported ? "sinh trắc" : ""} bảo vệ"),
       subtitle: Text(
           "${context.watch<SharedPref>().isLockActivate ? 'Hoạt động' : 'Không hoạt động'}\n"),
@@ -102,13 +98,24 @@ class _PinCodeDialogState extends State<PinCodeDialog> {
         SizedBox(
           height: 16,
         ),
-        TextField(
-          maxLength: 4,
-          keyboardType: TextInputType.number,
-          buildCounter: TextFieldHelper.buildCounter,
-          onChanged: (pincode) {
+        // TextField(
+        //   maxLength: 4,
+        //   keyboardType: TextInputType.number,
+        //   buildCounter: TextFieldHelper.buildCounter,
+        //   onChanged: (pincode) {
+        //     setState(() {
+        //       _pincode = pincode;
+        //     });
+        //   },
+        // ),
+        Pinput(
+          length: 4,
+          pinputAutovalidateMode: PinputAutovalidateMode.onSubmit,
+          showCursor: true,
+          onCompleted: (pincode) {
+            _pincode = pincode;
             setState(() {
-              _pincode = pincode;
+
             });
           },
         ),
@@ -116,16 +123,18 @@ class _PinCodeDialogState extends State<PinCodeDialog> {
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
             TextButton(
-                child: Icon(Icons.done_outline),
-                onPressed: _pincode.length == 4 ? () {
-                  try {
-                    context.read<SharedPref>().setPinCode(_pincode);
-                    Navigator.of(context).pop(true);
-                  } catch(e){
-                    showErrMessage(context, Exception());
-                  }
-
-                } : null,),
+              child: Icon(Icons.done_outline),
+              onPressed: _pincode.length == 4
+                  ? () {
+                      try {
+                        context.read<SharedPref>().setPinCode(_pincode);
+                        Navigator.of(context).pop(true);
+                      } catch (e) {
+                        showErrMessage(context, Exception());
+                      }
+                    }
+                  : null,
+            ),
             TextButton(
               child: Icon(Icons.cancel),
               onPressed: () => Navigator.of(context).pop(false),

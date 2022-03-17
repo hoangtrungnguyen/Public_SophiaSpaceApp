@@ -8,6 +8,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:sophia_hub/constant/theme.dart';
 import 'package:sophia_hub/firebase_options.dart';
+import 'package:sophia_hub/helper/route_observer.dart';
 import 'package:sophia_hub/view/animation/route_change_anim.dart';
 import 'package:sophia_hub/view/base_container.dart';
 import 'package:sophia_hub/view/page/account/account_page.dart';
@@ -59,7 +60,7 @@ class SophiaHubApp extends StatelessWidget {
       builder: (context, sharePrefs, auth, child) {
         return MaterialApp(
           title: 'Sophia Space',
-          navigatorObservers: [],
+          navigatorObservers: [AppMiddleware()],
           initialRoute: FirebaseAuth.instance.currentUser == null
               ? AuthPage.nameRoute
               : BaseContainer.nameRoute,

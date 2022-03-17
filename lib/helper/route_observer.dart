@@ -1,5 +1,8 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'dart:developer';
+
+import 'package:sophia_hub/view/base_container.dart';
 
 //https://medium.com/flutter-community/flutter-navigator-middleware-part-2-middleware-service-class-c9035f4fff68
 class AppMiddleware<R extends Route<dynamic>> extends RouteObserver<R> {
@@ -10,13 +13,18 @@ class AppMiddleware<R extends Route<dynamic>> extends RouteObserver<R> {
   //create clone list from stack
   List<R> get stack => List<R>.from(_stack);
 
-  AppMiddleware({this.enableLogger = true}) : _stack = [];
+  AppMiddleware({this.enableLogger = kDebugMode}) : _stack = [];
 
   @override
   void didPush(Route route, Route? previousRoute) {
     _logget('{didPush} \n route: $route \n previousRoute: $previousRoute');
     _stack.remove(route);
     _logStack();
+
+
+    // if(previousRoute?.settings.name == BaseContainer.nameRoute) {
+    //   if(previousRoute?.settings)
+    // };
     super.didPush(route, previousRoute);
   }
 

@@ -14,6 +14,9 @@ class SharedPref extends BaseViewModel {
 
   bool get isLockActivate => _isLockActivate;
 
+
+  SharedPref();
+
   Future<bool> updateIsLockActive({bool? value}) async {
     try {
       if (value == null) {

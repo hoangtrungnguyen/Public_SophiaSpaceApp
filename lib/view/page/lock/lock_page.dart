@@ -1,10 +1,12 @@
 import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:local_auth/error_codes.dart' as auth_error;
 import 'package:local_auth/local_auth.dart';
+import 'package:pinput/pinput.dart';
 import 'package:provider/src/provider.dart';
 import 'package:sophia_hub/helper/show_flush_bar.dart';
 import 'package:sophia_hub/helper/text_field_helper.dart';
@@ -31,6 +33,8 @@ class _LockPageState extends State<LockPage> {
     _authBiometric();
   }
 
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -40,16 +44,18 @@ class _LockPageState extends State<LockPage> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            isBiometricSupported ? SizedBox():TextField(
-              maxLength: 4,
-              keyboardType: TextInputType.number,
-              buildCounter: TextFieldHelper.buildCounter,
-              onChanged: (pincode) {
+            isBiometricSupported ? SizedBox():
+            Pinput(
+              length: 4,
+              pinputAutovalidateMode: PinputAutovalidateMode.onSubmit,
+              showCursor: true,
+              onCompleted: (pin) {
                 setState(() {
-                  _pinCode = pincode;
+                  _pinCode = pin;
                 });
               },
-            ),
+            )
+            ,
             ElevatedButton(
               onPressed: () async {
                 if (this.isBiometricSupported)
@@ -68,10 +74,6 @@ class _LockPageState extends State<LockPage> {
   _authBiometric() async {
     final types = await auth.getAvailableBiometrics();
     this.isBiometricSupported = types.isNotEmpty;
-    setState(() {
-
-    });
-    // this.isBiometricSupported = false;
 
     if (this.isBiometricSupported) {
       try {
@@ -81,12 +83,29 @@ class _LockPageState extends State<LockPage> {
         if (didAuthenticate) {
           Navigator.popUntil(
               context, (route) => route.settings.name != LockPage.nameRoute);
-        } else {}
-      } on PlatformException catch (e) {
-        showErrMessage(context, e);
-        if (e.code == auth_error.notAvailable) {
-          // Handle this exception here.
+        } else {
+
         }
+      } on PlatformException catch (e) {
+        if(kDebugMode){
+          print(e);
+        }
+
+        if (e.code == auth_error.notAvailable) {
+          showErrMessage(context, e, message: "Không có chức năng này");
+        } else if (e.code == auth_error.lockedOut){
+          showErrMessage(context, e, message: "Bị khóa");
+        } else if (e.code ==  auth_error.notEnrolled){
+          showErrMessage(context, e, message: "Chưa có khóa vân tay");
+        } else if (e.code == auth_error.passcodeNotSet) {
+          showErrMessage(context, e, message: "Chưa đặt mã pin");
+        } else if(e.code == auth_error.notEnrolled){
+          showErrMessage(context, e, message: "Chưa có mã vân tay");
+        } else {
+          showErrMessage(context, e);
+        }
+      } on Exception catch (e){
+        showErrMessage(context, e, message: "Lỗi không xác định, vui long thử lại sau");
       }
     } else {
       //Sử dụng pincode
@@ -94,9 +113,10 @@ class _LockPageState extends State<LockPage> {
     }
   }
 
-  _authByPinCode() async {
+   _authByPinCode() async {
     final isOk = await context.read<SharedPref>().authPinCode(_pinCode);
     if (isOk) {
+
       Navigator.popUntil(
           context, (route) => route.settings.name != LockPage.nameRoute);
     } else {
