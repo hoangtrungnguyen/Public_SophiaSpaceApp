@@ -1,9 +1,11 @@
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:sophia_hub/model/result_container.dart';
 
 import 'base_repository.dart';
@@ -101,6 +103,34 @@ class AuthRepository with BaseRepository {
       await  auth.sendPasswordResetEmail(email: email);
       return Result(data: "ok");
     } on Exception catch (e) {
+      return Result(err: e);
+    }
+  }
+
+
+  Future<Result<User>> signInWithGoogle(String name)async{
+    try {
+      final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+
+      // Obtain the auth details from the request
+      final GoogleSignInAuthentication? googleAuth = await googleUser
+          ?.authentication;
+
+      // Create a new credential
+      final credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth?.accessToken,
+        idToken: googleAuth?.idToken,
+      );
+
+
+      // Once signed in, return the UserCredential
+      UserCredential cred = await auth.signInWithCredential(credential);
+      await cred.user?.updateDisplayName(name);
+      return Result(data: cred.user);
+    } on Exception catch(e) {
+      if(kDebugMode){
+        debugPrint("Exception $e",);
+      }
       return Result(err: e);
     }
   }

@@ -160,7 +160,6 @@ class NoteFirebaseRepository extends NoteRepository<GenericNote> {
           notes.add(note);
         } else if (doc.get("type") == NoteType.image.name.toLowerCase()) {
           NoteImage noteImage = NoteImage()..id = doc.id;
-          //TODO
         }
       });
 

@@ -59,4 +59,8 @@ class AccountViewModel extends BaseViewModel  {
     return await _repository.resetPwd(email);
   });
 
+  Future<bool> signInWithGoogle(String name) async => setAppState(()async{
+    return await _repository.signInWithGoogle(name);
+  });
+
 }

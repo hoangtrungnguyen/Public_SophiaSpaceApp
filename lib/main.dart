@@ -36,6 +36,7 @@ Future<void> main() async {
         .then((value) {
     });
 
+    // Cấu hình Firebase Giả Lập
     // await AppConfig.forEnvironment();
 
     SharedPref sharePref = SharedPref();
@@ -186,7 +187,7 @@ class SophiaHubApp extends StatelessWidget {
           create: (BuildContext context) => UILogic())
     ], child: app);
 
-    return multiProvider;
+      return multiProvider;
   }
 }
 

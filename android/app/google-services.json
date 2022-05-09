@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "868442533221",
+    "project_id": "small-habits-0812",
+    "storage_bucket": "small-habits-0812.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:868442533221:android:41324f1b66acb933eec58c",
+        "android_client_info": {
+          "package_name": "com.small_habits.sophia_hub"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "868442533221-d6tdj8o3mcvc4moqvmk5624g2leao0ae.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.small_habits.sophia_hub",
+            "certificate_hash": "a77ae3192532764365a180807e477b98b4f03a4b"
+          }
+        },
+        {
+          "client_id": "868442533221-48dm15qfs8p91m3c3g585q1ne5f08j83.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCJ-oamqOpHcPWzTx20Eaz7QDX732JABU0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "868442533221-48dm15qfs8p91m3c3g585q1ne5f08j83.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

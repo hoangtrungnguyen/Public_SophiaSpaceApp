@@ -7,7 +7,7 @@ import 'package:sophia_hub/model/exception/pin_exception.dart';
 
 extension ShowMessage on Flushbar {}
 
-void showErrMessage(BuildContext context, Exception exception, {String? message}) async {
+void showErrMessage(BuildContext context, Exception? exception, {String? message}) async {
   String errMessage = message ?? 'Lỗi đã xảy ra, xin vui lòng thử lại sau';
   if (exception is PinException) {
     errMessage = "Mã pin không đúng, xin vui lòng thử lại";
@@ -46,7 +46,7 @@ void showErrMessage(BuildContext context, Exception exception, {String? message}
         break;
     }
   } else {
-    printDebug(exception);
+    printDebug(exception ?? 'No exception found');
   }
 
   Flushbar(

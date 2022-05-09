@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:provider/src/provider.dart';
 import 'package:sophia_hub/constant/theme.dart';
+import 'package:sophia_hub/helper/show_flush_bar.dart';
+import 'package:sophia_hub/view/animation/route_change_anim.dart';
+import 'package:sophia_hub/view/page/auth/pick_color_page.dart';
 import 'package:sophia_hub/view/page/auth/register/helper.dart';
 import 'package:sophia_hub/view_model/account_view_model.dart';
 import 'package:sophia_hub/view_model/register/register_view_model.dart';
@@ -71,27 +75,42 @@ class _RegisterStepIntroAppFeatureState extends State<RegisterStepIntroAppFeatur
                         opacity: subStep == 3 ? 1: subStep < 4 ? 0: 0.5,
                         child: Column(
                           children: [
-                            // Center(
-                            //   child: ElevatedButton(
-                            //       onPressed: (){},
+                            // Container(
+                            //   child: ElevatedButton.icon(
+                            //       onPressed: ()async{
+                            //         if(await context.read<AccountViewModel>().signInWithGoogle(
+                            //             context.read<AccountViewModel>().account.registerName ?? "No Name")){
+                            //           showSuccessMessage(context, "Đăng nhập thành công");
+                            //
+                            //           await Future.delayed(Duration(milliseconds: 1000));
+                            //           Navigator.of(context, rootNavigator: true)
+                            //               .pushAndRemoveUntil( RouteAnimation.buildDefaultRouteTransition(PickColorPage(), null) , (_)=> false);
+                            //
+                            //         } else {
+                            //           showErrMessage(context, context.read<AccountViewModel>().error);
+                            //         };
+                            //       },
                             //       style: ElevatedButtonTheme.of(context).style?.copyWith(
                             //           backgroundColor: MaterialStateProperty.all<Color?>(
                             //               Colors.white)),
-                            //       child: Text("Bắt đầu với Google",style: Theme.of(context).textTheme.bodyText2?.copyWith(
+                            //       icon: Icon(FontAwesomeIcons.google,color: primary,),
+                            //       label: Text("Bắt đầu với Google",style: Theme.of(context).textTheme.bodyText2?.copyWith(
                             //           color: Theme.of(context)
                             //               .colorScheme
                             //               .primary
                             //       ),)),
                             // ),
+                            SizedBox(height: 10,),
                             Center(
-                              child: ElevatedButton(
+                              child: ElevatedButton.icon(
+                                icon: Icon(Icons.email,color: primary),
                                   onPressed: (){
                                     context.read<RegisterViewModel>().moveToNextStep();
                                   },
                                   style: ElevatedButtonTheme.of(context).style?.copyWith(
                                       backgroundColor: MaterialStateProperty.all<Color?>(
                                           Colors.white)),
-                                  child: Text("Đăng ký với email",style: Theme.of(context).textTheme.bodyText2?.copyWith(
+                                  label: Text("Đăng ký với email",style: Theme.of(context).textTheme.bodyText2?.copyWith(
                                       color: Theme.of(context)
                                           .colorScheme
                                           .primary
@@ -102,7 +121,7 @@ class _RegisterStepIntroAppFeatureState extends State<RegisterStepIntroAppFeatur
                       ),
                       AnimatedContainer(
                         duration: Duration(seconds: 1),
-                        height: subStep == 3 ? 0:100,
+                        height: subStep >= 3 ? 0:100,
                         alignment: Alignment.center,
                         child: TextButton(
                           onPressed: () {

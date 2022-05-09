@@ -41,19 +41,19 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyBhdtTQVnCciR-bCnrChO9BSAqZ48gWKjc',
-    appId: '1:868442533221:web:ba60ae1b0f4273caeec58c',
-    messagingSenderId: '868442533221',
-    projectId: 'small-habits-0812',
-    authDomain: 'small-habits-0812.firebaseapp.com',
+    apiKey: '',
+    appId: '',
+    messagingSenderId: '',
+    projectId: '',
+    authDomain: '',
     storageBucket: 'small-habits-0812.appspot.com',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyCJ-oamqOpHcPWzTx20Eaz7QDX732JABU0',
-    appId: '1:868442533221:android:41324f1b66acb933eec58c',
-    messagingSenderId: '868442533221',
-    projectId: 'small-habits-0812',
-    storageBucket: 'small-habits-0812.appspot.com',
+    apiKey: '',
+    appId: '',
+    messagingSenderId: '',
+    projectId: '',
+    storageBucket: '',
   );
 }

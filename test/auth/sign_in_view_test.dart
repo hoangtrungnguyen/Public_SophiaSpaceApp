@@ -10,7 +10,6 @@
 // import 'package:sophia_hub/view_model/account_view_model.dart';
 // import 'package:sophia_hub/view_model/share_pref.dart';
 //
-// //TODO adding mock firestore
 // main() async {
 //   late MockFirebaseAuth mockFirebaseAuth;
 //   late FakeFirebaseFirestore fakeFirebaseFirestore;

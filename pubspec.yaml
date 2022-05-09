@@ -94,6 +94,8 @@ dependencies:
 
   pinput: ^2.1.4
 
+  google_sign_in: ^5.2.4
+
 
 dev_dependencies:
   integration_test:

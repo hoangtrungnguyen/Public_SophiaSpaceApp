@@ -5,7 +5,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:sophia_hub/repository/auth_repository.dart';
 import 'package:sophia_hub/view_model/account_view_model.dart';
 
-//TODO adding tests
 main() async {
   late MockFirebaseAuth mockFirebaseAuth;
   late FakeFirebaseFirestore fireStore;

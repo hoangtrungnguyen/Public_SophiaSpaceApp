@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 import 'package:sophia_hub/constant/theme.dart';
 import 'package:sophia_hub/view/page/auth/register/register_step_input_name.dart';
 import 'package:sophia_hub/view/page/auth/register/register_step_intro_app_feature.dart';
-import 'package:sophia_hub/view/page/auth/register/step_two.dart';
 import 'package:sophia_hub/view_model/register/register_view_model.dart';
 
 import 'register/register_step_intro.dart';
@@ -68,7 +67,10 @@ class _RegisterViewState extends State<RegisterView>
                       controller:
                           context.read<RegisterViewModel>().tabController,
                       physics: NeverScrollableScrollPhysics(),
-                      children: [RegisterStepIntro(), RegisterStepInputName(), RegisterStepIntroAppFeature(),
+                      children: [
+                        RegisterStepIntro(),
+                        RegisterStepInputName(),
+                        RegisterStepIntroAppFeature(),
                         RegisterStepInputPwd()
                       ],
                     ),
